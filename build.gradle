@@ -4,6 +4,7 @@ buildscript {
         composeVersion = "1.1.1"
         gradleVersion = '7.2.0'
         kotlinVersion = '1.6.10'
+        hiltVersion = '2.42'
     }
     repositories {
         google()
@@ -14,6 +15,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$gradleVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
     }
 }
 

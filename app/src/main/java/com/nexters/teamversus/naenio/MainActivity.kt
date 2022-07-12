@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.kakao.sdk.common.util.Utility
 import com.nexters.teamversus.naenio.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
