@@ -256,4 +256,7 @@ fabric.properties
 
 !/gradle/wrapper/gradle-wrapper.jar
 
+# google credentials json file
+credentials.json
+
 # End of https://www.toptal.com/developers/gitignore/api/java,android,androidstudio,kotlin,windows,macos
