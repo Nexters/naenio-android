@@ -1,5 +1,4 @@
-package com.nexters.teamversus.naenio.ui
-
+package com.nexters.teamversus.naenio.ui.tabs
 
 import android.os.Bundle
 import android.util.Log
@@ -25,17 +24,21 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
+import com.nexters.teamversus.naenio.data.network.ApiProvider
+import com.nexters.teamversus.naenio.data.network.api.NaenioApi
+import com.nexters.teamversus.naenio.data.network.dto.LoginRequest
 import com.nexters.teamversus.naenio.extensions.fragmentComposeView
 import com.nexters.teamversus.naenio.utils.loginWithKakao
 import kotlinx.coroutines.launch
 
-class HomeFragment : Fragment() {
+class LoginFragment : Fragment() {
 
     private val getGoogleLoginResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         result: ActivityResult ->
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         handleGoogleSignInResult(task)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,6 +63,7 @@ class HomeFragment : Fragment() {
             try {
                 val token = loginWithKakao(requireActivity())
                 Log.d("### kakao token", "$token")
+                test(token.accessToken)
             } catch (e: Exception) {
                 if (e is ClientError && e.reason == ClientErrorCause.Cancelled) {
                     Log.d("MainActivity", "사용자가 명시적으로 취소")
@@ -89,6 +93,15 @@ class HomeFragment : Fragment() {
             Log.e("MainActivity", "[HandleGoogleSignInResult] failed code :: " + e.statusCode.toString())
         }
     }
+
+    private fun test(token: String) {
+        lifecycleScope.launch {
+            ApiProvider.retrofit.create(NaenioApi::class.java).login(LoginRequest(token)).also {
+                Log.d("###", it.toString())
+            }
+        }
+    }
+
 }
 
 @Composable
