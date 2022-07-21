@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -113,12 +114,16 @@ fun HomeScreen(
         Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Yellow), onClick = {
             onLoginKakao.invoke()
         }) {
-
+            Text(
+                text = "카카오"
+            )
         }
         Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue), onClick = {
             onLoginGoogle.invoke()
         }) {
-
+            Text(
+                text = "구글"
+            )
         }
 
     }
