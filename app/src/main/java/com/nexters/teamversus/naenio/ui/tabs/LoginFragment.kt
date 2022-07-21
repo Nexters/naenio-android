@@ -47,12 +47,14 @@ class LoginFragment : Fragment() {
     ): View {
         return fragmentComposeView.apply {
             setContent {
-                HomeScreen (
+                LoginScreen (
                     onLoginKakao = {
                         loginKakao()
                     },
                     onLoginGoogle = {
                         loginGoogle()
+                    }, {
+
                     }
                 )
             }
@@ -106,9 +108,10 @@ class LoginFragment : Fragment() {
 }
 
 @Composable
-fun HomeScreen(
+fun LoginScreen(
     onLoginKakao: () -> Unit,
-    onLoginGoogle: () -> Unit
+    onLoginGoogle: () -> Unit,
+    onNext: () -> Unit
 ) {
     Column(modifier = Modifier.background(Color.LightGray)) {
         Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Yellow), onClick = {
@@ -118,24 +121,32 @@ fun HomeScreen(
                 text = "카카오"
             )
         }
-        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue), onClick = {
+        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red), onClick = {
             onLoginGoogle.invoke()
         }) {
             Text(
                 text = "구글"
             )
         }
-
+        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue), onClick = {
+            onNext.invoke()
+        }) {
+            Text(
+                text = "메인 화면으로"
+            )
+        }
     }
 }
 
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen (
+    LoginScreen (
         onLoginKakao = {
         },
         onLoginGoogle = {
+        }, {
+
         }
     )
 }

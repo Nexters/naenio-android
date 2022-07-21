@@ -11,7 +11,7 @@ import com.nexters.teamversus.naenio.R
 sealed class BottomNavItem(
     @StringRes val titleRes: Int,
     val icon: Int,
-    val screenRoute: String
+    val route: String
 ) {
     object Home : BottomNavItem(
         R.string.bottom_item_home,

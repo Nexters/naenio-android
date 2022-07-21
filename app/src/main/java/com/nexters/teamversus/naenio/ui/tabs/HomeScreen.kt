@@ -1,6 +1,7 @@
 package com.nexters.teamversus.naenio.ui.tabs
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
@@ -13,10 +14,13 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.nexters.teamversus.naenio.R
+import com.nexters.teamversus.naenio.graphs.Graph
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -28,6 +32,17 @@ fun HomeScreen() {
             fontWeight = FontWeight.Bold,
             color = Color.White,
             modifier = Modifier.align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center,
+            fontSize = 20.sp
+        )
+
+        Text(
+            text = "Go to LoginScreen",
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
+                navController.navigate(Graph.DETAILS)
+            },
             textAlign = TextAlign.Center,
             fontSize = 20.sp
         )
