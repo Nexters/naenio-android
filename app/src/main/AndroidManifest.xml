@@ -21,6 +21,7 @@
         >
         <activity
             android:name=".MainActivity"
+            android:launchMode="singleTop"
             android:exported="true"
             >
             <intent-filter>
@@ -28,7 +29,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
 
-                <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
                 <data android:host="oauth"
                     android:scheme="kakao${KAKAO_API_KEY}" />
             </intent-filter>
