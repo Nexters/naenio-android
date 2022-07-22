@@ -41,6 +41,17 @@ fun HomeScreen(navController: NavHostController) {
             fontWeight = FontWeight.Bold,
             color = Color.White,
             modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
+                navController.navigate(Graph.AUTHENTICATION)
+            },
+            textAlign = TextAlign.Center,
+            fontSize = 20.sp
+        )
+
+        Text(
+            text = "Go to DetailScreen",
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
                 navController.navigate(Graph.DETAILS)
             },
             textAlign = TextAlign.Center,

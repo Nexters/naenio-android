@@ -16,7 +16,7 @@ import com.nexters.teamversus.naenio.ui.tabs.model.BottomNavItem
 fun MainNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        route = Graph.Main,
+        route = Graph.MAIN,
         startDestination = BottomNavItem.Home.route
     ) {
         composable(BottomNavItem.Home.route) {
@@ -29,6 +29,7 @@ fun MainNavGraph(navController: NavHostController) {
             ProfileScreen()
         }
         detailsNavGraph(navController)
+        authNavGraph(navController)
     }
 }
 

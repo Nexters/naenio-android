@@ -18,7 +18,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                 viewModel = viewModel(),
                 onNext = {
                     navController.popBackStack()
-                    navController.navigate(Graph.Main)
+                    navController.navigate(Graph.MAIN)
                 }
             )
         }
