@@ -16,6 +16,7 @@ import com.nexters.teamversus.naenio.base.BaseViewModel
 import com.nexters.teamversus.naenio.data.network.ApiProvider
 import com.nexters.teamversus.naenio.data.network.api.NaenioApi
 import com.nexters.teamversus.naenio.data.network.dto.LoginRequest
+import com.nexters.teamversus.naenio.utils.datastore.AuthDataStore
 import com.nexters.teamversus.naenio.utils.loginWithKakao
 import kotlinx.coroutines.launch
 
@@ -26,6 +27,12 @@ class LoginViewModel(
     private fun login(token: String) {
         viewModelScope.launch {
             naenioApi.login(LoginRequest(token)).also {
+                val authToken = it.token
+                if (authToken.isNotEmpty()) {
+                    AuthDataStore.authToken = authToken
+                }
+                Log.d(className, AuthDataStore.authToken)
+
                 Log.d(className, it.toString())
             }
         }
