@@ -1,16 +1,26 @@
 package com.nexters.teamversus.naenio.data.network.api
 
-import com.nexters.teamversus.naenio.data.network.dto.LoginRequest
-import com.nexters.teamversus.naenio.data.network.dto.LoginResponse
+import com.nexters.teamversus.naenio.data.network.dto.*
 import kotlinx.serialization.json.JsonElement
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface NaenioApi {
-    @GET("posts/1")
-    suspend fun getData(): JsonElement
 
-    @POST("app/login")
+    @POST("/app/login")
     suspend fun login(@Body loginRequest: LoginRequest): LoginResponse
+
+    @GET("/app/members/exist")
+    suspend fun isExistNickname(
+        @Query("nickname") nickname: String
+    ): IsExistNicknameResponse
+
+    @PUT("/app/members/nickname")
+    suspend fun setNickname(
+        @Body nicknameRequest: NicknameRequest
+    ): NicknameResponse
+
+    @POST("/app/posts")
+    suspend fun writePost(
+        @Body writePostRequest: WritePostRequest
+    ): PostResponse
 }
