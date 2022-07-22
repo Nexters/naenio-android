@@ -1,4 +1,4 @@
-package com.nexters.teamversus.naenio.ui.tabs
+package com.nexters.teamversus.naenio.ui.tabs.auth
 
 import android.app.Activity
 import android.util.Log
@@ -24,6 +24,7 @@ import com.nexters.teamversus.naenio.extensions.getActivity
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
+    onNickName: () -> Unit,
     onNext: () -> Unit
 ) {
     val context = LocalContext.current
@@ -65,6 +66,14 @@ fun LoginScreen(
                 text = "구글"
             )
         }
+        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Magenta), onClick = {
+            onNickName.invoke()
+        }) {
+            Text(
+                text = "닉네임 설정 화면으로"
+            )
+        }
+
         Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue), onClick = {
             onNext.invoke()
         }) {
@@ -78,7 +87,7 @@ fun LoginScreen(
 @Preview
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen(viewModel = viewModel()) {
+    LoginScreen(viewModel = viewModel(), {}) {
 
     }
 }
