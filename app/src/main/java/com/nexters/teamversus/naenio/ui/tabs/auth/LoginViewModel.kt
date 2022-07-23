@@ -23,14 +23,14 @@ class LoginViewModel(
     private val userRepository: UserRepository = UserRepository()
 ): BaseViewModel() {
 
-    private fun login(authToken: String, authType: AuthType) {
+    private fun login(socialLoginToken: String, authType: AuthType) {
         viewModelScope.launch {
-            userRepository.login(authToken, authType).also { token ->
+            userRepository.login(socialLoginToken, authType).also { token ->
                 if (token.isNotEmpty()) {
-                    AuthDataStore.authToken = authToken
+                    AuthDataStore.authToken = token
                 }
                 Log.d(className, "$authType ${AuthDataStore.authToken}")
-                Log.d(className, token)
+                Log.d(className, socialLoginToken)
             }
         }
     }
