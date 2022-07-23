@@ -15,7 +15,7 @@ import java.io.IOException
 @OptIn(ExperimentalSerializationApi::class)
 object ApiProvider {
 
-    private const val BASE_URL = "https://jsonplaceholder.typicode.com/" //https://teamversus.shop/
+    private const val BASE_URL = "https://teamversus.shop/"
     private val contentType = "application/json".toMediaType()
 
     private val json = Json {
@@ -31,6 +31,7 @@ object ApiProvider {
     }
 
     private val client = OkHttpClient.Builder()
+        .addInterceptor(AuthTokenInterceptor())
         .addInterceptor(logger)
         .build()
 
@@ -39,6 +40,4 @@ object ApiProvider {
         .addConverterFactory(json.asConverterFactory(contentType))
         .client(client)
         .build()
-
-//    val signupService: SignupService = retrofit.create(SignupService::class.java)
 }

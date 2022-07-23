@@ -1,9 +1,11 @@
 package com.nexters.teamversus.naenio.utils
 
 import android.content.Context
+import android.util.Log
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -67,3 +69,7 @@ private suspend fun loginWithKakaoAccount(context: Context): OAuthToken {
     }
 }
 
+private fun getHashKey(context: Context) {
+    val keyHash = Utility.getKeyHash(context)
+    Log.i("++ KeyHash" , keyHash)
+}

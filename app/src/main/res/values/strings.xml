@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">naenio</string>
+
+    <string name="bottom_item_home">Home</string>
+    <string name="bottom_item_feed">Feed</string>
+    <string name="bottom_item_profile">Profile</string>
 </resources>
