@@ -16,23 +16,19 @@ import com.nexters.teamversus.naenio.BuildConfig
 import com.nexters.teamversus.naenio.base.BaseViewModel
 import com.nexters.teamversus.naenio.data.UserRepository
 import com.nexters.teamversus.naenio.data.network.dto.AuthType
-import com.nexters.teamversus.naenio.utils.datastore.AuthDataStore
 import com.nexters.teamversus.naenio.utils.loginWithKakao
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginViewModel(
-    private val userRepository: UserRepository = UserRepository()
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val userRepository: UserRepository
 ): BaseViewModel() {
 
     private fun login(socialLoginToken: String, authType: AuthType) {
         viewModelScope.launch {
-            userRepository.login(socialLoginToken, authType).also { token ->
-                if (token.isNotEmpty()) {
-                    AuthDataStore.authToken = token
-                }
-                Log.d(className, "$authType ${AuthDataStore.authToken}")
-                Log.d(className, socialLoginToken)
-            }
+            userRepository.login(socialLoginToken, authType)
         }
     }
 

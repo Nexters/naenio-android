@@ -4,7 +4,7 @@ import com.nexters.teamversus.naenio.utils.datastore.AuthDataStore
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AuthTokenInterceptor(
+class AuthTokenInterceptor (
     private val authDataStore: AuthDataStore = AuthDataStore
 ) : Interceptor {
 
