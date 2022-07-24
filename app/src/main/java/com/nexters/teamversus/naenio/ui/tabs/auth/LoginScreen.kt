@@ -1,6 +1,7 @@
 package com.nexters.teamversus.naenio.ui.tabs.auth
 
 import android.app.Activity
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
@@ -19,6 +20,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
+import com.google.firebase.dynamiclinks.ktx.androidParameters
+import com.google.firebase.dynamiclinks.ktx.dynamicLink
+import com.google.firebase.dynamiclinks.ktx.dynamicLinks
+import com.google.firebase.dynamiclinks.ktx.shortLinkAsync
+import com.google.firebase.ktx.Firebase
 import com.nexters.teamversus.naenio.extensions.getActivity
 
 @Composable
@@ -80,6 +86,19 @@ fun LoginScreen(
             Text(
                 text = "메인 화면으로"
             )
+        }
+
+        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan), onClick = {
+            val dynamicLink = Firebase.dynamicLinks.dynamicLink {
+                        link = Uri.parse("https://naenioapp.page.link/")
+                        domainUriPrefix = "https://naenioapp.page.link"
+                        androidParameters("com.nexters.teamversus.naenio") {
+                            fallbackUrl = Uri.parse("https://naver.com")
+                        }
+            }
+            Log.d("###", "dynamicLink 생성 테스트:: ${dynamicLink.uri.toString()}")
+        }) {
+            Text(text = "다이나믹 링크 생성 테스트")
         }
     }
 }
