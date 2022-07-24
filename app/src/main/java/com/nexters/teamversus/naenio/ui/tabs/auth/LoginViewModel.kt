@@ -12,6 +12,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
+import com.nexters.teamversus.naenio.BuildConfig
 import com.nexters.teamversus.naenio.base.BaseViewModel
 import com.nexters.teamversus.naenio.data.UserRepository
 import com.nexters.teamversus.naenio.data.network.dto.AuthType
@@ -53,6 +54,7 @@ class LoginViewModel(
 
     fun getGoogleLoginAuth(activity: Activity): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(BuildConfig.GOOGLE_WEB_ID)
             .requestEmail()
             .build()
         return GoogleSignIn.getClient(activity, gso)
@@ -62,6 +64,9 @@ class LoginViewModel(
         try {
             val account = completedTask.result
             Log.d(className, "[HandleGoogleSignInResult] success data :: " + account.email)
+            Log.d(className, "[HandleGoogleSignInResult] success id_token :: " + account.idToken)
+            if(account.idToken.isNullOrEmpty()) return
+            login(account.idToken!!, AuthType.GOOGLE)
         } catch (e: ApiException) {
             Log.e(className, "[HandleGoogleSignInResult] failed code :: " + e.statusCode.toString())
         }
