@@ -1,6 +1,6 @@
 package com.nexters.teamversus.naenio.graphs
 
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -16,7 +16,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
     ) {
         composable(route = AuthScreen.Login.route) {
             LoginScreen (
-                viewModel = viewModel(),
+                viewModel = hiltViewModel(),
                 onNickName = {
                     navController.popBackStack()
                     navController.navigate(AuthScreen.Nickname.route)
@@ -28,7 +28,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
             )
         }
         composable(route = AuthScreen.Nickname.route) {
-            NicknameScreen {
+            NicknameScreen(viewModel = hiltViewModel()) {
                 navController.popBackStack()
                 navController.navigate(Graph.MAIN)
             }

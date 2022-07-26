@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun NicknameScreen(
-    viewModel: LoginViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: LoginViewModel,
     onNext: () -> Unit,
 ) {
     Column {

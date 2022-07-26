@@ -1,19 +1,30 @@
 package com.nexters.teamversus.naenio.data
 
-import com.nexters.teamversus.naenio.data.network.ApiProvider
+import android.util.Log
+import com.nexters.teamversus.naenio.base.BaseRepository
 import com.nexters.teamversus.naenio.data.network.api.NaenioApi
 import com.nexters.teamversus.naenio.data.network.dto.AuthType
 import com.nexters.teamversus.naenio.data.network.dto.IsExistNicknameResponse
 import com.nexters.teamversus.naenio.data.network.dto.LoginRequest
 import com.nexters.teamversus.naenio.data.network.dto.NicknameRequest
+import com.nexters.teamversus.naenio.utils.datastore.AuthDataStore
+import javax.inject.Inject
 
-class UserRepository(
-    private val naenioApi: NaenioApi = ApiProvider.retrofit.create(NaenioApi::class.java)
-) {
+class UserRepository @Inject constructor(
+    private val naenioApi: NaenioApi,
+    private val authDataStore: AuthDataStore = AuthDataStore
+): BaseRepository() {
 
-    suspend fun login(token: String, authType: AuthType): String {
-        val response = naenioApi.login(LoginRequest(token, authType))
-        return response.token
+    suspend fun login(oAuthToken: String, authType: AuthType): String {
+        val jwt = naenioApi.login(LoginRequest(oAuthToken, authType)).token
+        if (jwt.isNotEmpty()) {
+            authDataStore.authToken = jwt
+            Log.d(className, "$authType:: $oAuthToken")
+            Log.d(className, "jwt:: $jwt")
+        } else {
+            throw IllegalStateException("Token is Empty.")
+        }
+        return jwt
     }
 
     suspend fun isExistNickname(nickname: String): IsExistNicknameResponse {
