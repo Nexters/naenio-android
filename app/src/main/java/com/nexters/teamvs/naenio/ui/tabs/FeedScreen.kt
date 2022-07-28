@@ -25,6 +25,11 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun FeedScreen() {
+
+}
+
+@Composable
+fun GageBar() {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
         while (gage < 1) {
