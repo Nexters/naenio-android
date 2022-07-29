@@ -1,15 +1,14 @@
 package com.nexters.teamvs.naenio.graphs
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.nexters.teamvs.naenio.ui.tabs.DetailScreen
-import com.nexters.teamvs.naenio.ui.tabs.FeedScreen
-import com.nexters.teamvs.naenio.ui.tabs.HomeScreen
-import com.nexters.teamvs.naenio.ui.tabs.ProfileScreen
+import com.nexters.teamvs.naenio.ui.tabs.*
 import com.nexters.teamvs.naenio.ui.tabs.model.BottomNavItem
 
 @Composable
@@ -19,14 +18,15 @@ fun MainNavGraph(navController: NavHostController) {
         route = Graph.MAIN,
         startDestination = BottomNavItem.Home.route
     ) {
+        val modifier = Modifier.padding(bottom = bottomBarHeight)
         composable(BottomNavItem.Home.route) {
-            HomeScreen(navController = navController)
+            HomeScreen(navController = navController, modifier = modifier)
         }
         composable(BottomNavItem.Feed.route) {
-            FeedScreen()
+            FeedScreen(navController = navController, modifier = modifier)
         }
         composable(BottomNavItem.Profile.route) {
-            ProfileScreen()
+            ProfileScreen(navController = navController, modifier = modifier)
         }
         detailsNavGraph(navController)
         authNavGraph(navController)

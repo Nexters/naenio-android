@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -19,13 +22,70 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
+import androidx.navigation.NavHostController
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.VerticalPager
+import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.MyColors
+
 import kotlinx.coroutines.delay
+import kotlin.math.absoluteValue
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun FeedScreen() {
+fun FeedScreen(navController: NavHostController, modifier: Modifier) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { padding ->
+        FeedPager(Modifier.padding(padding))
+    }
+}
 
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun FeedPager(modifier: Modifier = Modifier) {
+    VerticalPager(
+        count = 10,
+        contentPadding = PaddingValues(bottom = 100.dp),
+        modifier = modifier
+            .padding(bottom = 60.dp, start = 20.dp, end = 20.dp)
+            .fillMaxSize()
+    ) { page ->
+        Box(
+            Modifier
+                .padding(top = 20.dp)
+                .background(
+                    when (page) {
+                        0 -> Color.Yellow
+                        1 -> Color.Red
+                        2 -> Color.Cyan
+                        else -> Color.Magenta
+                    }
+                )
+                .graphicsLayer {
+                    val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
+
+                    lerp(
+                        start = 0.85f,
+                        stop = 1f,
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    ).also { scale ->
+                        scaleX = scale
+                        scaleY = scale
+                    }
+
+                    alpha = lerp(
+                        start = 0.5f,
+                        stop = 1f,
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    )
+                }
+        ) {
+            GageBar()
+        }
+    }
 }
 
 @Composable
@@ -130,5 +190,8 @@ fun CustomProgressBar(
 @Preview
 @Composable
 fun FeedScreenPreview() {
-    FeedScreen()
+    FeedScreen(
+        navController = NavHostController(LocalContext.current),
+        modifier = Modifier.padding(bottomBarHeight)
+    )
 }
