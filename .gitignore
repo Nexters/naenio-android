@@ -256,9 +256,6 @@ fabric.properties
 
 !/gradle/wrapper/gradle-wrapper.jar
 
-# google credentials json file
-credentials.json
-
 # firebase google service json file
 app/google-services.json
 
