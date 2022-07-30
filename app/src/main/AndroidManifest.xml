@@ -2,13 +2,13 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.nexters.teamversus.naenio"
+    package="com.nexters.teamvs.naenio"
     >
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:name=".base.NaenioApp"
+        android:name="com.nexters.teamvs.naenio.base.NaenioApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -35,7 +35,7 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.nexters.teamvs.naenio.MainActivity"
             android:launchMode="singleTop"
             android:exported="true"
             >
