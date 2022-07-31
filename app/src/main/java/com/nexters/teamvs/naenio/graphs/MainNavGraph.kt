@@ -1,32 +1,47 @@
 package com.nexters.teamvs.naenio.graphs
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.nexters.teamvs.naenio.ui.tabs.DetailScreen
-import com.nexters.teamvs.naenio.ui.tabs.FeedScreen
-import com.nexters.teamvs.naenio.ui.tabs.HomeScreen
-import com.nexters.teamvs.naenio.ui.tabs.ProfileScreen
+import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.tabs.*
 import com.nexters.teamvs.naenio.ui.tabs.model.BottomNavItem
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainNavGraph(navController: NavHostController) {
+fun MainNavGraph(
+    navController: NavHostController,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (BottomSheetType) -> Unit,
+    closeSheet: () -> Unit,
+) {
     NavHost(
         navController = navController,
         route = Graph.MAIN,
         startDestination = BottomNavItem.Home.route
     ) {
+        val modifier = Modifier.padding(bottom = bottomBarHeight)
         composable(BottomNavItem.Home.route) {
-            HomeScreen(navController = navController)
+            HomeScreen(navController = navController, modifier = modifier)
         }
         composable(BottomNavItem.Feed.route) {
-            FeedScreen()
+            FeedScreen(
+                navController = navController,
+                modalBottomSheetState = modalBottomSheetState,
+                modifier = modifier,
+                openSheet = openSheet,
+                closeSheet = closeSheet
+            )
         }
         composable(BottomNavItem.Profile.route) {
-            ProfileScreen()
+            ProfileScreen(navController = navController, modifier = modifier)
         }
         detailsNavGraph(navController)
         authNavGraph(navController)

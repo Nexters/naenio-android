@@ -3,5 +3,7 @@
 
     <string name="bottom_item_home">Home</string>
     <string name="bottom_item_feed">Feed</string>
-    <string name="bottom_item_profile">Profile</string>
+    <string name="bottom_item_profile">Profile</string>]
+
+    <string name="comment">Comment</string>
 </resources>

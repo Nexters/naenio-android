@@ -19,9 +19,9 @@ import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.graphs.Graph
 
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController, modifier: Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(colorResource(id = R.color.teal_700))
             .wrapContentSize(Alignment.Center)

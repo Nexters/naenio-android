@@ -1,30 +1,77 @@
 package com.nexters.teamvs.naenio.ui.tabs
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
-import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun FeedScreen() {
+fun FeedScreen(
+    navController: NavHostController,
+    modifier: Modifier,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (BottomSheetType) -> Unit,
+    closeSheet: () -> Unit,
+) {
+    BackHandler {
+        if (modalBottomSheetState.isVisible) {
+            closeSheet.invoke()
+        } else {
+            navController.popBackStack()
+        }
+    }
+    FeedPager(modifier, openSheet)
+}
+
+
+@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
+@Composable
+fun FeedPager(
+    modifier: Modifier,
+    openSheet: (BottomSheetType) -> Unit,
+) {
+    VerticalPager(
+        count = 10,
+        contentPadding = PaddingValues(bottom = 100.dp),
+        modifier = modifier
+            .padding(start = 20.dp, end = 20.dp)
+            .fillMaxSize()
+    ) { page ->
+        Box(
+            Modifier
+                .padding(top = 20.dp)
+        ) {
+            FeedItem(
+                page = page,
+                openSheet = openSheet
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
         while (gage < 1) {
@@ -32,19 +79,6 @@ fun FeedScreen() {
             delay(10)
         }
     })
-    var enabled by remember { mutableStateOf(false) }
-
-    var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-    )
-
-    LaunchedEffect(enabled) {
-        while ((progress < 1)) {
-            progress += 0.05f
-            delay(10)
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -53,15 +87,17 @@ fun FeedScreen() {
             .wrapContentSize(Alignment.Center)
     ) {
         Text(
-            text = "Feed Screen",
-            fontWeight = FontWeight.Bold,
+            text = "Feed Screen $page",
             color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 20.sp
+            fontSize = 17.sp
         )
-
-        CustomProgressBar(
+        Button(onClick = { openSheet(BottomSheetType.Comment) }) {
+            Text(text = "Open bottom sheet Comment")
+        }
+        Button(onClick = { openSheet(BottomSheetType.Menu) }) {
+            Text(text = "Open bottom sheet Menu")
+        }
+        GageBar(
             modifier = Modifier
                 .clip(shape = RoundedCornerShape(8.dp))
                 .height(59.dp),
@@ -75,39 +111,18 @@ fun FeedScreen() {
                 )
             ),
             percent = gage,
-            isShownText = true
         )
-
-        if (progress >= 1f) {
-            enabled = false
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            LinearProgressIndicator(
-                progress = animatedProgress,
-                color = MyColors.PrimaryColor,
-                backgroundColor = Color.Black,
-                modifier = Modifier
-                    .requiredHeight(59.dp)
-                    .clip(shape = RoundedCornerShape(8.dp))
-            )
-        }
     }
 }
 
 @Composable
-fun CustomProgressBar(
+fun GageBar(
     modifier: Modifier,
     gageModifier: Modifier,
     width: Dp,
     backgroundColor: Color,
     foregroundColor: Brush,
     percent: Float,
-    isShownText: Boolean
 ) {
     Box(
         modifier = modifier
@@ -122,8 +137,15 @@ fun CustomProgressBar(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun FeedScreenPreview() {
-    FeedScreen()
+    FeedScreen(
+        navController = NavHostController(LocalContext.current),
+        modalBottomSheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden),
+        modifier = Modifier.padding(bottomBarHeight),
+        openSheet = {},
+        closeSheet = {}
+    )
 }
