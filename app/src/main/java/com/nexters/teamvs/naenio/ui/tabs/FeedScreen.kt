@@ -1,10 +1,8 @@
 package com.nexters.teamvs.naenio.ui.tabs
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -16,22 +14,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.lerp
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
-import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.nexters.teamvs.naenio.R
-import com.nexters.teamvs.naenio.theme.MyColors
 
 import kotlinx.coroutines.delay
-import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -56,40 +48,32 @@ fun FeedPager(modifier: Modifier = Modifier) {
         Box(
             Modifier
                 .padding(top = 20.dp)
-                .background(
-                    when (page) {
-                        0 -> Color.Yellow
-                        1 -> Color.Red
-                        2 -> Color.Cyan
-                        else -> Color.Magenta
-                    }
-                )
                 .graphicsLayer {
-                    val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-
-                    lerp(
-                        start = 0.85f,
-                        stop = 1f,
-                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                    ).also { scale ->
-                        scaleX = scale
-                        scaleY = scale
-                    }
-
-                    alpha = lerp(
-                        start = 0.5f,
-                        stop = 1f,
-                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                    )
+//                    val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
+//
+//                    lerp(
+//                        start = 0.85f,
+//                        stop = 1f,
+//                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+//                    ).also { scale ->
+//                        scaleX = scale
+//                        scaleY = scale
+//                    }
+//
+//                    alpha = lerp(
+//                        start = 0.5f,
+//                        stop = 1f,
+//                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+//                    )
                 }
         ) {
-            GageBar()
+            FeedItem()
         }
     }
 }
 
 @Composable
-fun GageBar() {
+fun FeedItem() {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
         while (gage < 1) {
@@ -97,19 +81,6 @@ fun GageBar() {
             delay(10)
         }
     })
-    var enabled by remember { mutableStateOf(false) }
-
-    var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-    )
-
-    LaunchedEffect(enabled) {
-        while ((progress < 1)) {
-            progress += 0.05f
-            delay(10)
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -119,14 +90,10 @@ fun GageBar() {
     ) {
         Text(
             text = "Feed Screen",
-            fontWeight = FontWeight.Bold,
             color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 20.sp
+            fontSize = 17.sp
         )
-
-        CustomProgressBar(
+        GageBar(
             modifier = Modifier
                 .clip(shape = RoundedCornerShape(8.dp))
                 .height(59.dp),
@@ -140,39 +107,18 @@ fun GageBar() {
                 )
             ),
             percent = gage,
-            isShownText = true
         )
-
-        if (progress >= 1f) {
-            enabled = false
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            LinearProgressIndicator(
-                progress = animatedProgress,
-                color = MyColors.PrimaryColor,
-                backgroundColor = Color.Black,
-                modifier = Modifier
-                    .requiredHeight(59.dp)
-                    .clip(shape = RoundedCornerShape(8.dp))
-            )
-        }
     }
 }
 
 @Composable
-fun CustomProgressBar(
+fun GageBar(
     modifier: Modifier,
     gageModifier: Modifier,
     width: Dp,
     backgroundColor: Color,
     foregroundColor: Brush,
     percent: Float,
-    isShownText: Boolean
 ) {
     Box(
         modifier = modifier
