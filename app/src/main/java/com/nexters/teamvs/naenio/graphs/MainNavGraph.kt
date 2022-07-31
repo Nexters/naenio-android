@@ -1,6 +1,8 @@
 package com.nexters.teamvs.naenio.graphs
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
@@ -8,11 +10,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.tabs.*
 import com.nexters.teamvs.naenio.ui.tabs.model.BottomNavItem
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainNavGraph(navController: NavHostController) {
+fun MainNavGraph(
+    navController: NavHostController,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (BottomSheetType) -> Unit,
+    closeSheet: () -> Unit,
+) {
     NavHost(
         navController = navController,
         route = Graph.MAIN,
@@ -23,7 +32,13 @@ fun MainNavGraph(navController: NavHostController) {
             HomeScreen(navController = navController, modifier = modifier)
         }
         composable(BottomNavItem.Feed.route) {
-            FeedScreen(navController = navController, modifier = modifier)
+            FeedScreen(
+                navController = navController,
+                modalBottomSheetState = modalBottomSheetState,
+                modifier = modifier,
+                openSheet = openSheet,
+                closeSheet = closeSheet
+            )
         }
         composable(BottomNavItem.Profile.route) {
             ProfileScreen(navController = navController, modifier = modifier)

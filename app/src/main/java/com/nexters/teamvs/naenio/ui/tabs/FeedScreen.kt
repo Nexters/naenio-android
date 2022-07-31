@@ -21,70 +21,39 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
-import com.nexters.teamvs.naenio.theme.MyShape
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
-import com.nexters.teamvs.naenio.ui.dialog.SheetLayout
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun FeedScreen(navController: NavHostController, modifier: Modifier) {
-    val coroutineScope = rememberCoroutineScope()
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
-
-    var currentBottomSheet: BottomSheetType? by remember { mutableStateOf(null) }
-
-    if (bottomSheetScaffoldState.bottomSheetState.isCollapsed)
-        currentBottomSheet = null
-
-    val closeSheet: () -> Unit = {
-        coroutineScope.launch {
-            bottomSheetScaffoldState.bottomSheetState.collapse()
-        }
-    }
-
-    //TODO 두번 불려야 바텀시트가 open 되는 이슈가 있음.
-    val openSheet: (BottomSheetType) -> Unit = {
-        coroutineScope.launch {
-            currentBottomSheet = it
-            bottomSheetScaffoldState.bottomSheetState.expand()
-        }
-    }
-
+fun FeedScreen(
+    navController: NavHostController,
+    modifier: Modifier,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (BottomSheetType) -> Unit,
+    closeSheet: () -> Unit,
+) {
     BackHandler {
-        if (!bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
+        if (modalBottomSheetState.isVisible) {
             closeSheet.invoke()
         } else {
             navController.popBackStack()
         }
     }
-
-    BottomSheetScaffold(
-        modifier = modifier,
-        sheetPeekHeight = 0.dp,
-        scaffoldState = bottomSheetScaffoldState,
-        sheetShape = MyShape.TopRoundedCornerShape,
-        sheetContent = {
-            currentBottomSheet?.let { currentSheet ->
-                SheetLayout(currentSheet, closeSheet)
-            }
-        }
-    ) {
-        FeedPager(openSheet)
-    }
+    FeedPager(modifier, openSheet)
 }
 
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedPager(
+    modifier: Modifier,
     openSheet: (BottomSheetType) -> Unit,
 ) {
     VerticalPager(
         count = 10,
         contentPadding = PaddingValues(bottom = 100.dp),
-        modifier = Modifier
+        modifier = modifier
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxSize()
     ) { page ->
@@ -168,11 +137,15 @@ fun GageBar(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun FeedScreenPreview() {
     FeedScreen(
         navController = NavHostController(LocalContext.current),
-        modifier = Modifier.padding(bottomBarHeight)
+        modalBottomSheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden),
+        modifier = Modifier.padding(bottomBarHeight),
+        openSheet = {},
+        closeSheet = {}
     )
 }
