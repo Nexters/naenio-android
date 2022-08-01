@@ -4,13 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Comment
 import androidx.compose.material.icons.outlined.HeartBroken
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,8 +44,43 @@ fun CommentSheetLayout(
     ) {
         CommentHeader()
         Spacer(modifier = Modifier.height(24.dp))
-        CommentList(commentUiModels, onEvent)
+        CommentList(
+            modifier = Modifier.weight(1f),
+            commentUiModels = commentUiModels,
+            onEvent = onEvent
+        )
+        //TODO 키보드에 가리는 이슈,,
+        CommentEditText()
     }
+
+}
+
+@Composable
+fun CommentEditText() {
+    var input by remember { mutableStateOf("") }
+
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 40.dp),
+        colors = TextFieldDefaults.textFieldColors(
+            textColor = Color.White,
+            backgroundColor = MyColors.grey4d4d4d,
+        ),
+        value = input,
+        trailingIcon = {
+            Icon(
+                modifier = Modifier.size(16.dp),
+                tint = Color.Yellow,
+                painter = painterResource(id = R.drawable.ic_launcher_background),
+                contentDescription = "댓글 입력 버튼"
+            )
+        },
+        shape = RoundedCornerShape(3.dp),
+        onValueChange = {
+            input = it
+        }
+    )
 }
 
 @Composable
@@ -78,10 +113,11 @@ fun CommentHeader() {
 
 @Composable
 fun CommentList(
+    modifier: Modifier,
     commentUiModels: List<CommentUiModel>,
     onEvent: (CommentEvent) -> Unit,
 ) {
-    LazyColumn {
+    LazyColumn(modifier = modifier) {
         items(commentUiModels) {
             CommentItem(it, onEvent)
         }
@@ -174,7 +210,7 @@ fun CommentItem(
                 color = Color.White
             )
         }
-        
+
         Spacer(
             modifier = Modifier
                 .padding(vertical = 12.dp)
