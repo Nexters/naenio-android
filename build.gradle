@@ -1,9 +1,9 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext {
-        composeVersion = "1.1.1"
+        composeVersion = "1.2.0"
         gradleVersion = '7.2.0'
-        kotlinVersion = '1.6.10'
+        kotlinVersion = '1.7.0'
         hiltVersion = '2.42'
         firebaseVersion = '4.3.13'
     }
