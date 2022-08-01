@@ -23,7 +23,7 @@ import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.MyShape
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.dialog.SheetLayout
-import com.nexters.teamvs.naenio.ui.tabs.model.BottomNavItem
+import com.nexters.teamvs.naenio.ui.model.BottomNavItem
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")

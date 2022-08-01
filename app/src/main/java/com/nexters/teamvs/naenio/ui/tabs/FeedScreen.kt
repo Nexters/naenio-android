@@ -22,6 +22,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.model.CommentUiModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -95,7 +96,7 @@ fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
             onClick = {
                 openSheet(
                     BottomSheetType.Comment(
-                        comments = emptyList(),
+                        comments = CommentUiModel.mock,
                         onEvent = {
 
                         }

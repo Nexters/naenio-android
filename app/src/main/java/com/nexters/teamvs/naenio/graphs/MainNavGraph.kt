@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.tabs.*
-import com.nexters.teamvs.naenio.ui.tabs.model.BottomNavItem
+import com.nexters.teamvs.naenio.ui.model.BottomNavItem
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

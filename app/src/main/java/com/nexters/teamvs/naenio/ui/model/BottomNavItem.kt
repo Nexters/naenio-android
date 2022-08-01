@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio.ui.tabs.model
+package com.nexters.teamvs.naenio.ui.model
 
 import androidx.annotation.StringRes
 import com.nexters.teamvs.naenio.R

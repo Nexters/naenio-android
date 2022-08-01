@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nexters.teamvs.naenio.ui.tabs.model.CommentUiModel
+import com.nexters.teamvs.naenio.ui.model.CommentUiModel
 
 sealed class BottomSheetType {
     data class Comment(
@@ -89,16 +89,6 @@ fun MenuSheetLayout() {
 @Composable
 fun MenuSheetPreview() {
     SheetLayout(currentScreen = BottomSheetType.Menu) {
-
-    }
-}
-
-@Preview
-@Composable
-fun CommentSheetPreview() {
-    CommentSheetLayout(
-        commentUiModels = emptyList()
-    ) {
 
     }
 }
