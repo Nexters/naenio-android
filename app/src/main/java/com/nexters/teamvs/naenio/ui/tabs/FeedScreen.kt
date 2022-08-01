@@ -91,7 +91,18 @@ fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
             color = Color.White,
             fontSize = 17.sp
         )
-        Button(onClick = { openSheet(BottomSheetType.Comment) }) {
+        Button(
+            onClick = {
+                openSheet(
+                    BottomSheetType.Comment(
+                        comments = emptyList(),
+                        onEvent = {
+
+                        }
+                    )
+                )
+            }
+        ) {
             Text(text = "Open bottom sheet Comment")
         }
         Button(onClick = { openSheet(BottomSheetType.Menu) }) {
