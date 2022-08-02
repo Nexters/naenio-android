@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.tabs
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -98,7 +99,7 @@ fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
                     BottomSheetType.CommentType(
                         comments = Comment.mock,
                         onEvent = {
-
+                            Log.d("### FeedScreen", "$it")
                         }
                     )
                 )

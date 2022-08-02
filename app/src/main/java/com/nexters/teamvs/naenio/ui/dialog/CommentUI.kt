@@ -1,6 +1,7 @@
 package com.nexters.teamvs.naenio.ui.dialog
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,7 +27,7 @@ import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.model.Comment
 
 sealed class CommentEvent {
-    data class Write(val comment: Comment) : CommentEvent()
+    data class Write(val text: String) : CommentEvent()
     data class Like(val like: Boolean) : CommentEvent()
     object More : CommentEvent()
 }
@@ -50,13 +52,15 @@ fun CommentSheetLayout(
             onEvent = onEvent
         )
         //TODO 키보드에 가리는 이슈,,
-        CommentEditText()
+        CommentEditText(onEvent = onEvent)
     }
 
 }
 
 @Composable
-fun CommentEditText() {
+fun CommentEditText(
+    onEvent: (CommentEvent) -> Unit,
+) {
     var input by remember { mutableStateOf("") }
 
     TextField(
@@ -70,7 +74,9 @@ fun CommentEditText() {
         value = input,
         trailingIcon = {
             Icon(
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(16.dp).clickable {
+                    onEvent.invoke(CommentEvent.Write(input))
+                },
                 tint = Color.Yellow,
                 painter = painterResource(id = R.drawable.ic_launcher_background),
                 contentDescription = "댓글 입력 버튼"
@@ -150,12 +156,13 @@ fun CommentItem(
                 contentDescription = "profileThumbnail"
             )
             Text(
+                modifier = Modifier.wrapContentHeight().weight(1f),
                 text = comment.writer.toString(),
                 color = Color.White,
                 fontSize = 14.sp,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.weight(1f))
             Text(
                 modifier = Modifier.padding(end = 6.dp),
                 text = comment.writeTime.toString(),
@@ -164,7 +171,9 @@ fun CommentItem(
                 maxLines = 1
             )
             Icon(
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(16.dp).clickable {
+                    onEvent.invoke(CommentEvent.More)
+                },
                 imageVector = Icons.Filled.MoreVert,
                 tint = Color.White,
                 contentDescription = null
@@ -183,7 +192,11 @@ fun CommentItem(
             Icon(
                 modifier = Modifier
                     .padding(end = 4.dp)
-                    .size(12.dp),
+                    .size(12.dp)
+                    .clickable {
+                        onEvent.invoke(CommentEvent.Like(!comment.like))
+                    }
+                ,
                 imageVector = if (comment.like) Icons.Filled.HeartBroken else Icons.Outlined.HeartBroken,
                 tint = Color.White,
                 contentDescription = null
