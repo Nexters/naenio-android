@@ -22,17 +22,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.model.CommentUiModel
+import com.nexters.teamvs.naenio.ui.model.Comment
 
 sealed class CommentEvent {
-    data class Write(val commentUiModel: CommentUiModel) : CommentEvent()
+    data class Write(val comment: Comment) : CommentEvent()
     data class Like(val like: Boolean) : CommentEvent()
     object More : CommentEvent()
 }
 
 @Composable
 fun CommentSheetLayout(
-    commentUiModels: List<CommentUiModel>,
+    comments: List<Comment>,
     onEvent: (CommentEvent) -> Unit,
 ) {
     Column(
@@ -46,7 +46,7 @@ fun CommentSheetLayout(
         Spacer(modifier = Modifier.height(24.dp))
         CommentList(
             modifier = Modifier.weight(1f),
-            commentUiModels = commentUiModels,
+            comments = comments,
             onEvent = onEvent
         )
         //TODO 키보드에 가리는 이슈,,
@@ -114,11 +114,11 @@ fun CommentHeader() {
 @Composable
 fun CommentList(
     modifier: Modifier,
-    commentUiModels: List<CommentUiModel>,
+    comments: List<Comment>,
     onEvent: (CommentEvent) -> Unit,
 ) {
     LazyColumn(modifier = modifier) {
-        items(commentUiModels) {
+        items(comments) {
             CommentItem(it, onEvent)
         }
     }
@@ -126,7 +126,7 @@ fun CommentList(
 
 @Composable
 fun CommentItem(
-    commentUiModel: CommentUiModel,
+    comment: Comment,
     onEvent: (CommentEvent) -> Unit,
 ) {
     Column(
@@ -150,7 +150,7 @@ fun CommentItem(
                 contentDescription = "profileThumbnail"
             )
             Text(
-                text = commentUiModel.userId.toString(),
+                text = comment.userId.toString(),
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1
@@ -158,7 +158,7 @@ fun CommentItem(
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 modifier = Modifier.padding(end = 6.dp),
-                text = commentUiModel.time.toString(),
+                text = comment.time.toString(),
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1
@@ -173,7 +173,7 @@ fun CommentItem(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Text(text = commentUiModel.content, color = Color.White, fontSize = 14.sp)
+        Text(text = comment.content, color = Color.White, fontSize = 14.sp)
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -184,12 +184,12 @@ fun CommentItem(
                 modifier = Modifier
                     .padding(end = 4.dp)
                     .size(12.dp),
-                imageVector = if (commentUiModel.like) Icons.Filled.HeartBroken else Icons.Outlined.HeartBroken,
+                imageVector = if (comment.like) Icons.Filled.HeartBroken else Icons.Outlined.HeartBroken,
                 tint = Color.White,
                 contentDescription = null
             )
             Text(
-                text = commentUiModel.likeCount.toString(),
+                text = comment.likeCount.toString(),
                 fontSize = 12.sp,
                 color = Color.White
             )
@@ -200,12 +200,12 @@ fun CommentItem(
                 modifier = Modifier
                     .padding(end = 4.dp)
                     .size(12.dp),
-                imageVector = if (commentUiModel.like) Icons.Filled.Comment else Icons.Outlined.Comment,
+                imageVector = if (comment.like) Icons.Filled.Comment else Icons.Outlined.Comment,
                 tint = Color.White,
                 contentDescription = null
             )
             Text(
-                text = commentUiModel.likeCount.toString(),
+                text = comment.likeCount.toString(),
                 fontSize = 12.sp,
                 color = Color.White
             )
@@ -225,7 +225,7 @@ fun CommentItem(
 @Composable
 fun CommentSheetPreview() {
     CommentSheetLayout(
-        commentUiModels = CommentUiModel.mock
+        comments = Comment.mock
     ) {
 
     }

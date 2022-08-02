@@ -2,11 +2,7 @@ package com.nexters.teamvs.naenio.ui.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,11 +11,11 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nexters.teamvs.naenio.ui.model.CommentUiModel
+import com.nexters.teamvs.naenio.ui.model.Comment
 
 sealed class BottomSheetType {
-    data class Comment(
-        val comments: List<CommentUiModel>,
+    data class CommentType(
+        val comments: List<Comment>,
         val onEvent: (CommentEvent) -> Unit,
     ) : BottomSheetType()
 
@@ -33,9 +29,9 @@ fun SheetLayout(
 ) {
     BottomSheetContainer(onCloseBottomSheet) {
         when (currentScreen) {
-            is BottomSheetType.Comment -> {
+            is BottomSheetType.CommentType -> {
                 CommentSheetLayout(
-                    commentUiModels = currentScreen.comments,
+                    comments = currentScreen.comments,
                     onEvent = currentScreen.onEvent
                 )
             }

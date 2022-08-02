@@ -1,7 +1,7 @@
 package com.nexters.teamvs.naenio.ui.model
 
 //TODO 댓글 모델과 대댓글 모댈을 나누는 방법으로 바꾸는 것도 고민
-data class CommentUiModel(
+data class Comment(
     val id: Int,
     val userId: Int,
     val parentId: Int? = null,
@@ -16,38 +16,38 @@ data class CommentUiModel(
     val time get() = modifiedTime ?: createdTime
 
     companion object {
-        val mock = listOf<CommentUiModel>(
-            CommentUiModel(
+        val mock = listOf<Comment>(
+            Comment(
                 id = 0,
                 userId = 0,
                 content = "댓글댓글댓글댓글댓글",
                 createdTime = 123123123,
             ),
-            CommentUiModel(
+            Comment(
                 id = 0,
                 userId = 0,
                 content = "댓글댓글댓글댓글댓글",
                 createdTime = 123123123,
             ),
-            CommentUiModel(
+            Comment(
                 id = 0,
                 userId = 0,
                 content = "댓글댓글댓글댓글댓글",
                 createdTime = 123123123,
             ),
-            CommentUiModel(
+            Comment(
                 id = 0,
                 userId = 0,
                 content = "댓글댓글댓글댓글댓글",
                 createdTime = 123123123,
             ),
-            CommentUiModel(
+            Comment(
                 id = 0,
                 userId = 0,
                 content = "댓글댓글댓글댓글댓글",
                 createdTime = 123123123,
             ),
-            CommentUiModel(
+            Comment(
                 id = 0,
                 userId = 0,
                 content = "댓글댓글댓글댓글댓글",
