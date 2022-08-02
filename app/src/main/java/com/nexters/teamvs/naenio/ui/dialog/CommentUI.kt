@@ -40,7 +40,7 @@ fun CommentSheetLayout(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MyColors.black75, shape = RectangleShape)
+            .background(MyColors.black191919, shape = RectangleShape)
             .padding(24.dp)
             .aspectRatio(0.6f)
     ) {
@@ -104,7 +104,7 @@ fun CommentHeader() {
         Text(
             modifier = Modifier.padding(end = 9.dp),
             text = stringResource(id = R.string.comment),
-            color = MyColors.grey20,
+            color = MyColors.grey_b4b4b4,
             fontSize = 14.sp,
         )
 

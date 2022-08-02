@@ -127,8 +127,8 @@ fun RowScope.AddItem(
             )
         },
         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-        selectedContentColor = MyColors.PrimaryColor,
-        unselectedContentColor = MyColors.DarkGrey,
+        selectedContentColor = MyColors.yellow_d9ff00,
+        unselectedContentColor = MyColors.grey8d95a0,
         onClick = {
             navController.navigate(screen.route) {
                 navController.graph.startDestinationRoute?.let { screen_route ->
