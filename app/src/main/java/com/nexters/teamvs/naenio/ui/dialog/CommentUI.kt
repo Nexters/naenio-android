@@ -150,7 +150,7 @@ fun CommentItem(
                 contentDescription = "profileThumbnail"
             )
             Text(
-                text = comment.userId.toString(),
+                text = comment.writer.toString(),
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1
@@ -158,7 +158,7 @@ fun CommentItem(
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 modifier = Modifier.padding(end = 6.dp),
-                text = comment.time.toString(),
+                text = comment.writeTime.toString(),
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1
