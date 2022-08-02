@@ -31,7 +31,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(navController: NavHostController = rememberNavController()) {
     val coroutineScope = rememberCoroutineScope()
-    val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val modalBottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
+    )
 
     var currentBottomSheet: BottomSheetType? by remember { mutableStateOf(null) }
 

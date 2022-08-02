@@ -53,16 +53,6 @@ fun BottomSheetContainer(
 ) {
     Box(modifier.fillMaxWidth()) {
         content()
-        IconButton(
-            onClick = onClosePressed,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-                .size(29.dp)
-        ) {
-            Icon(Icons.Filled.Close, tint = closeButtonColor, contentDescription = null)
-        }
-
     }
 }
 
