@@ -6,4 +6,7 @@
     <string name="bottom_item_profile">Profile</string>]
 
     <string name="comment">Comment</string>
+
+    <string name="more_comments">More Comments</string>
+
 </resources>
