@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
@@ -41,6 +44,8 @@ fun FeedScreen(
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
+
     BackHandler {
         if (modalBottomSheetState.isVisible) {
             closeSheet.invoke()
@@ -59,7 +64,14 @@ fun FeedScreen(
             fontSize = 24.sp,
             color = Color.White
         )
-        FeedPager(modifier, openSheet)
+        Box {
+            FeedPager(modifier, openSheet)
+            LottieAnimation(
+                composition,
+                modifier = Modifier.wrapContentSize(),
+                iterations = Int.MAX_VALUE
+            )
+        }
     }
 }
 
@@ -103,7 +115,7 @@ fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.teal_700))
+            .background(MyColors.postBackgroundColor)
             .wrapContentSize(Alignment.Center)
     ) {
         Text(
