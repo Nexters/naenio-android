@@ -23,7 +23,7 @@ import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.MyShape
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.dialog.SheetLayout
-import com.nexters.teamvs.naenio.ui.tabs.model.BottomNavItem
+import com.nexters.teamvs.naenio.ui.model.BottomNavItem
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -31,7 +31,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(navController: NavHostController = rememberNavController()) {
     val coroutineScope = rememberCoroutineScope()
-    val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val modalBottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
+    )
 
     var currentBottomSheet: BottomSheetType? by remember { mutableStateOf(null) }
 
@@ -50,14 +53,6 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
             modalBottomSheetState.show()
         }
     }
-
-//    BackHandler {
-//        if (!modalBottomSheetState.isVisible) {
-//            closeSheet.invoke()
-//        } else {
-//            navController.popBackStack()
-//        }
-//    }
 
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState,
@@ -124,8 +119,8 @@ fun RowScope.AddItem(
             )
         },
         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-        selectedContentColor = MyColors.PrimaryColor,
-        unselectedContentColor = MyColors.DarkGrey,
+        selectedContentColor = MyColors.yellow_d9ff00,
+        unselectedContentColor = MyColors.grey8d95a0,
         onClick = {
             navController.navigate(screen.route) {
                 navController.graph.startDestinationRoute?.let { screen_route ->

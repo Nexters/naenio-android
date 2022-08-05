@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 import com.nexters.teamvs.naenio.graphs.RootNavigationGraph
+import com.nexters.teamvs.naenio.theme.NaenioTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -17,7 +18,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            RootNavigationGraph(navController = rememberNavController())
+            NaenioTheme {
+                RootNavigationGraph(navController = rememberNavController())
+            }
         }
         Firebase.dynamicLinks.getDynamicLink(intent)
             .addOnSuccessListener { pendingDynamicLinkData ->

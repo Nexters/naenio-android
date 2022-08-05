@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.tabs
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -21,7 +23,10 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.dialog.CommentEvent
+import com.nexters.teamvs.naenio.ui.model.Comment
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -40,7 +45,19 @@ fun FeedScreen(
             navController.popBackStack()
         }
     }
-    FeedPager(modifier, openSheet)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MyColors.black1D1C2C)
+    ) {
+        Text(
+            modifier = Modifier.padding(top = 19.dp, start = 20.dp),
+            text = stringResource(id = R.string.bottom_item_feed),
+            fontSize = 24.sp,
+            color = Color.White
+        )
+        FeedPager(modifier, openSheet)
+    }
 }
 
 
@@ -91,7 +108,28 @@ fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
             color = Color.White,
             fontSize = 17.sp
         )
-        Button(onClick = { openSheet(BottomSheetType.Comment) }) {
+        Button(
+            onClick = {
+                openSheet(
+                    BottomSheetType.CommentType(
+                        comments = Comment.mock,
+                        onEvent = {
+                            Log.d("### FeedScreen", "$it")
+                            when(it) {
+                                is CommentEvent.Like -> {
+                                }
+                                CommentEvent.More -> {
+                                }
+                                is CommentEvent.Write -> {
+                                }
+                                CommentEvent.Close -> {
+                                }
+                            }
+                        }
+                    )
+                )
+            }
+        ) {
             Text(text = "Open bottom sheet Comment")
         }
         Button(onClick = { openSheet(BottomSheetType.Menu) }) {
