@@ -16,7 +16,7 @@ data class WritePostRequest(
 @Serializable
 data class FeedRequest(
     val size: Int,
-    val lastPostId: Int //첫 조회, 새로고침의 경우 lastPostId를 비워서 보내면 됩니다
+    val lastPostId: Int? //첫 조회, 새로고침의 경우 lastPostId를 비워서 보내면 됩니다
 )
 
 @Keep

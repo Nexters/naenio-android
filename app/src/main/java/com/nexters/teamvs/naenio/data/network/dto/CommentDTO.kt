@@ -21,10 +21,9 @@ data class CommentResponse(
 @Keep
 data class WriteCommentRequest(
     val parentId: String,
-    val parentType: String = "POST", //TODO 대댓글 타입은?
+    val parentType: CommentParentType, //TODO 대댓글 타입은?
     val content: String,
 )
-
 
 @Serializable
 @Keep
@@ -37,3 +36,7 @@ data class WriteCommentResponse(
     val parentId: Int,
     val parentType: String
 )
+
+enum class CommentParentType {
+    POST, COMMENT
+}
