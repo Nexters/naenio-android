@@ -7,6 +7,7 @@ class MyColors {
     companion object {
         val yellow_d9ff00 = Color(0xFFD9FF00)
         val grey8d95a0 = Color(0xFF8D95A0)
+        val black141414 = Color(0xFF141414)
         val black191919 = Color(0xFF191919)
         val grey_b4b4b4 = Color(0xFFB4B4B4)
         val grey_d9d9d9 = Color(0xFFD9D9D9)

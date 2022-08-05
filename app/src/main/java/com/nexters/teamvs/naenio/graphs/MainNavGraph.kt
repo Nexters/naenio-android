@@ -25,10 +25,10 @@ fun MainNavGraph(
     NavHost(
         navController = navController,
         route = Graph.MAIN,
-        startDestination = BottomNavItem.Home.route
+        startDestination = BottomNavItem.Theme.route
     ) {
         val modifier = Modifier.padding(bottom = bottomBarHeight)
-        composable(BottomNavItem.Home.route) {
+        composable(BottomNavItem.Theme.route) {
             HomeScreen(navController = navController, modifier = modifier)
         }
         composable(BottomNavItem.Feed.route) {

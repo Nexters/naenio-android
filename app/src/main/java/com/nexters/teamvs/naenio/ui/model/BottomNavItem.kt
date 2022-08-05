@@ -8,21 +8,21 @@ sealed class BottomNavItem(
     val icon: Int,
     val route: String
 ) {
-    object Home : BottomNavItem(
-        R.string.bottom_item_home,
-        R.drawable.ic_launcher_background,
-        "home"
+    object Theme : BottomNavItem(
+        R.string.bottom_item_theme,
+        R.drawable.ic_theme,
+        "theme"
     )
 
     object Feed : BottomNavItem(
         R.string.bottom_item_feed,
-        R.drawable.ic_launcher_background,
+        R.drawable.ic_home,
         "feed"
     )
 
     object Profile : BottomNavItem(
         R.string.bottom_item_profile,
-        R.drawable.ic_launcher_background,
+        R.drawable.ic_profile,
         "profile"
     )
 }

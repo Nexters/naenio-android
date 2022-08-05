@@ -61,7 +61,9 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
             currentBottomSheet?.let { currentSheet ->
                 SheetLayout(currentSheet, closeSheet)
             }
-            Spacer(modifier = Modifier.height(1.dp).background(Color.Transparent)) //content 비어있으면 error 발생으로 추가
+            Spacer(modifier = Modifier
+                .height(1.dp)
+                .background(Color.Transparent)) //content 비어있으면 error 발생으로 추가
         }
     ) {
         Scaffold(
@@ -80,7 +82,7 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val screens = listOf(
-        BottomNavItem.Home,
+        BottomNavItem.Theme,
         BottomNavItem.Profile,
         BottomNavItem.Feed,
     )
@@ -91,9 +93,12 @@ fun BottomNavigationBar(navController: NavHostController) {
     val bottomBarDestination = screens.any { it.route == currentDestination?.route }
 
     if (bottomBarDestination) {
-        BottomNavigation(modifier = Modifier
-            .fillMaxWidth()
-            .height(bottomBarHeight)) {
+        BottomNavigation(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(bottomBarHeight),
+            backgroundColor = MyColors.black141414
+        ) {
             screens.forEach { screen ->
                 AddItem(
                     screen = screen,
@@ -111,16 +116,16 @@ fun RowScope.AddItem(
     currentDestination: NavDestination?,
     navController: NavHostController
 ) {
+    val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
     BottomNavigationItem(
         icon = {
             Icon(
                 painter = painterResource(id = screen.icon),
+                tint = if (selected) Color.Unspecified else MyColors.grey8d95a0,
                 contentDescription = "Navigation Icon"
             )
         },
-        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-        selectedContentColor = MyColors.yellow_d9ff00,
-        unselectedContentColor = MyColors.grey8d95a0,
+        selected = selected,
         onClick = {
             navController.navigate(screen.route) {
                 navController.graph.startDestinationRoute?.let { screen_route ->
