@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.dialog
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,9 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Comment
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,38 +20,107 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.model.BaseComment
 import com.nexters.teamvs.naenio.ui.model.Comment
+import com.nexters.teamvs.naenio.ui.comment.CommentViewModel
+import com.nexters.teamvs.naenio.ui.comment.ReplyViewModel
 
 sealed class CommentEvent {
     data class Write(val text: String) : CommentEvent()
     data class Like(val like: Boolean) : CommentEvent()
     object More : CommentEvent()
+    object Close: CommentEvent()
+}
+
+enum class CommentMode{
+    Comment, Reply
+}
+
+@Composable
+fun CommentScreen(
+    onEvent: (CommentEvent) -> Unit,
+) {
+    /**
+     * 댓글 창을 보여줘야 하면 true. 답글 창을 보여줘야 하면 false
+     */
+    var mode by remember { mutableStateOf(CommentMode.Comment) }
+
+    AnimatedVisibility(visible = mode == CommentMode.Comment) {
+        CommentSheetLayout(
+            commentViewModel = hiltViewModel(),
+            changeMode = {
+                mode = it
+            },
+            onEvent = onEvent
+        )
+    }
+    AnimatedVisibility(visible = mode == CommentMode.Reply) {
+        ReplySheetLayout(
+            replyViewModel = hiltViewModel(),
+            changeMode = {
+                mode = it
+            },
+            onEvent = onEvent
+        )
+    }
 }
 
 @Composable
 fun CommentSheetLayout(
-    comments: List<Comment>,
+    commentViewModel: CommentViewModel,
+    changeMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
+    val comments = commentViewModel.comments.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MyColors.darkGrey_313643, shape = RectangleShape)
             .aspectRatio(0.6f)
     ) {
-        CommentHeader()
-        CommentList(
-            modifier = Modifier.weight(1f),
-            comments = comments,
+        CommentHeader(
+            commentCount = comments.value.size,
             onEvent = onEvent
         )
-        //TODO 키보드에 가리는 이슈,,
+        CommentList(
+            modifier = Modifier.weight(1f),
+            mode = CommentMode.Comment,
+            comments = comments.value,
+            changeMode = changeMode,
+            onEvent = onEvent
+        )
         CommentEditText(onEvent = onEvent)
     }
+}
 
+@Composable
+fun ReplySheetLayout(
+    replyViewModel: ReplyViewModel,
+    changeMode: (CommentMode) -> Unit,
+    onEvent: (CommentEvent) -> Unit,
+) {
+    val replies = replyViewModel.replies.collectAsState()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MyColors.darkGrey_313643, shape = RectangleShape)
+            .aspectRatio(0.6f)
+    ) {
+        ReplyHeader(changeMode = changeMode, onEvent = onEvent)
+        CommentList(
+            modifier = Modifier.weight(1f),
+            comments = replies.value,
+            mode = CommentMode.Reply,
+            changeMode = changeMode,
+            onEvent = onEvent
+        )
+        CommentEditText(onEvent = onEvent)
+    }
 }
 
 @Composable
@@ -91,7 +158,10 @@ fun CommentEditText(
 }
 
 @Composable
-fun CommentHeader() {
+fun CommentHeader(
+    commentCount: Int,
+    onEvent: (CommentEvent) -> Unit,
+) {
     Row(
         modifier = Modifier
             .padding(horizontal = 20.dp)
@@ -100,7 +170,7 @@ fun CommentHeader() {
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_comment_icon),
-            contentDescription = "close"
+            contentDescription = "heard comment icon"
         )
         Text(
             modifier = Modifier.padding(start = 6.dp, end = 9.dp),
@@ -111,7 +181,7 @@ fun CommentHeader() {
 
         Text(
             modifier = Modifier.padding(end = 9.dp),
-            text = stringResource(id = R.string.comment),
+            text = commentCount.toString(),
             color = MyColors.grey_d9d9d9,
             style = Font.pretendardRegular16
         )
@@ -119,6 +189,46 @@ fun CommentHeader() {
         Spacer(modifier = Modifier.weight(1f))
 
         Image(
+            modifier = Modifier.clickable {
+                onEvent.invoke(CommentEvent.Close)
+            },
+            painter = painterResource(id = R.drawable.ic_close),
+            contentDescription = "close"
+        )
+    }
+}
+
+@Composable
+fun ReplyHeader(
+    changeMode: (CommentMode) -> Unit,
+    onEvent: (CommentEvent) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .padding(top = 20.dp, bottom = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.clickable {
+                changeMode.invoke(CommentMode.Comment)
+            },
+            painter = painterResource(id = R.drawable.ic_back_left),
+            contentDescription = ""
+        )
+        Text(
+            modifier = Modifier.padding(start = 5.dp, end = 9.dp),
+            text = stringResource(id = R.string.reply_comment),
+            color = Color.White,
+            style = Font.pretendardSemiBold16
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Image(
+            modifier = Modifier.clickable {
+                onEvent.invoke(CommentEvent.Close)
+            },
             painter = painterResource(id = R.drawable.ic_close),
             contentDescription = "close"
         )
@@ -128,7 +238,9 @@ fun CommentHeader() {
 @Composable
 fun CommentList(
     modifier: Modifier,
-    comments: List<Comment>,
+    mode: CommentMode,
+    comments: List<BaseComment>,
+    changeMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
     LazyColumn(modifier = modifier) {
@@ -142,14 +254,21 @@ fun CommentList(
             )
         }
         items(comments) {
-            CommentItem(it, onEvent)
+            CommentItem(
+                comment = it,
+                mode = mode,
+                onCommentMode = changeMode,
+                onEvent = onEvent
+            )
         }
     }
 }
 
 @Composable
 fun CommentItem(
-    comment: Comment,
+    comment: BaseComment,
+    mode: CommentMode,
+    onCommentMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
     Column(
@@ -160,7 +279,7 @@ fun CommentItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(start = if (comment is Comment) 20.dp else 52.dp, end = 20.dp)
                 .wrapContentHeight(),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -205,7 +324,10 @@ fun CommentItem(
         Spacer(modifier = Modifier.height(5.dp))
 
         Column(
-            modifier = Modifier.padding(start = 50.dp, end = 20.dp)
+            modifier = Modifier.padding(
+                start = if (comment is Comment) 52.dp else 83.dp,
+                end = 20.dp
+            )
         ) {
             Text(text = comment.content, color = Color.White, fontSize = 14.sp)
 
@@ -219,9 +341,9 @@ fun CommentItem(
                         .padding(end = 4.dp)
                         .size(12.dp)
                         .clickable {
-                            onEvent.invoke(CommentEvent.Like(!comment.like))
+                            onEvent.invoke(CommentEvent.Like(!comment.isLiked))
                         },
-                    painter = if (comment.like) painterResource(id = R.drawable.ic_heart_outlined)
+                    painter = if (comment.isLiked) painterResource(id = R.drawable.ic_heart_outlined)
                     else painterResource(id = R.drawable.ic_launcher_background),
                     tint = Color.White,
                     contentDescription = null
@@ -234,28 +356,35 @@ fun CommentItem(
 
                 Spacer(modifier = Modifier.width(18.dp))
 
-                Icon(
-                    modifier = Modifier
-                        .padding(end = 4.dp)
-                        .size(12.dp),
-                    painter = painterResource(id = R.drawable.ic_comment),
-                    tint = Color.White,
-                    contentDescription = null
-                )
-                Text(
-                    text = comment.likeCount.toString(),
-                    fontSize = 12.sp,
-                    color = Color.White
-                )
+                if (comment is Comment) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .size(12.dp),
+                        painter = painterResource(id = R.drawable.ic_comment),
+                        tint = Color.White,
+                        contentDescription = null
+                    )
+                    Text(
+                        text = comment.likeCount.toString(),
+                        fontSize = 12.sp,
+                        color = Color.White
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = stringResource(id = R.string.more_comments),
-                fontSize = 16.sp,
-                color = MyColors.blue_3979F2
-            )
+            if (mode == CommentMode.Comment) {
+                Text(
+                    modifier = Modifier.clickable {
+                        onCommentMode.invoke(CommentMode.Reply)
+                    },
+                    text = stringResource(id = R.string.see_replies),
+                    fontSize = 16.sp,
+                    color = MyColors.blue_3979F2
+                )
+            }
         }
         Spacer(
             modifier = Modifier
@@ -271,7 +400,8 @@ fun CommentItem(
 @Composable
 fun CommentSheetPreview() {
     CommentSheetLayout(
-        comments = Comment.mock
+        commentViewModel = viewModel(),
+        changeMode = {}
     ) {
 
     }

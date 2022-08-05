@@ -54,14 +54,6 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
         }
     }
 
-//    BackHandler {
-//        if (!modalBottomSheetState.isVisible) {
-//            closeSheet.invoke()
-//        } else {
-//            navController.popBackStack()
-//        }
-//    }
-
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState,
         sheetShape = MyShape.TopRoundedCornerShape,

@@ -25,6 +25,7 @@ import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.dialog.CommentEvent
 import com.nexters.teamvs.naenio.ui.model.Comment
 import kotlinx.coroutines.delay
 
@@ -45,7 +46,9 @@ fun FeedScreen(
         }
     }
     Column(
-        modifier = Modifier.fillMaxSize().background(MyColors.black1D1C2C)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MyColors.black1D1C2C)
     ) {
         Text(
             modifier = Modifier.padding(top = 19.dp, start = 20.dp),
@@ -112,6 +115,16 @@ fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
                         comments = Comment.mock,
                         onEvent = {
                             Log.d("### FeedScreen", "$it")
+                            when(it) {
+                                is CommentEvent.Like -> {
+                                }
+                                CommentEvent.More -> {
+                                }
+                                is CommentEvent.Write -> {
+                                }
+                                CommentEvent.Close -> {
+                                }
+                            }
                         }
                     )
                 )
