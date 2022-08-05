@@ -14,6 +14,9 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.comment.CommentEvent
+import com.nexters.teamvs.naenio.ui.comment.CommentScreen
 import com.nexters.teamvs.naenio.ui.model.BaseComment
 
 sealed class BottomSheetType {
@@ -49,7 +52,10 @@ fun BottomSheetContainer(
     closeButtonColor: Color = Color.Gray,
     content: @Composable() () -> Unit
 ) {
-    Box(modifier.fillMaxWidth()) {
+    Box(
+        modifier
+            .background(MyColors.darkGrey_313643)
+            .fillMaxWidth()) {
         content()
     }
 }

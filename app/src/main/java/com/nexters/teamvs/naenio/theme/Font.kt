@@ -91,7 +91,7 @@ object Font {
         fontWeight = FontWeight.W400,
         fontSize = 16.sp
     )
-    val body1 = TextStyle(
+    val pretendardSemiBold14 = TextStyle(
         fontFamily = FontFamily(Font(R.font.pretendard_semibold)),
         fontWeight = FontWeight.W600,
         fontSize = 14.sp
@@ -101,7 +101,7 @@ object Font {
         fontWeight = FontWeight.W500,
         fontSize = 14.sp
     )
-    val button = TextStyle(
+    val pretendardRegular14 = TextStyle(
         fontFamily = FontFamily(Font(R.font.pretendard_regular)),
         fontWeight = FontWeight.W400,
         fontSize = 14.sp
