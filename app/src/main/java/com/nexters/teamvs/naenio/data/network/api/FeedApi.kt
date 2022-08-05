@@ -1,10 +1,7 @@
 package com.nexters.teamvs.naenio.data.network.api
 
 import com.nexters.teamvs.naenio.data.network.dto.*
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface FeedApi {
     @POST("/app/posts")
@@ -14,6 +11,7 @@ interface FeedApi {
 
     @GET("/app/feed")
     suspend fun getFeedPosts(
-        @Body feedRequest: FeedRequest
+        @Query("size") size: Int,
+        @Query("lastPostId") lastPostId: Int?
     ): FeedResponse
 }

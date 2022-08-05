@@ -1,23 +1,34 @@
 package com.nexters.teamvs.naenio.data.network.api
 
-import com.nexters.teamvs.naenio.data.network.dto.CommentResponse
-import com.nexters.teamvs.naenio.data.network.dto.LikeCommentRequest
-import com.nexters.teamvs.naenio.data.network.dto.WriteCommentRequest
-import com.nexters.teamvs.naenio.data.network.dto.WriteCommentResponse
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.POST
+import com.nexters.teamvs.naenio.data.network.dto.*
+import com.nexters.teamvs.naenio.ui.model.Comment
+import retrofit2.http.*
 
 interface CommentApi {
+
+    @GET("/app/comments/{id}/comments")
+    suspend fun getComments(
+        @Path("id") id: Int,
+        @Query("size") size: Int,
+        @Query("lastCommentId") lastCommentId: Int,
+    ): CommentResponse
+
+    @GET("/app/comments/{id}/comment-replies")
+    suspend fun getCommentReplies(
+        @Path("id") id: Int,
+        @Query("size") size: Int,
+        @Query("lastCommentId") lastCommentId: Int,
+    ): ReplyResponse
+
     @POST("/app/comment-likes")
     suspend fun likeComment (
         @Body likeCommentRequest: LikeCommentRequest
-    ): CommentResponse
+    ): LikeCommentResponse
 
     @DELETE("/app/comment-likes")
     suspend fun unlikeComment (
         @Body likeCommentRequest: LikeCommentRequest
-    ): CommentResponse
+    ): LikeCommentResponse
 
     @POST("/app/comments")
     suspend fun writeComment (

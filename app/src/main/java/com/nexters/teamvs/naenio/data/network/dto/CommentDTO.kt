@@ -9,12 +9,30 @@ data class LikeCommentRequest(val commentId: String)
 
 @Serializable
 @Keep
-data class CommentResponse(
+data class LikeCommentResponse(
     val commentId: Int,
     val createdDateTime: String,
     val id: Int,
     val lastModifiedDateTime: String,
     val memberId: Int
+)
+
+@Serializable
+@Keep
+data class CommentResponse(
+    val comments: List<PostCommentResponse>,
+    val totalCommentCount: Int
+)
+
+@Serializable
+@Keep
+data class PostCommentResponse(
+    val author: AuthorResponse,
+    val createdDatetime: String,
+    val id: Int,
+    val isLiked: Boolean,
+    val likeCount: Int,
+    val repliesCount: Int
 )
 
 @Serializable
@@ -37,6 +55,25 @@ data class WriteCommentResponse(
     val parentType: String
 )
 
+
+@Serializable
+@Keep
+data class ReplyResponse(
+    val commentReplies: List<CommentReply>
+)
+
+@Serializable
+@Keep
+data class CommentReply(
+    val author: AuthorResponse,
+    val createdDatetime: String,
+    val id: Int,
+    val isLiked: Boolean,
+    val likeCount: Int
+)
+
+@Serializable
+@Keep
 enum class CommentParentType {
     POST, COMMENT
 }

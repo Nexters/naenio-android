@@ -1,7 +1,9 @@
 package com.nexters.teamvs.naenio.di
 
 import com.nexters.teamvs.naenio.data.network.ApiProvider
-import com.nexters.teamvs.naenio.data.network.api.NaenioApi
+import com.nexters.teamvs.naenio.data.network.api.CommentApi
+import com.nexters.teamvs.naenio.data.network.api.FeedApi
+import com.nexters.teamvs.naenio.data.network.api.UserApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +16,19 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideNaenioApi(): NaenioApi {
-        return ApiProvider.retrofit.create(NaenioApi::class.java)
+    fun provideUserApi(): UserApi {
+        return ApiProvider.retrofit.create(UserApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideFeedApi(): FeedApi {
+        return ApiProvider.retrofit.create(FeedApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideCommentApi(): CommentApi {
+        return ApiProvider.retrofit.create(CommentApi::class.java)
     }
 }

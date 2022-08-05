@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio.ui.tabs
+package com.nexters.teamvs.naenio.ui.feed
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
@@ -27,12 +28,14 @@ import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.dialog.CommentEvent
 import com.nexters.teamvs.naenio.ui.model.Comment
+import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
     navController: NavHostController,
+    viewModel: FeedViewModel = hiltViewModel(),
     modifier: Modifier,
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
