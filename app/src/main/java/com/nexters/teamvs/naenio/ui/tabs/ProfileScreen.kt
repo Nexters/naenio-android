@@ -9,19 +9,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import com.nexters.teamvs.naenio.R
 import androidx.navigation.NavHostController
+import com.nexters.teamvs.naenio.theme.MyColors
 
 @Composable
 fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.teal_700))
+            .background(MyColors.screenBackgroundColor)
             .wrapContentSize(Alignment.Center)
     ) {
         Text(

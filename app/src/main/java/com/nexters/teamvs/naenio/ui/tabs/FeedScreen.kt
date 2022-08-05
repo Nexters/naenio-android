@@ -48,7 +48,7 @@ fun FeedScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MyColors.black1D1C2C)
+            .background(MyColors.screenBackgroundColor)
     ) {
         Text(
             modifier = Modifier.padding(top = 19.dp, start = 20.dp),

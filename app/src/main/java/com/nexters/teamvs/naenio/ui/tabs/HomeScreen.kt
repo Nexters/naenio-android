@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -19,6 +18,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.graphs.Graph
+import com.nexters.teamvs.naenio.theme.MyColors
 
 @Composable
 fun HomeScreen(navController: NavHostController, modifier: Modifier) {
@@ -27,7 +27,7 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.teal_700))
+            .background(MyColors.screenBackgroundColor)
             .wrapContentSize(Alignment.Center)
     ) {
         LottieAnimation(
