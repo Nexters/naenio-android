@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio.data
+package com.nexters.teamvs.naenio.repository
 
 import android.util.Log
 import com.nexters.teamvs.naenio.base.BaseRepository

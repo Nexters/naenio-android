@@ -22,4 +22,24 @@ interface NaenioApi {
     suspend fun writePost(
         @Body writePostRequest: WritePostRequest
     ): PostResponse
+
+    @POST("/app/comment-likes")
+    suspend fun likeComment (
+        @Body likeCommentRequest: LikeCommentRequest
+    ): CommentResponse
+
+    @DELETE("/app/comment-likes")
+    suspend fun unlikeComment (
+        @Body likeCommentRequest: LikeCommentRequest
+    ): CommentResponse
+
+    @POST("/app/comments")
+    suspend fun writeComment (
+        @Body likeCommentRequest: LikeCommentRequest
+    ): CommentResponse
+
+    @GET("/app/feed")
+    suspend fun getFeedPosts(
+        @Body feedRequest: FeedRequest
+    ): FeedResponse
 }

@@ -14,7 +14,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.nexters.teamvs.naenio.BuildConfig
 import com.nexters.teamvs.naenio.base.BaseViewModel
-import com.nexters.teamvs.naenio.data.UserRepository
+import com.nexters.teamvs.naenio.repository.UserRepository
 import com.nexters.teamvs.naenio.data.network.dto.AuthType
 import com.nexters.teamvs.naenio.utils.loginWithKakao
 import dagger.hilt.android.lifecycle.HiltViewModel
