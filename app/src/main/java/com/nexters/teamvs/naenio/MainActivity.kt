@@ -5,17 +5,21 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 import com.nexters.teamvs.naenio.graphs.RootNavigationGraph
 import com.nexters.teamvs.naenio.theme.NaenioTheme
+import com.nexters.teamvs.naenio.utils.KeyboardUtils
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
-import com.nexters.teamvs.naenio.utils.datastore.DataStoreUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val keyboardUtils = KeyboardUtils()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,11 +29,14 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        Log.d("### user token " , AuthDataStore.authToken)
+        keyboardUtils.setKeyboardListener(window.decorView)
+
+        Log.d("### user token ", AuthDataStore.authToken)
+
         Firebase.dynamicLinks.getDynamicLink(intent)
             .addOnSuccessListener { pendingDynamicLinkData ->
-                var deepLink : Uri? = null
-                if(pendingDynamicLinkData != null) {
+                var deepLink: Uri? = null
+                if (pendingDynamicLinkData != null) {
                     deepLink = pendingDynamicLinkData.link
                     Log.d("###", "dynamicLink 수신 테스트 :: ${deepLink.toString()}")
                 }
