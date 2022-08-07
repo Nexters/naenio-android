@@ -1,9 +1,7 @@
 package com.nexters.teamvs.naenio.ui.comment
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,6 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.insets.ExperimentalAnimatedInsets
+import com.google.accompanist.insets.navigationBarsWithImePadding
+import com.google.accompanist.insets.rememberImeNestedScrollConnection
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
@@ -41,8 +43,8 @@ sealed class CommentEvent {
 }
 
 sealed class CommentMode {
-    object COMMENT: CommentMode()
-    data class REPLY(val parentComment: Comment): CommentMode()
+    object COMMENT : CommentMode()
+    data class REPLY(val parentComment: Comment) : CommentMode()
 }
 
 @Composable
@@ -75,7 +77,8 @@ fun CommentScreen(
     ) {
         ReplySheetLayout(
             replyViewModel = hiltViewModel(),
-            parentComment = (mode as? CommentMode.REPLY)?.parentComment ?: return@AnimatedVisibility,
+            parentComment = (mode as? CommentMode.REPLY)?.parentComment
+                ?: return@AnimatedVisibility,
             changeMode = {
                 mode = it
             },
@@ -112,70 +115,54 @@ fun CommentSheetLayout(
     }
 }
 
-@Composable
-fun ReplySheetLayout(
-    replyViewModel: ReplyViewModel,
-    parentComment: Comment,
-    changeMode: (CommentMode) -> Unit,
-    onEvent: (CommentEvent) -> Unit,
-) {
-    val replies = replyViewModel.replies.collectAsState()
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MyColors.darkGrey_313643, shape = RectangleShape)
-            .aspectRatio(0.6f)
-    ) {
-        ReplyHeader(changeMode = changeMode, onEvent = onEvent)
-        ReplyList(
-            modifier = Modifier.weight(1f),
-            parentComment = parentComment,
-            comments = replies.value,
-            mode = CommentMode.REPLY(parentComment),
-            changeMode = changeMode,
-            onEvent = onEvent
-        )
-        CommentEditText(onEvent = onEvent)
-    }
-}
-
+@OptIn(ExperimentalAnimatedInsets::class)
 @Composable
 fun CommentEditText(
     onEvent: (CommentEvent) -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
 
-    TextField(
+    Row(
         modifier = Modifier
+            .background(Color(0xff20232c))
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 40.dp),
-        textStyle = pretendardRegular14,
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = Color.White,
-            backgroundColor = Color(0xff4F5564),
-        ),
-        value = input,
-        leadingIcon = {
-            ProfileImageIcon()
-        },
-        trailingIcon = {
-            Text(
-                style = pretendardSemiBold14,
-                color = MyColors.pink,
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(start = 6.dp, end = 16.dp)
-                    .clickable {
-                        onEvent.invoke(CommentEvent.Write(input))
-                    },
-                text = stringResource(id = R.string.write_comment)
-            )
-        },
-        shape = RoundedCornerShape(3.dp),
-        onValueChange = {
-            input = it
-        }
-    )
+            .padding(horizontal = 16.dp)
+            .wrapContentHeight()
+    ) {
+        ProfileImageIcon(Modifier.padding(top = 16.dp))
+
+        TextField(
+            modifier = Modifier
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(vertical = 15.dp)
+                .weight(1f)
+                .defaultMinSize(minHeight = 32.dp),
+            textStyle = pretendardRegular14,
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = Color.White,
+                backgroundColor = Color(0xff4F5564),
+            ),
+            value = input,
+            shape = RoundedCornerShape(3.dp),
+            onValueChange = {
+                input = it
+            }
+        )
+
+        Text(
+            style = pretendardSemiBold14,
+            color = MyColors.pink,
+            modifier = Modifier
+                .wrapContentSize()
+                .align(Alignment.Bottom)
+                .padding(start = 12.dp, bottom = 16.dp)
+                .clickable {
+                    onEvent.invoke(CommentEvent.Write(input))
+                },
+            text = stringResource(id = R.string.write_comment)
+        )
+    }
 }
 
 @Composable
@@ -220,43 +207,6 @@ fun CommentHeader(
 }
 
 @Composable
-fun ReplyHeader(
-    changeMode: (CommentMode) -> Unit,
-    onEvent: (CommentEvent) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .padding(top = 20.dp, bottom = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            modifier = Modifier.clickable {
-                changeMode.invoke(CommentMode.COMMENT)
-            },
-            painter = painterResource(id = R.drawable.ic_back_left),
-            contentDescription = ""
-        )
-        Text(
-            modifier = Modifier.padding(start = 5.dp, end = 9.dp),
-            text = stringResource(id = R.string.reply_comment),
-            color = Color.White,
-            style = Font.pretendardSemiBold16
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Image(
-            modifier = Modifier.clickable {
-                onEvent.invoke(CommentEvent.Close)
-            },
-            painter = painterResource(id = R.drawable.ic_close),
-            contentDescription = "close"
-        )
-    }
-}
-
-@Composable
 fun CommentList(
     modifier: Modifier,
     mode: CommentMode,
@@ -272,44 +222,6 @@ fun CommentList(
                     .fillMaxWidth()
                     .height(1.dp)
                     .background(MyColors.grey3f3f3f)
-            )
-        }
-        items(comments) {
-            CommentItem(
-                comment = it,
-                mode = mode,
-                onCommentMode = changeMode,
-                onEvent = onEvent
-            )
-        }
-    }
-}
-
-@Composable
-fun ReplyList(
-    modifier: Modifier,
-    parentComment: Comment,
-    mode: CommentMode,
-    comments: List<BaseComment>,
-    changeMode: (CommentMode) -> Unit,
-    onEvent: (CommentEvent) -> Unit,
-) {
-    LazyColumn(modifier = modifier) {
-        item {
-            Spacer(
-                modifier = Modifier
-                    .padding(bottom = 19.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(MyColors.grey3f3f3f)
-            )
-        }
-        item {
-            CommentItem(
-                comment = parentComment,
-                mode = mode,
-                onCommentMode = changeMode,
-                onEvent = onEvent
             )
         }
         items(comments) {
@@ -447,14 +359,13 @@ fun CommentItem(
 }
 
 @Composable
-fun ProfileImageIcon() {
+fun ProfileImageIcon(modifier: Modifier = Modifier) {
     //TODO 프로필 이미지 타입 정의
     Icon(
-        modifier = Modifier
-            .padding(end = 7.dp)
+        modifier = modifier
+            .padding(end = 8.dp)
             .size(21.dp)
-            .clip(CircleShape)
-        ,
+            .clip(CircleShape),
         tint = Color.Yellow,
         painter = painterResource(id = R.drawable.ic_launcher_background),
         contentDescription = "profileThumbnail"
