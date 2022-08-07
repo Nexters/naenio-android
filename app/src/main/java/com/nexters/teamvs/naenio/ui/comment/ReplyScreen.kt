@@ -24,6 +24,7 @@ import com.nexters.teamvs.naenio.ui.model.Comment
 
 @Composable
 fun ReplySheetLayout(
+    modifier: Modifier,
     replyViewModel: ReplyViewModel,
     parentComment: Comment,
     changeMode: (CommentMode) -> Unit,
@@ -31,10 +32,7 @@ fun ReplySheetLayout(
 ) {
     val replies = replyViewModel.replies.collectAsState()
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MyColors.darkGrey_313643, shape = RectangleShape)
-            .aspectRatio(0.6f)
+        modifier = modifier
     ) {
         ReplyHeader(changeMode = changeMode, onEvent = onEvent)
         ReplyList(

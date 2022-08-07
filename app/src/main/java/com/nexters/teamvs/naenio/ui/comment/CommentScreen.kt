@@ -15,7 +15,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,8 +24,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.ExperimentalAnimatedInsets
-import com.google.accompanist.insets.navigationBarsWithImePadding
-import com.google.accompanist.insets.rememberImeNestedScrollConnection
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
@@ -49,6 +46,7 @@ sealed class CommentMode {
 
 @Composable
 fun CommentScreen(
+    modifier: Modifier = Modifier,
     onEvent: (CommentEvent) -> Unit,
 ) {
     /**
@@ -62,6 +60,7 @@ fun CommentScreen(
         exit = ExitTransition.None
     ) {
         CommentSheetLayout(
+            modifier = modifier,
             commentViewModel = hiltViewModel(),
             changeMode = {
                 mode = it
@@ -76,6 +75,7 @@ fun CommentScreen(
         exit = slideOutHorizontally()
     ) {
         ReplySheetLayout(
+            modifier = modifier,
             replyViewModel = hiltViewModel(),
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
@@ -89,16 +89,14 @@ fun CommentScreen(
 
 @Composable
 fun CommentSheetLayout(
+    modifier: Modifier,
     commentViewModel: CommentViewModel,
     changeMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
     val comments = commentViewModel.comments.collectAsState()
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MyColors.darkGrey_313643, shape = RectangleShape)
-            .aspectRatio(0.6f)
+        modifier = modifier
     ) {
         CommentHeader(
             commentCount = comments.value.size,
@@ -376,6 +374,10 @@ fun ProfileImageIcon(modifier: Modifier = Modifier) {
 @Composable
 fun CommentSheetPreview() {
     CommentSheetLayout(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MyColors.darkGrey_313643, shape = RectangleShape)
+            .aspectRatio(0.6f),
         commentViewModel = viewModel(),
         changeMode = {}
     ) {
