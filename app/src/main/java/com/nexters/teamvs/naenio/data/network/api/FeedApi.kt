@@ -13,5 +13,5 @@ interface FeedApi {
     suspend fun getFeedPosts(
         @Query("size") size: Int,
         @Query("lastPostId") lastPostId: Int?
-    ): FeedResponse
+    ): List<PostResponse>
 }

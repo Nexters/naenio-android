@@ -27,6 +27,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
@@ -45,6 +46,7 @@ fun FeedScreen(
     closeSheet: () -> Unit,
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
+    val posts = viewModel.posts.collectAsState()
 
     BackHandler {
         if (modalBottomSheetState.isVisible) {
@@ -65,7 +67,11 @@ fun FeedScreen(
             color = Color.White
         )
         Box {
-            FeedPager(modifier, openSheet)
+            FeedPager(
+                modifier = modifier,
+                posts = posts.value,
+                openSheet = openSheet
+            )
             LottieAnimation(
                 composition,
                 modifier = Modifier.wrapContentSize(),
@@ -80,10 +86,11 @@ fun FeedScreen(
 @Composable
 fun FeedPager(
     modifier: Modifier,
+    posts: List<Post>,
     openSheet: (BottomSheetType) -> Unit,
 ) {
     VerticalPager(
-        count = 10,
+        count = posts.size,
         contentPadding = PaddingValues(bottom = 100.dp),
         modifier = modifier
             .padding(start = 20.dp, end = 20.dp)
@@ -95,6 +102,7 @@ fun FeedPager(
         ) {
             FeedItem(
                 page = page,
+                post = posts[page],
                 openSheet = openSheet
             )
         }
@@ -103,7 +111,11 @@ fun FeedPager(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
+fun FeedItem(
+    page: Int,
+    post: Post,
+    openSheet: (BottomSheetType) -> Unit
+) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
         while (gage < 1) {
@@ -119,7 +131,7 @@ fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
             .wrapContentSize(Alignment.Center)
     ) {
         Text(
-            text = "Feed Screen $page",
+            text = "Feed Screen $page ${post.title}",
             color = Color.White,
             fontSize = 17.sp
         )
@@ -130,7 +142,7 @@ fun FeedItem(page: Int, openSheet: (BottomSheetType) -> Unit) {
                         comments = Comment.mock,
                         onEvent = {
                             Log.d("### FeedScreen", "$it")
-                            when(it) {
+                            when (it) {
                                 is CommentEvent.Like -> {
                                 }
                                 CommentEvent.More -> {

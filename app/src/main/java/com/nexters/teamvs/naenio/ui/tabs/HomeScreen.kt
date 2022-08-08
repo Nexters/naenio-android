@@ -49,6 +49,7 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier) {
             fontWeight = FontWeight.Bold,
             color = Color.White,
             modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
+                navController.popBackStack()
                 navController.navigate(Graph.AUTHENTICATION)
             },
             textAlign = TextAlign.Center,

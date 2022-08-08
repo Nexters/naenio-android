@@ -1,8 +1,7 @@
-package com.nexters.teamvs.naenio.repository
+package com.nexters.teamvs.naenio.domain.repository
 
 import com.nexters.teamvs.naenio.data.network.api.CommentApi
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
-import com.nexters.teamvs.naenio.data.network.dto.PostCommentResponse
 import com.nexters.teamvs.naenio.data.network.dto.WriteCommentRequest
 import javax.inject.Inject
 
