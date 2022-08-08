@@ -2,7 +2,6 @@ package com.nexters.teamvs.naenio.ui.comment
 
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
-import com.nexters.teamvs.naenio.ui.model.Reply
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

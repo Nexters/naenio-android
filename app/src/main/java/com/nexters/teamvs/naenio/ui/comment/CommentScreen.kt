@@ -29,8 +29,6 @@ import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.model.BaseComment
-import com.nexters.teamvs.naenio.ui.model.Comment
 
 sealed class CommentEvent {
     data class Write(val text: String) : CommentEvent()
@@ -98,7 +96,12 @@ fun CommentSheetLayout(
     changeMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
+    LaunchedEffect(key1 = postId, block = {
+        commentViewModel.getComments(postId)
+    })
+
     val comments = commentViewModel.comments.collectAsState()
+
     Column(
         modifier = modifier
     ) {

@@ -21,4 +21,12 @@ data class Author(
     val id: Int,
     val nickname: String,
     val profileImageIndex: Int?
-)
+) {
+    companion object {
+        val mock: Author = Author(
+            id = -1,
+            nickname = "???",
+            profileImageIndex = 0
+        )
+    }
+}

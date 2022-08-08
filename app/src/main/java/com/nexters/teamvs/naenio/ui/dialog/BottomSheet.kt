@@ -17,7 +17,6 @@ import com.nexters.teamvs.naenio.utils.KeyboardUtils
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
 import com.nexters.teamvs.naenio.ui.comment.CommentScreen
-import com.nexters.teamvs.naenio.ui.model.BaseComment
 
 sealed class BottomSheetType {
     data class CommentType(

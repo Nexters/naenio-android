@@ -29,6 +29,7 @@ data class CommentResponse(
 data class PostCommentResponse(
     val author: AuthorResponse,
     val createdDatetime: String,
+    val content: String,
     val id: Int,
     val isLiked: Boolean,
     val likeCount: Int,
