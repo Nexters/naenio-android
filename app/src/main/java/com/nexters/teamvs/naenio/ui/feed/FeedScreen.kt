@@ -55,6 +55,7 @@ fun FeedScreen(
             navController.popBackStack()
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -139,7 +140,7 @@ fun FeedItem(
             onClick = {
                 openSheet(
                     BottomSheetType.CommentType(
-                        comments = Comment.mock,
+                        postId = post.id,
                         onEvent = {
                             Log.d("### FeedScreen", "$it")
                             when (it) {

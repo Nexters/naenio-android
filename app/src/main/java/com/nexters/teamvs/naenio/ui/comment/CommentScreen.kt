@@ -47,6 +47,7 @@ sealed class CommentMode {
 @Composable
 fun CommentScreen(
     modifier: Modifier = Modifier,
+    postId: Int,
     onEvent: (CommentEvent) -> Unit,
 ) {
     /**
@@ -62,6 +63,7 @@ fun CommentScreen(
         CommentSheetLayout(
             modifier = modifier,
             commentViewModel = hiltViewModel(),
+            postId = postId,
             changeMode = {
                 mode = it
             },
@@ -77,6 +79,7 @@ fun CommentScreen(
         ReplySheetLayout(
             modifier = modifier,
             replyViewModel = hiltViewModel(),
+            postId = postId,
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
@@ -91,6 +94,7 @@ fun CommentScreen(
 fun CommentSheetLayout(
     modifier: Modifier,
     commentViewModel: CommentViewModel,
+    postId: Int,
     changeMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
@@ -378,6 +382,7 @@ fun CommentSheetPreview() {
             .fillMaxWidth()
             .background(MyColors.darkGrey_313643, shape = RectangleShape)
             .aspectRatio(0.6f),
+        postId = -1,
         commentViewModel = viewModel(),
         changeMode = {}
     ) {

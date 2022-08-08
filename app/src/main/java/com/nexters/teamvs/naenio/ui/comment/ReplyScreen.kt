@@ -26,6 +26,7 @@ import com.nexters.teamvs.naenio.ui.model.Comment
 fun ReplySheetLayout(
     modifier: Modifier,
     replyViewModel: ReplyViewModel,
+    postId: Int,
     parentComment: Comment,
     changeMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,

@@ -21,7 +21,7 @@ import com.nexters.teamvs.naenio.ui.model.BaseComment
 
 sealed class BottomSheetType {
     data class CommentType(
-        val comments: List<BaseComment>,
+        val postId: Int,
         val onEvent: (CommentEvent) -> Unit,
     ) : BottomSheetType()
 
@@ -50,6 +50,7 @@ fun SheetLayout(
                             .padding(bottom = with(LocalDensity.current) { keyboardHeight.value.toDp() })
                             .fillMaxSize()
                     },
+                    postId = currentScreen.postId,
                     onEvent = currentScreen.onEvent
                 )
             }
