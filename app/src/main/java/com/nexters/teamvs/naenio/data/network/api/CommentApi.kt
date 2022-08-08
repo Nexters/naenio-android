@@ -5,7 +5,7 @@ import retrofit2.http.*
 
 interface CommentApi {
 
-    @GET("/app/comments/{id}/comments")
+    @GET("/app/posts/{id}/comments")
     suspend fun getComments(
         @Path("id") id: Int,
         @Query("size") size: Int,
