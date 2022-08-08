@@ -45,6 +45,7 @@ fun FeedScreen(
     closeSheet: () -> Unit,
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
+    val posts = viewModel.posts.collectAsState()
 
     BackHandler {
         if (modalBottomSheetState.isVisible) {
