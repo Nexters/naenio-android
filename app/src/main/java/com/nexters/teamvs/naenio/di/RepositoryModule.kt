@@ -2,10 +2,10 @@ package com.nexters.teamvs.naenio.di
 
 import com.nexters.teamvs.naenio.data.network.api.CommentApi
 import com.nexters.teamvs.naenio.data.network.api.FeedApi
-import com.nexters.teamvs.naenio.repository.UserRepository
+import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.data.network.api.UserApi
-import com.nexters.teamvs.naenio.repository.CommentRepository
-import com.nexters.teamvs.naenio.repository.FeedRepository
+import com.nexters.teamvs.naenio.domain.repository.CommentRepository
+import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

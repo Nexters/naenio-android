@@ -2,8 +2,8 @@ package com.nexters.teamvs.naenio.ui.feed
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nexters.teamvs.naenio.repository.CommentRepository
-import com.nexters.teamvs.naenio.repository.FeedRepository
+import com.nexters.teamvs.naenio.domain.repository.CommentRepository
+import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

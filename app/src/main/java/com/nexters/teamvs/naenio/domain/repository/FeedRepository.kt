@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio.repository
+package com.nexters.teamvs.naenio.domain.repository
 
 import com.nexters.teamvs.naenio.base.BaseRepository
 import com.nexters.teamvs.naenio.data.network.api.FeedApi
