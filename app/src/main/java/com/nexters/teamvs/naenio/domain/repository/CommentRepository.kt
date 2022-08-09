@@ -3,6 +3,7 @@ package com.nexters.teamvs.naenio.domain.repository
 import com.nexters.teamvs.naenio.data.network.api.CommentApi
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
 import com.nexters.teamvs.naenio.data.network.dto.WriteCommentRequest
+import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toComment
 import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toComments
 import com.nexters.teamvs.naenio.ui.comment.Comment
 import javax.inject.Inject
@@ -23,16 +24,30 @@ class CommentRepository @Inject constructor(
     }
 
     suspend fun writeComment(
-        parentId: String,
-        parentType: CommentParentType,
+        postId: Int,
         content: String
-    ) {
-        commentApi.writeComment(
+    ): Comment {
+        val response = commentApi.writeComment(
             WriteCommentRequest(
-                parentId = parentId,
-                parentType = parentType,
+                parentId = postId,
+                parentType = CommentParentType.POST,
                 content = content,
             )
         )
+        return response.toComment()
+    }
+
+    suspend fun writeReply(
+        commentId: Int,
+        content: String
+    ): Comment {
+        val response = commentApi.writeComment(
+            WriteCommentRequest(
+                parentId = commentId,
+                parentType = CommentParentType.COMMENT,
+                content = content,
+            )
+        )
+        return response.toComment()
     }
 }

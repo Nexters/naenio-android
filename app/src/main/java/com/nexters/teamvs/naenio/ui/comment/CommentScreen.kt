@@ -25,13 +25,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.ExperimentalAnimatedInsets
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
 
 sealed class CommentEvent {
-    data class Write(val text: String) : CommentEvent()
+    data class Write(
+        val content: String,
+        val parentId: Int,
+        val parentType: CommentParentType
+    ) : CommentEvent()
+
     data class Like(val like: Boolean) : CommentEvent()
     object More : CommentEvent()
     object Close : CommentEvent()
@@ -77,7 +83,6 @@ fun CommentScreen(
         ReplySheetLayout(
             modifier = modifier,
             replyViewModel = hiltViewModel(),
-            postId = postId,
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
@@ -100,6 +105,20 @@ fun CommentSheetLayout(
         commentViewModel.getComments(postId)
     })
 
+    val eventListener: (CommentEvent) -> Unit = {
+        when (it) {
+            is CommentEvent.Write -> {
+                commentViewModel.writeComment(
+                    postId = it.parentId,
+                    content = it.content,
+                )
+            }
+            else -> {
+
+            }
+        }
+    }
+
     val comments = commentViewModel.comments.collectAsState()
 
     Column(
@@ -116,14 +135,34 @@ fun CommentSheetLayout(
             changeMode = changeMode,
             onEvent = onEvent
         )
-        CommentEditText(onEvent = onEvent)
+        CommentInput(
+            postId = postId,
+            onEvent = eventListener
+        )
     }
 }
+
+@Composable
+fun CommentInput(
+    postId: Int,
+    onEvent: (CommentEvent) -> Unit
+) {
+    CommentEditText {
+        onEvent.invoke(
+            CommentEvent.Write(
+                parentId = postId,
+                parentType = CommentParentType.POST,
+                content = it
+            )
+        )
+    }
+}
+
 
 @OptIn(ExperimentalAnimatedInsets::class)
 @Composable
 fun CommentEditText(
-    onEvent: (CommentEvent) -> Unit,
+    onWrite: (String) -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
 
@@ -163,7 +202,7 @@ fun CommentEditText(
                 .align(Alignment.Bottom)
                 .padding(start = 12.dp, bottom = 16.dp)
                 .clickable {
-                    onEvent.invoke(CommentEvent.Write(input))
+                    onWrite.invoke(input)
                 },
             text = stringResource(id = R.string.write_comment)
         )

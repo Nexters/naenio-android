@@ -2,6 +2,7 @@ package com.nexters.teamvs.naenio.ui.comment
 
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
+import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,4 +32,37 @@ class CommentViewModel @Inject constructor(
         }
     }
 
+    fun writeComment(
+        postId: Int,
+        content: String,
+    ) {
+        viewModelScope.launch {
+            try {
+                val comment = commentRepository.writeComment(
+                    postId = postId,
+                    content = content,
+                )
+
+                _comments.value = listOf(comment) + comments.value
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun writeReply(
+        commentId: Int,
+        content: String,
+    ) {
+        viewModelScope.launch {
+            try {
+                commentRepository.writeReply(
+                    commentId = commentId,
+                    content = content,
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }

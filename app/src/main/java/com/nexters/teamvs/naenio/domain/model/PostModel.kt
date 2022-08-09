@@ -19,7 +19,7 @@ data class Choice(
 
 data class Author(
     val id: Int,
-    val nickname: String,
+    val nickname: String?,
     val profileImageIndex: Int?
 ) {
     companion object {

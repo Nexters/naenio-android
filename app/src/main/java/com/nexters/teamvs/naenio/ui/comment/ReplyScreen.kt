@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 
@@ -23,7 +24,6 @@ import com.nexters.teamvs.naenio.theme.MyColors
 fun ReplySheetLayout(
     modifier: Modifier,
     replyViewModel: ReplyViewModel,
-    postId: Int,
     parentComment: Comment,
     changeMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,
@@ -41,7 +41,10 @@ fun ReplySheetLayout(
             changeMode = changeMode,
             onEvent = onEvent
         )
-        CommentEditText(onEvent = onEvent)
+        ReplyInput(
+            commentId = parentComment.id,
+            onEvent = onEvent
+        )
     }
 }
 
@@ -117,5 +120,21 @@ fun ReplyList(
                 onEvent = onEvent
             )
         }
+    }
+}
+
+@Composable
+fun ReplyInput(
+    commentId: Int,
+    onEvent: (CommentEvent) -> Unit
+) {
+    CommentEditText {
+        onEvent.invoke(
+            CommentEvent.Write(
+                parentId = commentId,
+                parentType = CommentParentType.COMMENT,
+                content = it
+            )
+        )
     }
 }
