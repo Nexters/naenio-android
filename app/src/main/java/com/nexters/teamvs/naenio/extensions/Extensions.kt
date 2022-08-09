@@ -15,7 +15,7 @@ val Fragment.fragmentComposeView: ComposeView
     }
 
 
-fun Context.getActivity(): Activity? {
+fun Context.requireActivity(): Activity {
     var currentContext = this
     while (currentContext is ContextWrapper) {
         if (currentContext is Activity) {
@@ -23,5 +23,5 @@ fun Context.getActivity(): Activity? {
         }
         currentContext = currentContext.baseContext
     }
-    return null
+    throw IllegalStateException("Not Found Activity.")
 }

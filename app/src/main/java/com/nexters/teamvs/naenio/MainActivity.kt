@@ -10,10 +10,14 @@ import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 import com.nexters.teamvs.naenio.graphs.RootNavigationGraph
 import com.nexters.teamvs.naenio.theme.NaenioTheme
+import com.nexters.teamvs.naenio.utils.KeyboardUtils
+import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val keyboardUtils = KeyboardUtils()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,10 +26,15 @@ class MainActivity : ComponentActivity() {
                 RootNavigationGraph(navController = rememberNavController())
             }
         }
+
+        keyboardUtils.setKeyboardListener(window.decorView)
+
+        Log.d("### user token ", AuthDataStore.authToken)
+
         Firebase.dynamicLinks.getDynamicLink(intent)
             .addOnSuccessListener { pendingDynamicLinkData ->
-                var deepLink : Uri? = null
-                if(pendingDynamicLinkData != null) {
+                var deepLink: Uri? = null
+                if (pendingDynamicLinkData != null) {
                     deepLink = pendingDynamicLinkData.link
                     Log.d("###", "dynamicLink 수신 테스트 :: ${deepLink.toString()}")
                 }

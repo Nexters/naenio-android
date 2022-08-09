@@ -59,7 +59,7 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
         sheetShape = MyShape.TopRoundedCornerShape,
         sheetContent = {
             currentBottomSheet?.let { currentSheet ->
-                SheetLayout(currentSheet, closeSheet)
+                SheetLayout(currentSheet, onCloseBottomSheet = closeSheet)
             }
             Spacer(modifier = Modifier
                 .height(1.dp)

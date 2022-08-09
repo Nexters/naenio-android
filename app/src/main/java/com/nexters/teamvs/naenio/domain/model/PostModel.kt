@@ -1,0 +1,24 @@
+package com.nexters.teamvs.naenio.domain.model
+
+data class Post(
+    val id: Int,
+    val author: Author,
+    val choices: List<Choice>,
+    val commentCount: Int = 0,
+    val content: String = "",
+    val title: String
+)
+
+data class Choice(
+    val id: Int,
+    val isVoted: Boolean,
+    val name: String,
+    val sequence: Int,
+    val voteCount: Int
+)
+
+data class Author(
+    val id: Int,
+    val nickname: String,
+    val profileImageIndex: Int?
+)

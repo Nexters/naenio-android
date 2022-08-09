@@ -14,23 +14,10 @@ data class WritePostRequest(
 
 @Keep
 @Serializable
-data class FeedRequest(
-    val size: Int,
-    val lastPostId: Int? //첫 조회, 새로고침의 경우 lastPostId를 비워서 보내면 됩니다
-)
-
-@Keep
-@Serializable
-data class FeedResponse(
-    val postResponses: List<PostResponse>
-)
-
-@Keep
-@Serializable
 data class PostResponse(
     val author: AuthorResponse,
     val choices: List<ChoiceResponse>,
-    val commentCount: Int,
+    val commentCount: Int = 0,
     val content: String,
     val id: Int,
     val title: String
@@ -51,5 +38,5 @@ data class ChoiceResponse(
 data class AuthorResponse(
     val id: Int,
     val nickname: String,
-    val profileImageIndex: Int
+    val profileImageIndex: Int?
 )

@@ -24,7 +24,7 @@ import com.google.firebase.dynamiclinks.ktx.androidParameters
 import com.google.firebase.dynamiclinks.ktx.dynamicLink
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
-import com.nexters.teamvs.naenio.extensions.getActivity
+import com.nexters.teamvs.naenio.extensions.requireActivity
 
 @Composable
 fun LoginScreen(
@@ -62,7 +62,7 @@ fun LoginScreen(
             onClick = {
                 startForResult.launch(
                     viewModel.getGoogleLoginAuth(
-                        context.getActivity() ?: return@Button
+                        context.requireActivity() ?: return@Button
                     ).signInIntent
                 )
             }
