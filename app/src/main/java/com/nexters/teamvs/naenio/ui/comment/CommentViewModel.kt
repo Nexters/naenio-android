@@ -22,6 +22,8 @@ class CommentViewModel @Inject constructor(
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
     val comments = _comments.asStateFlow()
 
+    val inputUiState = mutableStateOf<UiState>(UiState.Idle)
+
     fun loadFirstComments(postId: Int) {
         commentUiState.value = UiState.Loading
         viewModelScope.launch {
@@ -33,11 +35,12 @@ class CommentViewModel @Inject constructor(
                 )
                 delay(1000L)
                 _comments.value = commentList
-                commentUiState.value = UiState.Success
                 Log.d(className, "Request PostId: $postId")
                 Log.d(className, "Loaded CommentList size: ${commentList.size} , Current Comments size: ${comments.value.size}")
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                commentUiState.value = UiState.Success
             }
         }
     }
@@ -62,6 +65,8 @@ class CommentViewModel @Inject constructor(
                 Log.d(className, "Loaded CommentList size: ${commentList.size} , Current Comments size: ${comments.value.size}")
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                commentUiState.value = UiState.Success
             }
         }
     }
@@ -70,6 +75,7 @@ class CommentViewModel @Inject constructor(
         postId: Int,
         content: String,
     ) {
+        inputUiState.value = UiState.Loading
         viewModelScope.launch {
             try {
                 val comment = commentRepository.writeComment(
@@ -78,6 +84,7 @@ class CommentViewModel @Inject constructor(
                 )
 
                 _comments.value = listOf(comment) + comments.value
+                inputUiState.value = UiState.Success
             } catch (e: Exception) {
                 e.printStackTrace()
             }

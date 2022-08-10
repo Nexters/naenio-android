@@ -4,7 +4,9 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -31,6 +33,7 @@ import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.model.UiState
+import kotlinx.coroutines.launch
 
 sealed class CommentEvent {
     data class Write(
@@ -106,6 +109,8 @@ fun CommentSheetLayout(
         commentViewModel.loadFirstComments(postId)
     })
 
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     val eventListener: (CommentEvent) -> Unit = {
         when (it) {
             is CommentEvent.Write -> {
@@ -122,6 +127,7 @@ fun CommentSheetLayout(
 
     val comments = commentViewModel.comments.collectAsState()
     val commentUiState by remember { commentViewModel.commentUiState }
+    val inputUiState by remember { commentViewModel.inputUiState }
 
     Column(
         modifier = modifier
@@ -132,6 +138,7 @@ fun CommentSheetLayout(
         )
         CommentList(
             modifier = Modifier.weight(1f),
+            listState = listState,
             mode = CommentMode.COMMENT,
             uiState = commentUiState,
             comments = comments.value,
@@ -142,6 +149,12 @@ fun CommentSheetLayout(
             onEvent = onEvent
         )
         CommentInput(
+            scrollToTop = {
+                scope.launch {
+                    listState.animateScrollToItem(0)
+                }
+            },
+            uiState = inputUiState,
             postId = postId,
             onEvent = eventListener
         )
@@ -150,10 +163,15 @@ fun CommentSheetLayout(
 
 @Composable
 fun CommentInput(
+    scrollToTop: () -> Unit,
+    uiState: UiState,
     postId: Int,
     onEvent: (CommentEvent) -> Unit
 ) {
-    CommentEditText {
+    CommentEditText(
+        scrollToTop = scrollToTop,
+        uiState = uiState
+    ) {
         onEvent.invoke(
             CommentEvent.Write(
                 parentId = postId,
@@ -168,9 +186,18 @@ fun CommentInput(
 @OptIn(ExperimentalAnimatedInsets::class)
 @Composable
 fun CommentEditText(
+    scrollToTop: () -> Unit,
+    uiState: UiState,
     onWrite: (String) -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
+
+    LaunchedEffect(key1 = uiState, block = {
+        if (uiState == UiState.Success) {
+            input = ""
+            scrollToTop.invoke()
+        }
+    })
 
     Row(
         modifier = Modifier
@@ -202,12 +229,13 @@ fun CommentEditText(
 
         Text(
             style = pretendardSemiBold14,
-            color = MyColors.pink,
+            color = if (uiState == UiState.Loading) MyColors.disableColor else MyColors.pink,
             modifier = Modifier
                 .wrapContentSize()
                 .align(Alignment.Bottom)
                 .padding(start = 12.dp, bottom = 16.dp)
                 .clickable {
+                    if (uiState == UiState.Loading) return@clickable
                     onWrite.invoke(input)
                 },
             text = stringResource(id = R.string.write_comment)
@@ -259,6 +287,7 @@ fun CommentHeader(
 @Composable
 fun CommentList(
     modifier: Modifier,
+    listState: LazyListState,
     mode: CommentMode,
     uiState: UiState,
     comments: List<BaseComment>,
@@ -269,7 +298,7 @@ fun CommentList(
     val nextKey = comments.lastOrNull()?.id
     val requestLoadMoreKey = comments.getOrNull(comments.size - 1)?.id //TODO 사이즈 조용
 
-    LazyColumn(modifier = modifier) {
+    LazyColumn(modifier = modifier, state = listState) {
         item {
             Spacer(
                 modifier = Modifier
@@ -294,10 +323,12 @@ fun CommentList(
             when (uiState) {
                 UiState.Loading -> {
                     Box(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = MyColors.grey4d4d4d)
+                        CircularProgressIndicator(color = MyColors.disableColor)
                     }
                 }
                 else -> {}
