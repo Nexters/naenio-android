@@ -30,6 +30,7 @@ import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.model.UiState
 
 sealed class CommentEvent {
     data class Write(
@@ -120,6 +121,7 @@ fun CommentSheetLayout(
     }
 
     val comments = commentViewModel.comments.collectAsState()
+    val commentUiState by remember { commentViewModel.commentUiState }
 
     Column(
         modifier = modifier
@@ -131,6 +133,7 @@ fun CommentSheetLayout(
         CommentList(
             modifier = Modifier.weight(1f),
             mode = CommentMode.COMMENT,
+            uiState = commentUiState,
             comments = comments.value,
             changeMode = changeMode,
             onLoadMore = {
@@ -257,13 +260,14 @@ fun CommentHeader(
 fun CommentList(
     modifier: Modifier,
     mode: CommentMode,
+    uiState: UiState,
     comments: List<BaseComment>,
     changeMode: (CommentMode) -> Unit,
     onLoadMore: (Int) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
     val nextKey = comments.lastOrNull()?.id
-    val requestLoadMoreKey = comments.getOrNull(comments.size - 1 - 6)?.id //TODO 사이즈 조용
+    val requestLoadMoreKey = comments.getOrNull(comments.size - 1)?.id //TODO 사이즈 조용
 
     LazyColumn(modifier = modifier) {
         item {
@@ -285,6 +289,19 @@ fun CommentList(
                 onCommentMode = changeMode,
                 onEvent = onEvent
             )
+        }
+        item {
+            when (uiState) {
+                UiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = MyColors.grey4d4d4d)
+                    }
+                }
+                else -> {}
+            }
         }
     }
 }
