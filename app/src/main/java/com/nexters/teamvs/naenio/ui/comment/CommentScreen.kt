@@ -263,7 +263,7 @@ fun CommentList(
     onEvent: (CommentEvent) -> Unit,
 ) {
     val nextKey = comments.lastOrNull()?.id
-    val requestLoadMoreKey = comments.getOrNull(comments.size - 1 - 6)?.id //TODO 사이즈 조정
+    val requestLoadMoreKey = comments.getOrNull(comments.size - 1 - 6)?.id //TODO 사이즈 조용
 
     LazyColumn(modifier = modifier) {
         item {
