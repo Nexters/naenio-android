@@ -102,7 +102,7 @@ fun CommentSheetLayout(
     onEvent: (CommentEvent) -> Unit,
 ) {
     LaunchedEffect(key1 = postId, block = {
-        commentViewModel.getComments(postId)
+        commentViewModel.loadFirstComments(postId)
     })
 
     val eventListener: (CommentEvent) -> Unit = {
@@ -133,6 +133,9 @@ fun CommentSheetLayout(
             mode = CommentMode.COMMENT,
             comments = comments.value,
             changeMode = changeMode,
+            onLoadMore = {
+                commentViewModel.loadMoreComments(postId, it)
+            },
             onEvent = onEvent
         )
         CommentInput(
@@ -256,8 +259,12 @@ fun CommentList(
     mode: CommentMode,
     comments: List<BaseComment>,
     changeMode: (CommentMode) -> Unit,
+    onLoadMore: (Int) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
+    val nextKey = comments.lastOrNull()?.id
+    val requestLoadMoreKey = comments.getOrNull(comments.size - 1 - 6)?.id //TODO 사이즈 조정
+
     LazyColumn(modifier = modifier) {
         item {
             Spacer(
@@ -269,6 +276,9 @@ fun CommentList(
             )
         }
         items(comments) {
+            if (requestLoadMoreKey == it.id && nextKey != null) {
+                onLoadMore.invoke(nextKey)
+            }
             CommentItem(
                 comment = it,
                 mode = mode,
