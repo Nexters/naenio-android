@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.comment
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -56,6 +57,7 @@ sealed class CommentMode {
 fun CommentScreen(
     modifier: Modifier = Modifier,
     postId: Int,
+    closeSheet: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
     /**
@@ -63,6 +65,13 @@ fun CommentScreen(
      */
     var mode by remember { mutableStateOf<CommentMode>(CommentMode.COMMENT) }
 
+    BackHandler() {
+        if (mode is CommentMode.REPLY) {
+            mode = CommentMode.COMMENT
+        } else {
+            closeSheet.invoke()
+        }
+    }
     AnimatedVisibility(
         visible = mode == CommentMode.COMMENT,
         enter = EnterTransition.None,

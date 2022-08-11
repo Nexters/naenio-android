@@ -49,6 +49,7 @@ fun SheetLayout(
                             .padding(bottom = with(LocalDensity.current) { keyboardHeight.value.toDp() })
                             .fillMaxSize()
                     },
+                    closeSheet = onCloseBottomSheet,
                     postId = currentScreen.postId,
                     onEvent = currentScreen.onEvent
                 )
