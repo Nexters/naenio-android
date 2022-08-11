@@ -22,6 +22,9 @@ class CommentViewModel @Inject constructor(
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
     val comments = _comments.asStateFlow()
 
+    private val _replies = MutableStateFlow<List<Reply>>(emptyList())
+    val replies = _replies.asStateFlow()
+
     val inputUiState = mutableStateOf<UiState>(UiState.Idle)
 
     fun loadFirstComments(postId: Int) {
@@ -36,7 +39,10 @@ class CommentViewModel @Inject constructor(
                 delay(1000L)
                 _comments.value = commentList
                 Log.d(className, "Request PostId: $postId")
-                Log.d(className, "Loaded CommentList size: ${commentList.size} , Current Comments size: ${comments.value.size}")
+                Log.d(
+                    className,
+                    "Loaded CommentList size: ${commentList.size} , Current Comments size: ${comments.value.size}"
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -62,7 +68,10 @@ class CommentViewModel @Inject constructor(
                 _comments.value = comments.value + commentList
                 commentUiState.value = UiState.Success
                 Log.d(className, "Request PostId: $postId , lastCommendId: $lastCommentId")
-                Log.d(className, "Loaded CommentList size: ${commentList.size} , Current Comments size: ${comments.value.size}")
+                Log.d(
+                    className,
+                    "Loaded CommentList size: ${commentList.size} , Current Comments size: ${comments.value.size}"
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -91,16 +100,73 @@ class CommentViewModel @Inject constructor(
         }
     }
 
+    fun loadFirstReplies(commentId: Int) {
+        commentUiState.value = UiState.Loading
+        viewModelScope.launch {
+            try {
+                val replyList = commentRepository.getReplies(
+                    commentId = commentId,
+                    size = 10,
+                    lastCommentId = null
+                )
+                delay(1000L)
+                _replies.value = replyList
+                Log.d(className, "Request CommentId: $commentId")
+                Log.d(
+                    className,
+                    "Loaded Reply size: ${replyList.size} , Current Reply size: ${replies.value.size}"
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                commentUiState.value = UiState.Success
+            }
+        }
+    }
+
+    var lastReplyKey: Int = -1
+    fun loadMoreReplies(commentId: Int, lastCommentId: Int) {
+        val alreadyIsRequested = lastReplyKey == lastCommentId
+        if (alreadyIsRequested) return
+        lastReplyKey = lastCommentId
+        viewModelScope.launch {
+            try {
+                commentUiState.value = UiState.Loading
+                val replyList = commentRepository.getReplies(
+                    commentId = commentId,
+                    size = 10,
+                    lastCommentId = lastCommentId
+                )
+                delay(1000L)
+                _replies.value = replyList
+                commentUiState.value = UiState.Success
+                Log.d(className, "Request CommentId: $commentId")
+                Log.d(
+                    className,
+                    "Loaded Reply size: ${replyList.size} , Current Reply size: ${replies.value.size}"
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                commentUiState.value = UiState.Success
+            }
+        }
+    }
+
     fun writeReply(
         commentId: Int,
         content: String,
     ) {
+        inputUiState.value = UiState.Loading
         viewModelScope.launch {
             try {
-                commentRepository.writeReply(
+                val reply = commentRepository.writeReply(
                     commentId = commentId,
                     content = content,
                 )
+
+                _replies.value = listOf(reply) + replies.value
+                inputUiState.value = UiState.Success
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -61,6 +61,7 @@ data class WriteCommentResponse(
 @Keep
 data class ReplyResponse(
     val commentReplies: List<CommentReply>
+    //TODO 답글 총 갯수도 필요?
 )
 
 @Serializable
@@ -70,7 +71,8 @@ data class CommentReply(
     val createdDatetime: String,
     val id: Int,
     val isLiked: Boolean,
-    val likeCount: Int
+    val likeCount: Int,
+    val content: String,
 )
 
 @Serializable

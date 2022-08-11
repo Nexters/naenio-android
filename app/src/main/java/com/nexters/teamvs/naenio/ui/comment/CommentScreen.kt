@@ -86,7 +86,7 @@ fun CommentScreen(
     ) {
         ReplySheetLayout(
             modifier = modifier,
-            replyViewModel = hiltViewModel(),
+            commentViewModel = hiltViewModel(),
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {

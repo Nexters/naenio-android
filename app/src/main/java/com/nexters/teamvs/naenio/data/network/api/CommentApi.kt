@@ -16,7 +16,7 @@ interface CommentApi {
     suspend fun getCommentReplies(
         @Path("id") id: Int,
         @Query("size") size: Int,
-        @Query("lastCommentId") lastCommentId: Int,
+        @Query("lastCommentId") lastCommentId: Int?,
     ): ReplyResponse
 
     @POST("/app/comment-likes")
