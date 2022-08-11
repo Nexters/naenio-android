@@ -1,14 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">naenio</string>
-
+    <string name="app_name">네니오</string>
     <string name="bottom_item_theme">Theme</string>
     <string name="bottom_item_feed">Feed</string>
     <string name="bottom_item_profile">Profile</string>
 
-    <string name="comment">Comment</string>
-    <string name="reply_comment">Reply</string>
+    <string name="comment">댓글</string>
+    <string name="reply_comment">답글</string>
 
-    <string name="see_replies">See Comments</string>
+    <string name="see_replies">댓글 더보기</string>
 
-    <string name="write_comment">Post</string>
+    <string name="write_comment">게시</string>
+
+    <string name="no_available_data">No available data</string>
+    <string name="net_conn_err_title">Network connection error!</string>
+    <string name="no_avail_data_err_title">No available data!</string>
+    <string name="unknown_err_title">Unknown error!</string>
+    <string name="net_conn_err_message">Please make sure that you are connected to network and try again.</string>
+    <string name="no_avail_data_err_body">It seems like there are no data for now, coming soon.</string>
+    <string name="unknown_err_body">An unknown error has occurred, please try again.</string>
+
+    <string name="new_post">New Post</string>
+    <string name="upload">등록</string>
+
+    <string name="vote_topic">투표 주제</string>
+    <string name="vote_options">투표 선택지</string>
+    <string name="vote_content">내용</string>
+
+    <string name="vote_topic_hint">투표 주제를 입력해주세요.</string>
+    <string name="vote_options_a_hint">A 선택지를 입력해주세요.</string>
+    <string name="vote_options_b_hint">B 선택지를 입력해주세요.</string>
+
+    <string name="vote_content_hint">추가적으로 어떤 내용을 담을까요? (선택)</string>
 </resources>
