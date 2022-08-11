@@ -57,6 +57,7 @@ sealed class CommentMode {
 fun CommentScreen(
     modifier: Modifier = Modifier,
     postId: Int,
+    commentViewModel: CommentViewModel = hiltViewModel(),
     closeSheet: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
@@ -72,6 +73,7 @@ fun CommentScreen(
             closeSheet.invoke()
         }
     }
+
     AnimatedVisibility(
         visible = mode == CommentMode.COMMENT,
         enter = EnterTransition.None,
@@ -79,7 +81,7 @@ fun CommentScreen(
     ) {
         CommentSheetLayout(
             modifier = modifier,
-            commentViewModel = hiltViewModel(),
+            commentViewModel = commentViewModel,
             postId = postId,
             changeMode = {
                 mode = it
@@ -95,7 +97,7 @@ fun CommentScreen(
     ) {
         ReplySheetLayout(
             modifier = modifier,
-            commentViewModel = hiltViewModel(),
+            commentViewModel = commentViewModel,
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
