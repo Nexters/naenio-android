@@ -66,12 +66,12 @@ object Font {
         fontWeight = FontWeight.W600,
         fontSize = 20.sp
     )
-    val h3 = TextStyle(
+    val pretendardSemiBold18 = TextStyle(
         fontFamily = FontFamily(Font(R.font.pretendard_semibold)),
         fontWeight = FontWeight.W600,
         fontSize = 18.sp
     )
-    val h4 = TextStyle(
+    val pretendardMedium18 = TextStyle(
         fontFamily = FontFamily(Font(R.font.pretendard_medium)),
         fontWeight = FontWeight.W600,
         fontSize = 18.sp
@@ -81,7 +81,7 @@ object Font {
         fontWeight = FontWeight.W600,
         fontSize = 16.sp
     )
-    val subtitle1 = TextStyle(
+    val pretendardMedium16 = TextStyle(
         fontFamily = FontFamily(Font(R.font.pretendard_medium)),
         fontWeight = FontWeight.W500,
         fontSize = 16.sp
@@ -109,6 +109,18 @@ object Font {
     val caption = TextStyle(
         fontFamily = FontFamily(Font(R.font.pretendard_regular)),
         fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val montserratBold18 = TextStyle(
+        fontFamily = montserratBold,
+        fontWeight = FontWeight.W700,
+        fontSize = 18.sp
+    )
+
+    val montserratMedium12 = TextStyle(
+        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
+        fontWeight = FontWeight.W600,
         fontSize = 12.sp
     )
     val montserratSemiBold16 = TextStyle(
