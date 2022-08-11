@@ -1,7 +1,9 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -9,11 +11,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -22,8 +29,10 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
+import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -46,28 +55,58 @@ fun FeedScreen(
             navController.popBackStack()
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MyColors.screenBackgroundColor)
-    ) {
-        Text(
-            modifier = Modifier.padding(top = 19.dp, start = 20.dp),
-            text = stringResource(id = R.string.bottom_item_feed),
-            fontSize = 24.sp,
-            color = Color.White
-        )
-        Box {
-            FeedPager(
-                modifier = modifier,
-                posts = posts.value,
-                openSheet = openSheet
+    Box (modifier = modifier.fillMaxSize()
+        .padding(bottom = 0.dp)
+        .background(MyColors.screenBackgroundColor)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                modifier = Modifier.padding(top = 19.dp, start = 20.dp),
+                text = stringResource(id = R.string.bottom_item_feed),
+                fontSize = 24.sp,
+                color = Color.White
             )
-            LottieAnimation(
-                composition,
-                modifier = Modifier.wrapContentSize(),
-                iterations = Int.MAX_VALUE
-            )
+            Box {
+                FeedPager(
+                    modifier = Modifier,
+                    posts = posts.value,
+                    openSheet = openSheet,
+                    navController = navController
+                )
+                LottieAnimation(
+                    composition,
+                    modifier = Modifier.wrapContentSize(),
+                    iterations = Int.MAX_VALUE
+                )
+            }
+        }
+         IconButton(
+            onClick = {},
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
+         ) {
+             /**
+              * TODO :: Floating 버튼 reosuce 적용 안됨..
+              */
+            Icon(
+                painter = painterResource(id = R.drawable.ic_floating),
+                contentDescription = "floating")
+        }
+    }
+}
+
+@Composable
+@Preview
+fun FeedScreenBox() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        FloatingActionButton(
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            onClick = {}
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_floating),
+                contentDescription = "floating")
         }
     }
 }
@@ -79,6 +118,7 @@ fun FeedPager(
     modifier: Modifier,
     posts: List<Post>,
     openSheet: (BottomSheetType) -> Unit,
+    navController : NavHostController
 ) {
     VerticalPager(
         count = posts.size,
@@ -94,7 +134,8 @@ fun FeedPager(
             FeedItem(
                 page = page,
                 post = posts[page],
-                openSheet = openSheet
+                openSheet = openSheet,
+                navController = navController
             )
         }
     }
@@ -105,7 +146,8 @@ fun FeedPager(
 fun FeedItem(
     page: Int,
     post: Post,
-    openSheet: (BottomSheetType) -> Unit
+    openSheet: (BottomSheetType) -> Unit,
+    navController: NavHostController
 ) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
@@ -121,6 +163,10 @@ fun FeedItem(
             MyColors.postBackgroundColor,
             shape = RoundedCornerShape(16.dp)
         )
+        .clickable {
+            Log.d("###", "clcik?")
+            navController.navigate(Graph.DETAILS)
+        }
     ) {
         Column(
             modifier = Modifier
@@ -131,8 +177,8 @@ fun FeedItem(
                 Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(top = 24.dp), true)
-            VoteContent(Modifier.padding(top = 24.dp), 2)
+                    .padding(vertical = 24.dp), true)
+            VoteContent(Modifier, 2)
             VoteGageBar(gage, true)
         }
         Spacer(modifier = Modifier.weight(1f))

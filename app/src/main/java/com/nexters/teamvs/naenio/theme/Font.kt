@@ -116,6 +116,11 @@ object Font {
         fontWeight = FontWeight.W500,
         fontSize = 16.sp
     )
+    val montserratSemiBold14 = TextStyle(
+        fontFamily = montserratSemiBold,
+        fontWeight = FontWeight.W500,
+        fontSize = 14.sp
+    )
     val montserratSemiBold12 = TextStyle(
         fontFamily = montserratSemiBold,
         fontWeight = FontWeight.W500,
