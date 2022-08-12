@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.feed.FeedDetailScreen
 import com.nexters.teamvs.naenio.ui.feed.FeedScreen
 import com.nexters.teamvs.naenio.ui.tabs.*
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
@@ -27,11 +28,14 @@ fun MainNavGraph(
     NavHost(
         navController = navController,
         route = Graph.MAIN,
-        startDestination = BottomNavItem.Theme.route
+        startDestination = BottomNavItem.Feed.route
     ) {
         val modifier = Modifier.padding(bottom = bottomBarHeight)
         composable(BottomNavItem.Theme.route) {
             HomeScreen(navController = navController, modifier = modifier)
+        }
+        composable(BottomNavItem.Profile.route) {
+            ProfileScreen(navController = navController, modifier = modifier)
         }
         composable(BottomNavItem.Feed.route) {
             FeedScreen(
@@ -42,36 +46,27 @@ fun MainNavGraph(
                 closeSheet = closeSheet
             )
         }
-        composable(BottomNavItem.Profile.route) {
-            ProfileScreen(navController = navController, modifier = modifier)
-        }
-        detailsNavGraph(navController)
+        detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)
     }
 }
 
-fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
+@OptIn(ExperimentalMaterialApi::class)
+fun NavGraphBuilder.detailsNavGraph(navController: NavHostController,
+                                    modalBottomSheetState: ModalBottomSheetState,
+                                    openSheet: (BottomSheetType) -> Unit,
+                                    closeSheet: () -> Unit) {
     navigation(
         route = Graph.DETAILS,
-        startDestination = DetailsScreen.Information.route
+        startDestination = "FeedDetail"
     ) {
-        composable(route = DetailsScreen.Information.route) {
-            DetailScreen(name = DetailsScreen.Information.route) {
-                navController.navigate(DetailsScreen.Overview.route)
-            }
-        }
-        composable(route = DetailsScreen.Overview.route) {
-            DetailScreen(name = DetailsScreen.Overview.route) {
-                navController.popBackStack(
-                    route = DetailsScreen.Information.route,
-                    inclusive = false
-                )
-            }
+        composable(route = "FeedDetail") {
+            FeedDetailScreen(
+                navController = navController,
+                modalBottomSheetState = modalBottomSheetState,
+                openSheet = openSheet,
+                closeSheet = closeSheet
+            )
         }
     }
-}
-
-sealed class DetailsScreen(val route: String) {
-    object Information : DetailsScreen(route = "INFORMATION")
-    object Overview : DetailsScreen(route = "OVERVIEW")
 }

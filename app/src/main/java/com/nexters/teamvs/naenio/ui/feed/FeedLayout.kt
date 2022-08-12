@@ -1,10 +1,14 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -20,9 +24,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold12
+import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold14
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold16
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.NaenioTypography
@@ -91,6 +100,7 @@ fun GageBar(
 ) {
     Box(
         modifier = modifier
+            .border(border = BorderStroke(1.dp, foregroundColor), shape = RoundedCornerShape(16.dp)) // 사용자가 선택할 경우
     ) {
         Box(
             modifier = gageModifier
@@ -101,7 +111,7 @@ fun GageBar(
                 .width(width = fillGageWidth * percent)
         )
         Row(modifier = Modifier
-            .fillMaxWidth()
+            .wrapContentSize()
             .align(Alignment.Center)
             .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -112,23 +122,25 @@ fun GageBar(
                 style = NaenioTypography.h4
             )
             Text(
-                modifier = Modifier.padding(start = 6.dp, end= 8.dp),
-                text = "투명인간 취급당하며 힘들게 살기",
+                modifier = Modifier
+                    .padding(start = 6.dp, end = 8.dp)
+                    .weight(1f),
+                text = "투명인간 취급당하며 힘들게 살기투명인간 취급당하며 힘들게 살기투명인간 취급당하며 힘들게 살기투명인간 취급당하며 힘들게 살기",
                 color = Color.White,
                 style = Font.pretendardSemiBold14,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.width(8.dp))
             if (isCountVisible) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         modifier = Modifier.padding(bottom = 4.dp),
-                        text = "70%",// "$percent%",
+                        text = "70%", // "$percent%",
                         color = Color.White,
-                        style = montserratSemiBold16
+                        style = montserratSemiBold14
                     )
                     Text(
                         text = "70" + "명",
@@ -171,15 +183,16 @@ fun VoteContent(modifier: Modifier, maxLine : Int) {
     Text(
         text = "세상에 모든 사람이 날 알아보기 투명인간 취급 당하기????",
         color = Color.White,
-        style = Font.pretendardSemiBold22,
+        style = Font.pretendardSemiBold20,
         modifier = Modifier.padding(top = 8.dp),
         maxLines = maxLine,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
+        lineHeight = 29.sp
     )
     Text(
         text = "세상 모든 사람들이 날 알아보지 못하면 슬플 것 같아요. ㅠㅠ",
         color = Color.White,
-        style = Font.pretendardRegular16,
+        style = Font.pretendardRegular14,
         modifier = Modifier.padding(top = 10.dp, bottom = 8.dp),
         maxLines = maxLine,
         overflow = TextOverflow.Ellipsis
@@ -261,14 +274,17 @@ fun ProfileImageIcon(modifier: Modifier) {
 }
 
 @Composable
-fun TopBar(modifier: Modifier, barTitle: String, backHandler: Unit) {
+fun TopBar(modifier: Modifier, barTitle: String, navController: NavHostController) {
     Row(modifier = modifier
         .fillMaxWidth()
+        .padding(horizontal = 24.dp)
         .padding(top = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
-            onClick = { backHandler }
+            onClick = {
+                navController.popBackStack()
+            }
         ) {
             Icon(
                 painter = painterResource(R.drawable.icon_back_m),
