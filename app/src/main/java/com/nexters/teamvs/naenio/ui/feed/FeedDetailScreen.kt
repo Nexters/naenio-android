@@ -105,6 +105,6 @@ fun FeedDetail(modifier: Modifier, navController: NavHostController) {
         }
 //        viewModel = viewModel()
 //    )
-        FeedDetail(modifier = Modifier, navController = NavHostController(LocalContext.current))
+//        FeedDetail(modifier = Modifier, navController = NavHostController(LocalContext.current))
     }
 }
