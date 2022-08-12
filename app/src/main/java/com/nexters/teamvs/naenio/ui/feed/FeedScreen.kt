@@ -31,6 +31,7 @@ import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.graphs.Graph
+import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
 import com.nexters.teamvs.naenio.ui.composables.Toast
@@ -98,7 +99,6 @@ fun FeedScreen(
             SnackbarHost(hostState = snackbarHostState) {
                 Toast(message = it.message)
             }
-
         }
     ) {
         Box(
@@ -132,16 +132,16 @@ fun FeedScreen(
                 }
             }
             IconButton(
-                onClick = {},
+                onClick = {
+                          navController.navigate(Route.Create)
+                },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
             ) {
-                /**
-                 * TODO :: Floating 버튼 reosuce 적용 안됨..
-                 */
                 Icon(
                     painter = painterResource(id = R.drawable.ic_floating),
+                    tint = Color.Unspecified,
                     contentDescription = "floating"
                 )
             }
