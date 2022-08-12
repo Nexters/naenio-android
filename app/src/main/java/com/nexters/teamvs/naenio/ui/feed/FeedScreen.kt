@@ -1,10 +1,14 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +27,7 @@ import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.comment.CommentEvent
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import kotlinx.coroutines.delay
 
@@ -46,6 +51,7 @@ fun FeedScreen(
             navController.popBackStack()
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,7 +150,28 @@ fun FeedItem(
                     MyColors.darkGrey_1e222c,
                     shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
                 )
-                .padding(horizontal = 20.dp))
+                .padding(horizontal = 20.dp)
+                .clickable {
+                    openSheet(
+                        BottomSheetType.CommentType(
+                            postId = post.id,
+                            onEvent = {
+                                Log.d("### FeedScreen", "$it")
+                                when (it) {
+                                    is CommentEvent.Like -> {
+                                    }
+                                    CommentEvent.More -> {
+                                    }
+                                    is CommentEvent.Write -> {
+                                    }
+                                    CommentEvent.Close -> {
+                                    }
+                                }
+                            }
+                        )
+                    )
+                }
+        )
     }
 }
 

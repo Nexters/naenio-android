@@ -29,6 +29,7 @@ data class CommentResponse(
 data class PostCommentResponse(
     val author: AuthorResponse,
     val createdDatetime: String,
+    val content: String = "ewrrqw", //TODO 현재 서버에서 필드 안내려주는 중
     val id: Int,
     val isLiked: Boolean,
     val likeCount: Int,
@@ -38,8 +39,8 @@ data class PostCommentResponse(
 @Serializable
 @Keep
 data class WriteCommentRequest(
-    val parentId: String,
-    val parentType: CommentParentType, //TODO 대댓글 타입은?
+    val parentId: Int,
+    val parentType: CommentParentType,
     val content: String,
 )
 
@@ -60,6 +61,7 @@ data class WriteCommentResponse(
 @Keep
 data class ReplyResponse(
     val commentReplies: List<CommentReply>
+    //TODO 답글 총 갯수도 필요?
 )
 
 @Serializable
@@ -69,7 +71,8 @@ data class CommentReply(
     val createdDatetime: String,
     val id: Int,
     val isLiked: Boolean,
-    val likeCount: Int
+    val likeCount: Int,
+    val content: String,
 )
 
 @Serializable

@@ -61,9 +61,11 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
             currentBottomSheet?.let { currentSheet ->
                 SheetLayout(currentSheet, onCloseBottomSheet = closeSheet)
             }
-            Spacer(modifier = Modifier
-                .height(1.dp)
-                .background(Color.Transparent)) //content 비어있으면 error 발생으로 추가
+            Spacer(
+                modifier = Modifier
+                    .height(1.dp)
+                    .background(Color.Transparent)
+            ) //content 비어있으면 error 발생으로 추가
         }
     ) {
         Scaffold(

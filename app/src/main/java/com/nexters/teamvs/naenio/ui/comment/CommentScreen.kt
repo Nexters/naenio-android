@@ -1,10 +1,13 @@
 package com.nexters.teamvs.naenio.ui.comment
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -24,15 +27,21 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.model.BaseComment
-import com.nexters.teamvs.naenio.ui.model.Comment
+import com.nexters.teamvs.naenio.ui.model.UiState
+import kotlinx.coroutines.launch
 
 sealed class CommentEvent {
-    data class Write(val text: String) : CommentEvent()
+    data class Write(
+        val content: String,
+        val parentId: Int,
+        val parentType: CommentParentType
+    ) : CommentEvent()
+
     data class Like(val like: Boolean) : CommentEvent()
     object More : CommentEvent()
     object Close : CommentEvent()
@@ -46,12 +55,23 @@ sealed class CommentMode {
 @Composable
 fun CommentScreen(
     modifier: Modifier = Modifier,
+    postId: Int,
+    commentViewModel: CommentViewModel = hiltViewModel(),
+    closeSheet: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
     /**
      * 댓글 창을 보여줘야 하면 true. 답글 창을 보여줘야 하면 false
      */
     var mode by remember { mutableStateOf<CommentMode>(CommentMode.COMMENT) }
+
+    BackHandler() {
+        if (mode is CommentMode.REPLY) {
+            mode = CommentMode.COMMENT
+        } else {
+            closeSheet.invoke()
+        }
+    }
 
     AnimatedVisibility(
         visible = mode == CommentMode.COMMENT,
@@ -60,7 +80,8 @@ fun CommentScreen(
     ) {
         CommentSheetLayout(
             modifier = modifier,
-            commentViewModel = hiltViewModel(),
+            commentViewModel = commentViewModel,
+            postId = postId,
             changeMode = {
                 mode = it
             },
@@ -75,7 +96,7 @@ fun CommentScreen(
     ) {
         ReplySheetLayout(
             modifier = modifier,
-            replyViewModel = hiltViewModel(),
+            commentViewModel = commentViewModel,
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
@@ -90,10 +111,34 @@ fun CommentScreen(
 fun CommentSheetLayout(
     modifier: Modifier,
     commentViewModel: CommentViewModel,
+    postId: Int,
     changeMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
+    LaunchedEffect(key1 = postId, block = {
+        commentViewModel.loadFirstComments(postId)
+    })
+
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val eventListener: (CommentEvent) -> Unit = {
+        when (it) {
+            is CommentEvent.Write -> {
+                commentViewModel.writeComment(
+                    postId = it.parentId,
+                    content = it.content,
+                )
+            }
+            else -> {
+
+            }
+        }
+    }
+
     val comments = commentViewModel.comments.collectAsState()
+    val commentUiState by remember { commentViewModel.commentUiState }
+    val inputUiState by remember { commentViewModel.inputUiState }
+
     Column(
         modifier = modifier
     ) {
@@ -103,20 +148,65 @@ fun CommentSheetLayout(
         )
         CommentList(
             modifier = Modifier.weight(1f),
+            listState = listState,
             mode = CommentMode.COMMENT,
+            uiState = commentUiState,
             comments = comments.value,
             changeMode = changeMode,
+            onLoadMore = {
+                commentViewModel.loadMoreComments(postId, it)
+            },
             onEvent = onEvent
         )
-        CommentEditText(onEvent = onEvent)
+        CommentInput(
+            scrollToTop = {
+                scope.launch {
+                    listState.animateScrollToItem(0)
+                }
+            },
+            uiState = inputUiState,
+            postId = postId,
+            onEvent = eventListener
+        )
     }
 }
 
 @Composable
+fun CommentInput(
+    scrollToTop: () -> Unit,
+    uiState: UiState,
+    postId: Int,
+    onEvent: (CommentEvent) -> Unit
+) {
+    CommentEditText(
+        scrollToTop = scrollToTop,
+        uiState = uiState
+    ) {
+        onEvent.invoke(
+            CommentEvent.Write(
+                parentId = postId,
+                parentType = CommentParentType.POST,
+                content = it
+            )
+        )
+    }
+}
+
+
+@Composable
 fun CommentEditText(
-    onEvent: (CommentEvent) -> Unit,
+    scrollToTop: () -> Unit,
+    uiState: UiState,
+    onWrite: (String) -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
+
+    LaunchedEffect(key1 = uiState, block = {
+        if (uiState == UiState.Success) {
+            input = ""
+            scrollToTop.invoke()
+        }
+    })
 
     Row(
         modifier = Modifier
@@ -148,13 +238,14 @@ fun CommentEditText(
 
         Text(
             style = pretendardSemiBold14,
-            color = MyColors.pink,
+            color = if (uiState == UiState.Loading) MyColors.grey4d4d4d else MyColors.pink,
             modifier = Modifier
                 .wrapContentSize()
                 .align(Alignment.Bottom)
                 .padding(start = 12.dp, bottom = 16.dp)
                 .clickable {
-                    onEvent.invoke(CommentEvent.Write(input))
+                    if (uiState == UiState.Loading) return@clickable
+                    onWrite.invoke(input)
                 },
             text = stringResource(id = R.string.write_comment)
         )
@@ -205,12 +296,18 @@ fun CommentHeader(
 @Composable
 fun CommentList(
     modifier: Modifier,
+    listState: LazyListState,
     mode: CommentMode,
+    uiState: UiState,
     comments: List<BaseComment>,
     changeMode: (CommentMode) -> Unit,
+    onLoadMore: (Int) -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
-    LazyColumn(modifier = modifier) {
+    val nextKey = comments.lastOrNull()?.id
+    val requestLoadMoreKey = comments.getOrNull(comments.size - 1)?.id //TODO 사이즈 조용
+
+    LazyColumn(modifier = modifier, state = listState) {
         item {
             Spacer(
                 modifier = Modifier
@@ -221,12 +318,30 @@ fun CommentList(
             )
         }
         items(comments) {
+            if (requestLoadMoreKey == it.id && nextKey != null) {
+                onLoadMore.invoke(nextKey)
+            }
             CommentItem(
                 comment = it,
                 mode = mode,
                 onCommentMode = changeMode,
                 onEvent = onEvent
             )
+        }
+        item {
+            when (uiState) {
+                UiState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = MyColors.grey4d4d4d)
+                    }
+                }
+                else -> {}
+            }
         }
     }
 }
@@ -376,6 +491,7 @@ fun CommentSheetPreview() {
             .fillMaxWidth()
             .background(MyColors.darkGrey_313643, shape = RectangleShape)
             .aspectRatio(0.6f),
+        postId = -1,
         commentViewModel = viewModel(),
         changeMode = {}
     ) {
