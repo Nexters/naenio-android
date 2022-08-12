@@ -174,7 +174,7 @@ fun ReplyList(
                             .padding(bottom = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = MyColors.disableColor)
+                        CircularProgressIndicator(color = MyColors.grey_d9d9d9)
                     }
                 }
                 else -> {}

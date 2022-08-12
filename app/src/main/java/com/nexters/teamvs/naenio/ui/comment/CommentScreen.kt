@@ -238,7 +238,7 @@ fun CommentEditText(
 
         Text(
             style = pretendardSemiBold14,
-            color = if (uiState == UiState.Loading) MyColors.disableColor else MyColors.pink,
+            color = if (uiState == UiState.Loading) MyColors.grey4d4d4d else MyColors.pink,
             modifier = Modifier
                 .wrapContentSize()
                 .align(Alignment.Bottom)
@@ -337,7 +337,7 @@ fun CommentList(
                             .padding(bottom = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = MyColors.disableColor)
+                        CircularProgressIndicator(color = MyColors.grey4d4d4d)
                     }
                 }
                 else -> {}
