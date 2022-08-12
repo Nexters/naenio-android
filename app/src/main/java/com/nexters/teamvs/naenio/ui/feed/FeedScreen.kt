@@ -31,6 +31,7 @@ import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.comment.CommentEvent
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import kotlinx.coroutines.delay
@@ -190,7 +191,28 @@ fun FeedItem(
                     MyColors.darkGrey_1e222c,
                     shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
                 )
-                .padding(horizontal = 20.dp))
+                .padding(horizontal = 20.dp)
+                .clickable {
+                    openSheet(
+                        BottomSheetType.CommentType(
+                            postId = post.id,
+                            onEvent = {
+                                Log.d("### FeedScreen", "$it")
+                                when (it) {
+                                    is CommentEvent.Like -> {
+                                    }
+                                    CommentEvent.More -> {
+                                    }
+                                    is CommentEvent.Write -> {
+                                    }
+                                    CommentEvent.Close -> {
+                                    }
+                                }
+                            }
+                        )
+                    )
+                }
+        )
     }
 }
 
