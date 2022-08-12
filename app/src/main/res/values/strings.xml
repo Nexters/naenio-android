@@ -5,6 +5,8 @@
     <string name="bottom_item_feed">Feed</string>
     <string name="bottom_item_profile">Profile</string>
 
+    <string name="theme_title">네니오들의 선택</string>
+
     <string name="comment">댓글</string>
     <string name="reply_comment">답글</string>
 
