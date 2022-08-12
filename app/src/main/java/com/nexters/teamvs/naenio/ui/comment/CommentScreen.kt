@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.insets.ExperimentalAnimatedInsets
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
 import com.nexters.teamvs.naenio.theme.Font
@@ -194,7 +193,6 @@ fun CommentInput(
 }
 
 
-@OptIn(ExperimentalAnimatedInsets::class)
 @Composable
 fun CommentEditText(
     scrollToTop: () -> Unit,
