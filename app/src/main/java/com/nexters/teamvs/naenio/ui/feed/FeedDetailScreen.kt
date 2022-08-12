@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,14 +29,13 @@ import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 fun FeedDetailScreen(
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
-    modifier: Modifier,
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
 
-    val backHandler = BackHandler {
+   BackHandler {
         if (modalBottomSheetState.isVisible) {
             closeSheet.invoke()
         } else {
@@ -43,30 +45,44 @@ fun FeedDetailScreen(
 
     Box( modifier = Modifier
         .fillMaxSize()) {
-        FeedDetail(modifier, backHandler)
+        FeedDetail(Modifier, navController)
         LottieAnimation(
             composition,
             modifier = Modifier.wrapContentSize(),
             iterations = Int.MAX_VALUE
         )
+        IconButton(
+            onClick = {
+              /** TODO Random FEED API 붙이기 */
+            },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = 32.dp, end = 28.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_random),
+                contentDescription = "random")
+        }
     }
 }
 
 @Composable
-fun FeedDetail(modifier: Modifier, backHandler : Unit) {
-    Column(modifier = modifier
-        .wrapContentWidth()
-        .background(MyColors.screenBackgroundColor)
+fun FeedDetail(modifier: Modifier, navController: NavHostController) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MyColors.screenBackgroundColor)
+    ) {
+        TopBar(Modifier.wrapContentHeight(), "", navController)
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 40.dp)
+                .fillMaxHeight()
         ) {
-        TopBar(modifier = Modifier.wrapContentHeight(), barTitle = "", backHandler)
-        Column(modifier = Modifier
-            .padding(horizontal = 40.dp)
-            .fillMaxHeight()) {
             ProfileNickName(
                 Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(top = 32.dp), false)
+                    .padding(top = 32.dp), false
+            )
             VoteContent(Modifier.padding(top = 24.dp), 4)
             Spacer(modifier = Modifier.fillMaxHeight(0.044f))
             VoteGageBar(0.5f, true)
@@ -84,24 +100,11 @@ fun FeedDetail(modifier: Modifier, backHandler : Unit) {
                         1.dp,
                         shape = RoundedCornerShape(12.dp),
                         ambientColor = MyColors.blackShadow_35000000
-                    ))
+                    )
+            )
         }
-    }
-
-}
-
-
-@OptIn(ExperimentalMaterialApi::class)
-@Preview
-@Composable
-fun FeedDetailScreen() {
-//    FeedDetailScreen(
-//        navController = NavHostController(LocalContext.current),
-//        modalBottomSheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden),
-//        modifier = Modifier.padding(bottomBarHeight),
-//        openSheet = {},
-//        closeSheet = {},
 //        viewModel = viewModel()
 //    )
-    FeedDetail(modifier = Modifier, BackHandler{})
+//        FeedDetail(modifier = Modifier, navController = NavHostController(LocalContext.current))
+    }
 }
