@@ -7,7 +7,6 @@ import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
 import com.nexters.teamvs.naenio.ui.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -36,7 +35,6 @@ class CommentViewModel @Inject constructor(
                     size = 10,
                     lastCommentId = null
                 )
-                delay(1000L)
                 _comments.value = commentList
                 Log.d(className, "Request PostId: $postId")
                 Log.d(
@@ -64,7 +62,6 @@ class CommentViewModel @Inject constructor(
                     size = 10,
                     lastCommentId = lastCommentId
                 )
-                delay(1000L)
                 _comments.value = comments.value + commentList
                 commentUiState.value = UiState.Success
                 Log.d(className, "Request PostId: $postId , lastCommendId: $lastCommentId")
@@ -109,7 +106,6 @@ class CommentViewModel @Inject constructor(
                     size = 10,
                     lastCommentId = null
                 )
-                delay(1000L)
                 _replies.value = replyList
                 Log.d(className, "Request CommentId: $commentId")
                 Log.d(
@@ -137,7 +133,6 @@ class CommentViewModel @Inject constructor(
                     size = 10,
                     lastCommentId = lastCommentId
                 )
-                delay(1000L)
                 _replies.value = replyList
                 commentUiState.value = UiState.Success
                 Log.d(className, "Request CommentId: $commentId")
