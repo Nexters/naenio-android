@@ -26,5 +26,9 @@ class MyColors {
         val purple_d669ff = Color(0xffd669ff)
         val blue_5862ff = Color(0xff5862ff)
         val blue_0bb9ff = Color(0xff0bb9ff)
+        val green_24CE9E = Color(0xff24CE9E)
+        val orange_FFA927 = Color(0xffFFA927)
+        val peach_FF9C80 = Color(0xffFF9C80)
+        val blue_26BDD9 = Color(0xff26BDD9)
     }
 }

@@ -23,4 +23,5 @@ object Graph {
     const val AUTHENTICATION = "auth_graph"
     const val MAIN = "main_graph"
     const val DETAILS = "details_graph"
+    const val THEME_DETAIL = "theme_detail_graph"
 }

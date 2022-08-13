@@ -5,6 +5,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -16,7 +17,7 @@ import com.nexters.teamvs.naenio.ui.feed.FeedDetailScreen
 import com.nexters.teamvs.naenio.ui.feed.FeedScreen
 import com.nexters.teamvs.naenio.ui.tabs.*
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
-import com.nexters.teamvs.naenio.ui.home.HomeScreen
+import com.nexters.teamvs.naenio.ui.home.ThemeScreen
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -33,7 +34,12 @@ fun MainNavGraph(
     ) {
         val modifier = Modifier.padding(bottom = bottomBarHeight)
         composable(BottomNavItem.Theme.route) {
-            HomeScreen(navController = navController, modifier = modifier)
+            ThemeScreen(
+                navController = navController,
+                modifier = modifier,
+                modalBottomSheetState = modalBottomSheetState,
+                openSheet = openSheet,
+                closeSheet = closeSheet)
         }
         composable(BottomNavItem.Profile.route) {
             ProfileScreen(navController = navController, modifier = modifier)
@@ -52,6 +58,7 @@ fun MainNavGraph(
         }
         detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)
+        themeDetailNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
     }
 }
 
@@ -64,15 +71,39 @@ fun NavGraphBuilder.detailsNavGraph(
 ) {
     navigation(
         route = Graph.DETAILS,
-        startDestination = "FeedDetail"
+        startDestination = "FeedDetail/{themeId}"
     ) {
-        composable(route = "FeedDetail") {
+        composable(route = "FeedDetail/{themeId}") {
             FeedDetailScreen(
+                themeId = it.arguments?.getString("themeId")?.toInt(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
                 openSheet = openSheet,
                 closeSheet = closeSheet
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+fun NavGraphBuilder.themeDetailNavGraph(
+    navController: NavHostController,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (BottomSheetType) -> Unit,
+    closeSheet: () -> Unit
+) {
+    navigation(
+        route = Graph.THEME_DETAIL,
+        startDestination = "ThemeDetail/{themeId}"
+    ) {
+        composable(route = "ThemeDetail/{themeId}") {
+          FeedScreen(
+              themeId = it.arguments?.getString("themeId")?.toInt(),
+              navController = navController,
+              modalBottomSheetState = modalBottomSheetState,
+              openSheet = openSheet,
+              closeSheet = closeSheet
+          )
         }
     }
 }

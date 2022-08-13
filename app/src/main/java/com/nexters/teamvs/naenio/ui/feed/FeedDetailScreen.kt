@@ -1,7 +1,9 @@
 package com.nexters.teamvs.naenio.ui.feed
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -27,6 +29,7 @@ import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedDetailScreen(
+    themeId : Int? = 0,
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
     modalBottomSheetState: ModalBottomSheetState,
@@ -51,15 +54,19 @@ fun FeedDetailScreen(
             modifier = Modifier.wrapContentSize(),
             iterations = Int.MAX_VALUE
         )
-        IconButton(
-            onClick = {
-              /** TODO Random FEED API 붙이기 */
-            },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = 32.dp, end = 28.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_random),
-                contentDescription = "random")
+        themeId?.let {
+            if (it == 3) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_random),
+                    contentDescription = "ic_random",
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 32.dp, end = 28.dp)
+                        .clickable {
+                            // TODO Random API
+                        }
+                )
+            }
         }
     }
 }

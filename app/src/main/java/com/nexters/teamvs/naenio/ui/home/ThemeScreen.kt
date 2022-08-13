@@ -1,14 +1,16 @@
 package com.nexters.teamvs.naenio.ui.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,13 +20,30 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.graphs.Graph
+import com.nexters.teamvs.naenio.graphs.detailsNavGraph
+import com.nexters.teamvs.naenio.graphs.themeDetailNavGraph
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.feed.FeedViewModel
+import com.nexters.teamvs.naenio.ui.model.BottomNavItem
 
+@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun HomeScreen(navController: NavHostController, modifier: Modifier) {
+fun ThemeScreen(
+    navController: NavHostController,
+    modifier: Modifier,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (BottomSheetType) -> Unit,
+    closeSheet: () -> Unit,
+) {
 
     Column(
         modifier = modifier
@@ -45,13 +64,18 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier) {
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            items(ThemeItem.mock) {
-                ThemeGridItem(themeItem = it) { themeId ->
-                    if (themeId == 123) { //랜텀투표면
+            items(ThemeItem.themeList) {
+                ThemeGridItem(themeItem = it) { themeItem ->
+                    var route : String
+                    if (themeItem.id == 3) { //랜덤투표면
                         //todo navigate detail
+                        Log.e("####", "랜덤 투표 테마")
+                        route = "FeedDetail/${themeItem.id}"
                     } else {
-                        //TODO navigate feed
+                        Log.e("####", "랜덤 투표 외 테마")
+                        route = "ThemeDetail/${themeItem.id}"
                     }
+                    navController.navigate(route)
                 }
             }
         }
@@ -72,7 +96,7 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier) {
 }
 
 @Composable
-fun ThemeGridItem(themeItem: ThemeItem, onClick: (Int) -> Unit) {
+fun ThemeGridItem(themeItem: ThemeItem, onClick: (ThemeItem) -> Unit) {
     Box(
         modifier = Modifier
             .background(
@@ -81,9 +105,15 @@ fun ThemeGridItem(themeItem: ThemeItem, onClick: (Int) -> Unit) {
             )
             .height(182.dp)
             .clickable {
-                onClick.invoke(themeItem.id)
+                onClick.invoke(themeItem)
             },
     ) {
+        Image(
+            modifier = Modifier.align(Alignment.BottomEnd),
+            painter = painterResource(id = themeItem.image),
+            contentDescription = ""
+        )
+
         Text(
             modifier = Modifier.padding(14.dp),
             text = themeItem.description,
@@ -98,12 +128,6 @@ fun ThemeGridItem(themeItem: ThemeItem, onClick: (Int) -> Unit) {
             text = themeItem.title,
             color = Color.White,
             style = Font.pretendardSemiBold22
-        )
-
-        Image(
-            modifier = Modifier.align(Alignment.BottomEnd),
-            painter = painterResource(id = themeItem.image),
-            contentDescription = ""
         )
     }
 }
