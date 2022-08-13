@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.widget.Space
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -274,7 +276,10 @@ fun ProfileImageIcon(size : Dp) {
 }
 
 @Composable
-fun TopBar(modifier: Modifier, barTitle: String, navController: NavHostController) {
+fun TopBar(modifier: Modifier,
+           barTitle: String,
+           navController: NavHostController,
+           isMoreBtnVisible : Boolean = true) {
     Row(modifier = modifier
         .fillMaxWidth()
         .padding(horizontal = 24.dp)
@@ -301,7 +306,9 @@ fun TopBar(modifier: Modifier, barTitle: String, navController: NavHostControlle
             )
         }
         Spacer(modifier = Modifier.weight(1f))
+        val iconVisible = if(isMoreBtnVisible) 1f else 0f
         IconButton(
+            modifier = Modifier.alpha(iconVisible),
             onClick = {
                 //TODO More Event
             }

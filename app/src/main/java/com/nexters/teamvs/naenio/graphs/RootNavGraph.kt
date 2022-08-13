@@ -24,4 +24,5 @@ object Graph {
     const val MAIN = "main_graph"
     const val DETAILS = "details_graph"
     const val THEME_DETAIL = "theme_detail_graph"
+    const val PROFILE_DETAIL = "profile_detail_graph"
 }
