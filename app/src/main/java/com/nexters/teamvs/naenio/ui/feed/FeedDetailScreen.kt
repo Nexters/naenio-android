@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -25,6 +26,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.home.ThemeItem.Companion.themeList
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -48,14 +50,21 @@ fun FeedDetailScreen(
 
     Box( modifier = Modifier
         .fillMaxSize()) {
-        FeedDetail(Modifier, navController)
-        LottieAnimation(
-            composition,
-            modifier = Modifier.wrapContentSize(),
-            iterations = Int.MAX_VALUE
-        )
+        var modifier : Modifier
         themeId?.let {
             if (it == 3) {
+                val themeItem = themeList[themeId-1]
+                modifier = Modifier.background(Brush.verticalGradient(themeItem.backgroundColorList))
+            } else {
+                modifier = Modifier.background(MyColors.screenBackgroundColor)
+            }
+            FeedDetail(modifier, navController)
+            LottieAnimation(
+                composition,
+                modifier = Modifier.wrapContentSize(),
+                iterations = Int.MAX_VALUE
+            )
+            if( it == 3) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_random),
                     contentDescription = "ic_random",
@@ -76,7 +85,6 @@ fun FeedDetail(modifier: Modifier, navController: NavHostController) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MyColors.screenBackgroundColor)
     ) {
         TopBar(Modifier.wrapContentHeight(), "", navController)
         Column(
