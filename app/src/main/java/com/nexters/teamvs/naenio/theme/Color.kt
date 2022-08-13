@@ -30,5 +30,7 @@ class MyColors {
         val orange_FFA927 = Color(0xffFFA927)
         val peach_FF9C80 = Color(0xffFF9C80)
         val blue_26BDD9 = Color(0xff26BDD9)
+        val mint_83d8c8 = Color(0xff83d8c8)
+        val darkGrey_424A5C = Color(0xff424A5C)
     }
 }

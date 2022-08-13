@@ -235,12 +235,13 @@ fun ProfileNickName(modifier: Modifier, isIconVisible : Boolean) {
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProfileImageIcon(Modifier)
+        ProfileImageIcon(size = 21.dp)
         Text(
             text = "닉네임",
             color = Color.White,
             style = Font.pretendardMedium16,
             modifier = Modifier.wrapContentWidth()
+                .padding(start = 6.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
         if (isIconVisible) {
@@ -260,14 +261,13 @@ fun ProfileNickName(modifier: Modifier, isIconVisible : Boolean) {
 }
 
 @Composable
-fun ProfileImageIcon(modifier: Modifier) {
+fun ProfileImageIcon(size : Dp) {
     //TODO 프로필 이미지 타입 정의
     Icon(
-        modifier = modifier
-            .padding(end = 6.dp)
-            .size(21.dp)
+        modifier = Modifier
+            .size(size)
             .clip(CircleShape),
-        tint = Color.Yellow,
+        tint = MyColors.mint_83d8c8,
         painter = painterResource(id = R.drawable.ic_launcher_background),
         contentDescription = "profileThumbnail"
     )

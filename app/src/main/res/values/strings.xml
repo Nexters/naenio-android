@@ -47,4 +47,17 @@
     <string name="vote_options_b_hint">B 선택지를 입력해주세요.</string>
 
     <string name="vote_content_hint">추가적으로 어떤 내용을 담을까요? (선택)</string>
+
+    <!--Profile-->
+    <string name="kakao">카카오</string>
+    <string name="google">구글</string>
+    <string name="edit">edit</string>
+    <string name="profile_social_login">소셜 로그인 정보</string>
+    <string name="profile_my_comment">작성한 댓글</string>
+    <string name="profile_notice">공지사항</string>
+    <string name="profile_question">문의하기</string>
+    <string name="profile_developer">개발자 정보</string>
+    <string name="profile_version">버전 정보</string>
+    <string name="logout">로그아웃</string>
+    <string name="profile_signout">회원 탈퇴</string>
 </resources>
