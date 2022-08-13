@@ -29,10 +29,14 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
+import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.graphs.Graph
+import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
+import com.nexters.teamvs.naenio.ui.composables.Toast
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.model.UiState
 import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import kotlinx.coroutines.delay
 
@@ -56,43 +60,91 @@ fun FeedScreen(
             navController.popBackStack()
         }
     }
-    Box (modifier = modifier.fillMaxSize()
-        .padding(bottom = 0.dp)
-        .background(MyColors.screenBackgroundColor)) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Text(
-                modifier = Modifier.padding(top = 19.dp, start = 20.dp),
-                text = stringResource(id = R.string.bottom_item_feed),
-                fontSize = 24.sp,
-                color = Color.White
-            )
-            Box {
-                FeedPager(
-                    modifier = Modifier,
-                    posts = posts.value,
-                    openSheet = openSheet,
-                    navController = navController
-                )
-                LottieAnimation(
-                    composition,
-                    modifier = Modifier.wrapContentSize(),
-                    iterations = Int.MAX_VALUE
-                )
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scaffoldState = rememberScaffoldState(snackbarHostState = snackbarHostState)
+    val scope = rememberCoroutineScope()
+
+    BackHandler {
+        if (modalBottomSheetState.isVisible) {
+            closeSheet.invoke()
+        } else {
+            navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.uiState.collect {
+            Log.d("### FeedScreen", "$it")
+            when (it) {
+                is UiState.Error -> {
+                    snackbarHostState.showSnackbar(it.exception.errorMessage())
+                }
+                UiState.Idle -> {
+
+                }
+                UiState.Loading -> {
+
+                }
+                UiState.Success -> {
+                    snackbarHostState.showSnackbar("Success")
+                }
             }
         }
-         IconButton(
-            onClick = {},
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
-         ) {
-             /**
-              * TODO :: Floating 버튼 reosuce 적용 안됨..
-              */
-            Icon(
-                painter = painterResource(id = R.drawable.ic_floating),
-                contentDescription = "floating")
+    })
+
+    Scaffold(
+        modifier = modifier,
+        scaffoldState = scaffoldState,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) {
+                Toast(message = it.message)
+            }
+        }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+                .background(MyColors.screenBackgroundColor)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 19.dp, start = 20.dp),
+                    text = stringResource(id = R.string.bottom_item_feed),
+                    fontSize = 24.sp,
+                    color = Color.White
+                )
+                Box {
+                    FeedPager(
+                        modifier = Modifier,
+                        posts = posts.value,
+                        openSheet = openSheet,
+                        navController = navController
+                    )
+                    LottieAnimation(
+                        composition,
+                        modifier = Modifier.wrapContentSize(),
+                        iterations = Int.MAX_VALUE
+                    )
+                }
+            }
+            IconButton(
+                onClick = {
+                          navController.navigate(Route.Create)
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_floating),
+                    tint = Color.Unspecified,
+                    contentDescription = "floating"
+                )
+            }
         }
     }
 }
@@ -102,12 +154,15 @@ fun FeedScreen(
 fun FeedScreenBox() {
     Box(modifier = Modifier.fillMaxSize()) {
         FloatingActionButton(
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
             onClick = {}
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_floating),
-                contentDescription = "floating")
+                contentDescription = "floating"
+            )
         }
     }
 }
@@ -119,7 +174,7 @@ fun FeedPager(
     modifier: Modifier,
     posts: List<Post>,
     openSheet: (BottomSheetType) -> Unit,
-    navController : NavHostController
+    navController: NavHostController
 ) {
     VerticalPager(
         count = posts.size,
@@ -178,7 +233,8 @@ fun FeedItem(
                 Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(vertical = 24.dp), true)
+                    .padding(vertical = 24.dp), true
+            )
             VoteContent(Modifier, 2)
             VoteGageBar(gage, true)
         }

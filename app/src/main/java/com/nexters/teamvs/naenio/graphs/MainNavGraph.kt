@@ -10,11 +10,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.nexters.teamvs.naenio.ui.create.CreateScreen
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.feed.FeedDetailScreen
 import com.nexters.teamvs.naenio.ui.feed.FeedScreen
 import com.nexters.teamvs.naenio.ui.tabs.*
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
+import com.nexters.teamvs.naenio.ui.home.HomeScreen
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -45,16 +47,21 @@ fun MainNavGraph(
                 closeSheet = closeSheet
             )
         }
+        composable(Route.Create) {
+            CreateScreen()
+        }
         detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-fun NavGraphBuilder.detailsNavGraph(navController: NavHostController,
-                                    modalBottomSheetState: ModalBottomSheetState,
-                                    openSheet: (BottomSheetType) -> Unit,
-                                    closeSheet: () -> Unit) {
+fun NavGraphBuilder.detailsNavGraph(
+    navController: NavHostController,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (BottomSheetType) -> Unit,
+    closeSheet: () -> Unit
+) {
     navigation(
         route = Graph.DETAILS,
         startDestination = "FeedDetail"

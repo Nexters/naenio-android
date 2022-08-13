@@ -6,6 +6,11 @@ import android.content.ContextWrapper
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
+import retrofit2.HttpException
+import java.net.ConnectException
+import java.net.NoRouteToHostException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 val Fragment.fragmentComposeView: ComposeView
     get() {
@@ -13,7 +18,6 @@ val Fragment.fragmentComposeView: ComposeView
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         }
     }
-
 
 fun Context.requireActivity(): Activity {
     var currentContext = this
@@ -24,4 +28,23 @@ fun Context.requireActivity(): Activity {
         currentContext = currentContext.baseContext
     }
     throw IllegalStateException("Not Found Activity.")
+}
+
+fun Throwable.isNetworkException(): Boolean {
+    return when (this) {
+        is HttpException -> true
+        is UnknownHostException -> true
+        is NoRouteToHostException -> true
+        is SocketTimeoutException -> true
+        is ConnectException -> true
+        else -> false
+    }
+}
+
+fun Exception.errorMessage(): String {
+    return if (isNetworkException()) {
+        "네트워크 연결 상태를 확인해주세요."
+    } else {
+        "일시적 오류가 발생했습니다. 재시도 해주세요."
+    }
 }

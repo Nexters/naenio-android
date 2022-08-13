@@ -239,7 +239,7 @@ fun ProfileNickName(modifier: Modifier, isIconVisible : Boolean) {
         Text(
             text = "닉네임",
             color = Color.White,
-            style = Font.subtitle1,
+            style = Font.pretendardMedium16,
             modifier = Modifier.wrapContentWidth()
         )
         Spacer(modifier = Modifier.weight(1f))
