@@ -2,6 +2,7 @@ package com.nexters.teamvs.naenio.domain.repository
 
 import com.nexters.teamvs.naenio.data.network.api.CommentApi
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
+import com.nexters.teamvs.naenio.data.network.dto.LikeCommentRequest
 import com.nexters.teamvs.naenio.data.network.dto.WriteCommentRequest
 import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toComment
 import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toComments
@@ -65,5 +66,17 @@ class CommentRepository @Inject constructor(
             )
         )
         return response.toReply()
+    }
+
+    suspend fun deleteComment(id: Int) {
+        commentApi.deleteComment(id)
+    }
+
+    suspend fun likeComment(id: Int) {
+        commentApi.likeComment(LikeCommentRequest(id))
+    }
+
+    suspend fun unlikeComment(id: Int) {
+        commentApi.unlikeComment(id)
     }
 }
