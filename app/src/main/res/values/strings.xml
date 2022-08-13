@@ -5,7 +5,20 @@
     <string name="bottom_item_feed">Feed</string>
     <string name="bottom_item_profile">Profile</string>
 
+    <!--테마 뷰-->
     <string name="theme_title">네니오들의 선택</string>
+    <string name="theme_item_title1">오늘의 투표</string>
+    <string name="theme_item_title2">명예의 전당</string>
+    <string name="theme_item_title3">랜덤 플레이</string>
+    <string name="theme_item_title4">황금 밸런스</string>
+    <string name="theme_item_title5">와글와글</string>
+    <string name="theme_item_title6">밸런스 붕괴</string>
+    <string name="theme_item_content1">오늘 네니오들이 가장 많이 참여한 투표</string>
+    <string name="theme_item_content2">네니오들이 꾸준히 선택한 인기 있는 투표</string>
+    <string name="theme_item_content3">랜덤으로 참여하는 플레이 투표</string>
+    <string name="theme_item_content4">어떤 것 하나 쉽게 선택할 수 없는 투표</string>
+    <string name="theme_item_content5">네니오들이 가장 많이 작성한 댓글 참여 투표</string>
+    <string name="theme_item_content6">네니오들이 몰린 투표</string>
 
     <string name="comment">댓글</string>
     <string name="reply_comment">답글</string>

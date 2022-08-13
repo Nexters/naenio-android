@@ -10,6 +10,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
@@ -22,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -36,6 +38,8 @@ import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
 import com.nexters.teamvs.naenio.ui.composables.Toast
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.home.ThemeItem
+import com.nexters.teamvs.naenio.ui.home.ThemeItem.Companion.themeList
 import com.nexters.teamvs.naenio.ui.model.UiState
 import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import kotlinx.coroutines.delay
@@ -43,9 +47,10 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
+    themeId : Int? = 0,
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
@@ -100,51 +105,120 @@ fun FeedScreen(
                 Toast(message = it.message)
             }
         }
+    ) { paddingValue ->
+        if (themeId == 0) {
+            setFeedLayout(
+                navController = navController,
+                paddingValue = paddingValue,
+                posts = posts,
+                openSheet = openSheet,
+                composition = composition
+            )
+        } else {
+            themeId?.let {
+                val themeItem = themeList[it-1]
+                setThemeDetailLayout(
+                    themeItem = themeItem,
+                    navController = navController,
+                    paddingValue = paddingValue,
+                    posts = posts,
+                    openSheet = openSheet,
+                    composition = composition
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun setThemeDetailLayout(
+    themeItem : ThemeItem,
+    navController : NavHostController,
+    paddingValue : PaddingValues,
+    posts : State<List<Post>>,
+    openSheet: (BottomSheetType) -> Unit,
+    composition : LottieComposition?
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValue)
+            .background(
+                Brush.verticalGradient(themeItem.backgroundColorList)
+            )
     ) {
-        Box(
+        Text(
+            modifier = Modifier.padding(top = 19.dp, start = 20.dp, bottom = 24.dp),
+            text = themeItem.title,
+            fontSize = 24.sp,
+            color = Color.White
+        )
+        Box {
+            FeedPager(
+                modifier = Modifier,
+                posts = posts.value,
+                openSheet = openSheet,
+                navController = navController
+            )
+            LottieAnimation(
+                composition,
+                modifier = Modifier.wrapContentSize(),
+                iterations = Int.MAX_VALUE
+            )
+        }
+    }
+}
+
+@Composable
+fun setFeedLayout(navController: NavHostController,
+                  paddingValue : PaddingValues,
+                  posts : State<List<Post>>,
+                  openSheet: (BottomSheetType) -> Unit,
+                  composition : LottieComposition?
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValue)
+            .background(MyColors.screenBackgroundColor)
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(it)
-                .background(MyColors.screenBackgroundColor)
+                .fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    modifier = Modifier.padding(top = 19.dp, start = 20.dp),
-                    text = stringResource(id = R.string.bottom_item_feed),
-                    fontSize = 24.sp,
-                    color = Color.White
+            Text(
+                modifier = Modifier.padding(top = 19.dp, start = 20.dp),
+                text = stringResource(id = R.string.bottom_item_feed),
+                fontSize = 24.sp,
+                color = Color.White
+            )
+            Box {
+                FeedPager(
+                    modifier = Modifier,
+                    posts = posts.value,
+                    openSheet = openSheet,
+                    navController = navController
                 )
-                Box {
-                    FeedPager(
-                        modifier = Modifier,
-                        posts = posts.value,
-                        openSheet = openSheet,
-                        navController = navController
-                    )
-                    LottieAnimation(
-                        composition,
-                        modifier = Modifier.wrapContentSize(),
-                        iterations = Int.MAX_VALUE
-                    )
-                }
-            }
-            IconButton(
-                onClick = {
-                          navController.navigate(Route.Create)
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_floating),
-                    tint = Color.Unspecified,
-                    contentDescription = "floating"
+                LottieAnimation(
+                    composition,
+                    modifier = Modifier.wrapContentSize(),
+                    iterations = Int.MAX_VALUE
                 )
             }
+        }
+        IconButton(
+            onClick = {
+                navController.navigate(Route.Create)
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_floating),
+                tint = Color.Unspecified,
+                contentDescription = "floating"
+            )
         }
     }
 }
@@ -220,8 +294,8 @@ fun FeedItem(
             shape = RoundedCornerShape(16.dp)
         )
         .clickable {
-            Log.d("###", "clcik?")
-            navController.navigate(Graph.DETAILS)
+            Log.d("####", "Feed Item Click")
+            navController.navigate("FeedDetail/0")
         }
     ) {
         Column(
