@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.tabs.DetailScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.LoginScreen
-import com.nexters.teamvs.naenio.ui.tabs.auth.NicknameScreen
+import com.nexters.teamvs.naenio.ui.tabs.auth.ProfileSettingScreen
 
 fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
     navigation(
@@ -28,7 +28,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
             )
         }
         composable(route = AuthScreen.Nickname.route) {
-            NicknameScreen(viewModel = hiltViewModel()) {
+            ProfileSettingScreen(navController = navController, viewModel = hiltViewModel()) {
                 navController.popBackStack()
                 navController.navigate(Graph.MAIN)
             }
