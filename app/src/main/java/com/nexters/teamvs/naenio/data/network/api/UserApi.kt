@@ -17,4 +17,9 @@ interface UserApi {
     suspend fun setNickname(
         @Body nicknameRequest: NicknameRequest
     ): NicknameResponse
+
+    @PUT("/app/members/profile-image")
+    suspend fun setProfileImage(
+        @Body profileImageRequest: ProfileImageRequest
+    ): ProfileImageResponse
 }
