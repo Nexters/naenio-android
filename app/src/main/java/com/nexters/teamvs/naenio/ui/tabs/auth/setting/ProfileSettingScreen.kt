@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio.ui.tabs.auth
+package com.nexters.teamvs.naenio.ui.tabs.auth.setting
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -10,26 +10,28 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.MyShape
+import com.nexters.teamvs.naenio.ui.model.UiState
 import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
 import com.nexters.teamvs.naenio.ui.tabs.auth.model.ProfileImageModel
 
@@ -39,8 +41,48 @@ const val MAX_NICKNAME_LENGTH = 10
 @Composable
 fun ProfileSettingScreen(
     navController: NavHostController,
-    viewModel: LoginViewModel,
+    viewModel: ProfileViewModel,
     onNext: () -> Unit,
+) {
+
+    var showToast by remember { mutableStateOf<String>("") }
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.uiState.collect {
+            when (it) {
+                is UiState.Error -> {
+                    val errorMessage = if (it.exception is AlreadyIsExistNickNameException) {
+                        "이미 존재하는 닉네임입니다. 다른 닉네임을 사용해주세요 ㅠㅠ."
+                    } else {
+                        it.exception.errorMessage()
+                    }
+                    showToast = errorMessage
+                }
+                UiState.Idle -> {
+
+                }
+                UiState.Loading -> {
+
+                }
+                UiState.Success -> {
+                    onNext.invoke()
+                }
+            }
+        }
+    })
+
+    ProfileSettingScreenContent(
+        navController = navController,
+        viewModel = viewModel,
+    )
+
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ProfileSettingScreenContent(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    viewModel: ProfileViewModel,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -60,7 +102,7 @@ fun ProfileSettingScreen(
     isSavable = inputText.isNotBlank() && inputText.length >= 2
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MyColors.screenBackgroundColor),
     ) {
@@ -119,12 +161,6 @@ fun ProfileSettingTopBar(
             .fillMaxWidth()
             .wrapContentHeight(),
     ) {
-        Image(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(id = com.nexters.teamvs.naenio.R.drawable.ic_back_left),
-            contentDescription = "close"
-        )
-
         Text(
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Center,
@@ -292,28 +328,8 @@ fun ProfileImageItem(
 @Preview
 @Composable
 fun ProfileImagePreview() {
-//    ProfileSettingScreen(
-//        viewModel = viewModel(),
-//    ) {
-//
-//    }
-    Box(
-        modifier = Modifier
-            .background(Color.Blue)
-            .fillMaxWidth()
-            .height(60.dp)
-            .padding(horizontal = 10.dp)
-            .clickable {
-
-            }
-
-    ) {
-        Box(
-            Modifier
-                .background(Color.Red)
-                .size(60.dp)
-        ) {
-
-        }
-    }
+    ProfileSettingScreenContent(
+        navController = NavHostController(LocalContext.current),
+        viewModel = viewModel()
+    )
 }

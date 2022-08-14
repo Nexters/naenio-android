@@ -69,33 +69,4 @@ class LoginViewModel @Inject constructor(
             Log.e(className, "[HandleGoogleSignInResult] failed code :: " + e.statusCode.toString())
         }
     }
-
-    fun isExistNickname(nickname: String) {
-        viewModelScope.launch {
-            try {
-                val isExist = userRepository.isExistNickname(nickname)
-                Log.d(className, "$isExist")
-            } catch (e: Exception) {
-                Log.e(className, e.stackTraceToString())
-            }
-        }
-    }
-
-    fun setProfileInfo(nickname: String, profileImageIndex: Int) {
-        viewModelScope.launch {
-            try {
-                val isExist = userRepository.isExistNickname(nickname)
-                if (isExist) throw AlreadyIsExistNickNameException()
-
-                val nicknameDef = async { userRepository.setNickname(nickname) }
-                val profileImageDef = async { userRepository.setProfileImage(profileImageIndex) }
-                awaitAll(nicknameDef, profileImageDef)
-            } catch (e: Exception) {
-                Log.e(className, e.stackTraceToString())
-            }
-        }
-    }
-
 }
-
-class AlreadyIsExistNickNameException : Exception()

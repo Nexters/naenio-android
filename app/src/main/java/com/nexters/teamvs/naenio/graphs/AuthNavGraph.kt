@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.tabs.DetailScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.LoginScreen
-import com.nexters.teamvs.naenio.ui.tabs.auth.ProfileSettingScreen
+import com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileSettingScreen
 
 fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
     navigation(
