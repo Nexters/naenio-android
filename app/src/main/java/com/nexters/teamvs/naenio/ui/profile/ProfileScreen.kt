@@ -20,6 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.graphs.AuthScreen
+import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.feed.ProfileImageIcon
@@ -53,7 +55,10 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
                     modifier = Modifier
                         .padding()
                         .background(MyColors.darkGrey_313643, shape = RoundedCornerShape(5.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable {
+                           navController.navigate(AuthScreen.ProfileSetting.route)
+                        },
                     style = Font.montserratSemiBold14,
                     color = Color.White,
                     text = stringResource(id = R.string.edit)

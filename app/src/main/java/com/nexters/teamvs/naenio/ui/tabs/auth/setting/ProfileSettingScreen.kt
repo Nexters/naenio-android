@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -264,6 +265,7 @@ fun SelectImageBottomDialog(
     ) {
         Column(
             modifier = Modifier
+                .align(BottomCenter)
                 .fillMaxWidth()
                 .fillMaxHeight(0.5f)
                 .background(Color(0xff313643), shape = MyShape.TopRoundedCornerShape)
