@@ -32,5 +32,6 @@ class MyColors {
         val blue_26BDD9 = Color(0xff26BDD9)
         val mint_83d8c8 = Color(0xff83d8c8)
         val darkGrey_424A5C = Color(0xff424A5C)
+        val grey_b3b3b3 = Color(0xffb3b3b3)
     }
 }

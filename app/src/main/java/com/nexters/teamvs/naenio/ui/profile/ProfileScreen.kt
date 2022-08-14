@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio.ui.tabs
+package com.nexters.teamvs.naenio.ui.profile
 
 import android.media.Image
 import android.util.Log
@@ -68,6 +68,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
         item {
             Spacer(modifier = Modifier.padding(top = 30.dp))
             ProfileButton(
+                navController = navController,
                 modifier = Modifier
                     .background(color = MyColors.darkGrey_313643,
                         shape = RoundedCornerShape(10.dp)),
@@ -80,6 +81,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
         item {
             Spacer(modifier = Modifier.padding(top = 20.dp))
             ProfileButton(
+                navController = navController,
                 modifier = Modifier
                     .padding()
                     .background(color = MyColors.darkGrey_313643,
@@ -97,24 +99,28 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
                     shape = RoundedCornerShape(10.dp))
             ) {
                 ProfileButton(
+                    navController = navController,
                     title = stringResource(id = R.string.profile_notice),
                     image = painterResource(id = R.drawable.icon_speaker),
                     clickType = ProfileType.NOTICE
                 )
                 ProfileButtonLine()
                 ProfileButton(
+                    navController = navController,
                     title = stringResource(id = R.string.profile_question),
                     image = painterResource(id = R.drawable.icon_question),
                     clickType = ProfileType.QUESTION
                 )
                 ProfileButtonLine()
                 ProfileButton(
+                    navController = navController,
                     title = stringResource(id = R.string.profile_developer),
                     image = painterResource(id = R.drawable.icon_person),
                     clickType = ProfileType.DEVELOPER
                 )
                 ProfileButtonLine()
                 ProfileButton(
+                    navController = navController,
                     title = stringResource(id = R.string.profile_version),
                     image = painterResource(id = R.drawable.icon_phone),
                     clickType = ProfileType.VERSION
@@ -130,6 +136,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
                 .wrapContentHeight()
                 .background(MyColors.darkGrey_313643, shape = RoundedCornerShape(10.dp))) {
                 ProfileButton(
+                    navController = navController,
                     title = stringResource(id = R.string.logout),
                     image = painterResource(id = R.drawable.icon_logout),
                     clickType = ProfileType.LOGOUT
@@ -137,6 +144,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
                 )
                 ProfileButtonLine()
                 ProfileButton(
+                    navController = navController,
                     title = stringResource(id = R.string.profile_signout),
                     image = painterResource(id = R.drawable.icon_signout),
                     clickType = ProfileType.SIGNOUT
@@ -156,12 +164,14 @@ fun ProfileButtonLine() {
 }
 
 @Composable
-fun ProfileButton(modifier: Modifier = Modifier,
-                  title : String,
-                  image: Painter,
-                  isLoginLayout : Boolean = false,
-                  loginType : String = "",
-                  clickType : String = ""
+fun ProfileButton(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    title : String,
+    image: Painter,
+    isLoginLayout : Boolean = false,
+    loginType : String = "",
+    clickType : String = ""
 ) {
     Row(
         modifier = modifier
@@ -169,11 +179,11 @@ fun ProfileButton(modifier: Modifier = Modifier,
             .clickable {
                if(clickType != "") {
                    when(clickType) {
-                       ProfileType.MY_COMMENT -> setMyCommentBtn()
-                       ProfileType.NOTICE -> setNoticeBtn()
+                       ProfileType.MY_COMMENT -> moveProfileDetailScreen(navController, ProfileType.MY_COMMENT)
+                       ProfileType.NOTICE -> moveProfileDetailScreen(navController, ProfileType.NOTICE)
                        ProfileType.QUESTION -> setQuestionBtn()
-                       ProfileType.DEVELOPER -> setDeveloperBtn()
-                       ProfileType.VERSION  -> setVersionBtn()
+                       ProfileType.DEVELOPER -> moveProfileDetailScreen(navController, ProfileType.DEVELOPER)
+                       ProfileType.VERSION  -> moveProfileDetailScreen(navController, ProfileType.VERSION)
                        ProfileType.LOGOUT -> setLogoutBtn()
                        ProfileType.SIGNOUT -> setSignoutBtn()
                    }
@@ -220,27 +230,12 @@ fun ProfileButton(modifier: Modifier = Modifier,
     }
 }
 
-private fun setMyCommentBtn() {
-    Log.d("### ProfileScreen", ProfileType.MY_COMMENT)
-}
-
-private fun setNoticeBtn() {
-    Log.d("### ProfileScreen", ProfileType.NOTICE)
-
+private fun moveProfileDetailScreen(navController: NavHostController, type : String) {
+    navController.navigate("profileDetail/${type}")
 }
 
 private fun setQuestionBtn() {
     Log.d("### ProfileScreen", ProfileType.QUESTION)
-
-}
-
-private fun setDeveloperBtn() {
-    Log.d("### ProfileScreen", ProfileType.DEVELOPER)
-
-}
-
-private fun setVersionBtn() {
-    Log.d("### ProfileScreen", ProfileType.VERSION)
 
 }
 
