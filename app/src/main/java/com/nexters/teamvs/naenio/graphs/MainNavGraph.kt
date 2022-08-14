@@ -18,6 +18,9 @@ import com.nexters.teamvs.naenio.ui.feed.FeedScreen
 import com.nexters.teamvs.naenio.ui.tabs.*
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
 import com.nexters.teamvs.naenio.ui.home.ThemeScreen
+import com.nexters.teamvs.naenio.ui.profile.ProfileDetail
+import com.nexters.teamvs.naenio.ui.profile.ProfileDetailScreen
+import com.nexters.teamvs.naenio.ui.profile.ProfileScreen
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -59,6 +62,7 @@ fun MainNavGraph(
         detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)
         themeDetailNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
+        profileDetailNavGraph(navController)
     }
 }
 
@@ -82,6 +86,23 @@ fun NavGraphBuilder.detailsNavGraph(
                 closeSheet = closeSheet
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+fun NavGraphBuilder.profileDetailNavGraph(
+    navController: NavHostController
+) {
+    navigation(
+        route = Graph.PROFILE_DETAIL,
+        startDestination = "ProfileDetail/{profileType}"
+    ) {
+       composable(route = "ProfileDetail/{profileType}") {
+           ProfileDetailScreen(
+               profileType = it.arguments?.getString("profileType").orEmpty(),
+               navController = navController
+           )
+       }
     }
 }
 

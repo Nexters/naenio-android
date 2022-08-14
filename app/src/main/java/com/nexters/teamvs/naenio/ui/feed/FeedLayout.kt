@@ -1,10 +1,8 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.widget.Space
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +13,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -235,12 +234,13 @@ fun ProfileNickName(modifier: Modifier, isIconVisible : Boolean) {
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProfileImageIcon(Modifier)
+        ProfileImageIcon(size = 21.dp)
         Text(
             text = "닉네임",
             color = Color.White,
             style = Font.pretendardMedium16,
             modifier = Modifier.wrapContentWidth()
+                .padding(start = 6.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
         if (isIconVisible) {
@@ -260,38 +260,36 @@ fun ProfileNickName(modifier: Modifier, isIconVisible : Boolean) {
 }
 
 @Composable
-fun ProfileImageIcon(modifier: Modifier) {
+fun ProfileImageIcon(size : Dp) {
     //TODO 프로필 이미지 타입 정의
     Icon(
-        modifier = modifier
-            .padding(end = 6.dp)
-            .size(21.dp)
+        modifier = Modifier
+            .size(size)
             .clip(CircleShape),
-        tint = Color.Yellow,
+        tint = MyColors.mint_83d8c8,
         painter = painterResource(id = R.drawable.ic_launcher_background),
         contentDescription = "profileThumbnail"
     )
 }
 
 @Composable
-fun TopBar(modifier: Modifier, barTitle: String, navController: NavHostController) {
+fun TopBar(modifier: Modifier,
+           barTitle: String,
+           navController: NavHostController,
+           isMoreBtnVisible : Boolean = true) {
     Row(modifier = modifier
-        .fillMaxWidth()
         .padding(horizontal = 24.dp)
+        .fillMaxWidth()
         .padding(top = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = {
-                navController.popBackStack()
-            }
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.icon_back_m),
-                contentDescription = "icon_back_m",
-                tint = Color.White
-            )
-        }
+        Image(
+            modifier = Modifier.clickable {
+
+            },
+            painter = painterResource(R.drawable.ic_back_left),
+            contentDescription = "icon_back_m",
+        )
         Spacer(modifier = Modifier.weight(1f))
         if (barTitle != "") {
             Text(
@@ -301,16 +299,13 @@ fun TopBar(modifier: Modifier, barTitle: String, navController: NavHostControlle
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(
-            onClick = {
-                //TODO More Event
-            }
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_feed_more),
-                contentDescription = "icon_feed_more",
-                tint = Color.White
-            )
-        }
+        val iconVisible = if(isMoreBtnVisible) 1f else 0f
+        Image(
+            modifier = Modifier.clickable {
+
+            }.alpha(iconVisible),
+            painter = painterResource(R.drawable.ic_feed_more),
+            contentDescription = "icon_feed_more"
+        )
     }
 }

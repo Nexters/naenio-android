@@ -51,4 +51,17 @@
 
     <string name="set_profile">프로필 설정</string>
 
+
+    <!--Profile-->
+    <string name="kakao">카카오</string>
+    <string name="google">구글</string>
+    <string name="edit">edit</string>
+    <string name="profile_social_login">소셜 로그인 정보</string>
+    <string name="profile_my_comment">작성한 댓글</string>
+    <string name="profile_notice">공지사항</string>
+    <string name="profile_question">문의하기</string>
+    <string name="profile_developer">개발자 정보</string>
+    <string name="profile_version">버전 정보</string>
+    <string name="logout">로그아웃</string>
+    <string name="profile_signout">회원 탈퇴</string>
 </resources>
