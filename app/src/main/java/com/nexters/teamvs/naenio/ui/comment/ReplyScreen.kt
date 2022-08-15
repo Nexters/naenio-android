@@ -42,6 +42,27 @@ fun ReplySheetLayout(
         commentViewModel.loadFirstReplies(parentComment.id)
     })
 
+    val eventListener: (CommentEvent) -> Unit = {
+        when (it) {
+            is CommentEvent.Write -> {
+                commentViewModel.writeComment(
+                    postId = it.parentId,
+                    content = it.content,
+                )
+            }
+            CommentEvent.Close -> {
+
+            }
+            is CommentEvent.Like -> {
+                if (it.comment.isLiked) commentViewModel.unlike(id = it.comment.id)
+                else commentViewModel.like(id = it.comment.id)
+            }
+            CommentEvent.More -> {
+
+            }
+        }
+    }
+
     Column(
         modifier = modifier
     ) {
@@ -57,7 +78,7 @@ fun ReplySheetLayout(
             onLoadMore = {
                 commentViewModel.loadMoreReplies(parentComment.id, it)
             },
-            onEvent = onEvent
+            onEvent = eventListener
         )
         ReplyInput(
             scrollToTop = {

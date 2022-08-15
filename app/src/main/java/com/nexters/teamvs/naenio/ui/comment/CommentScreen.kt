@@ -42,7 +42,7 @@ sealed class CommentEvent {
         val parentType: CommentParentType
     ) : CommentEvent()
 
-    data class Like(val like: Boolean) : CommentEvent()
+    data class Like(val comment: BaseComment) : CommentEvent()
     object More : CommentEvent()
     object Close : CommentEvent()
 }
@@ -129,7 +129,14 @@ fun CommentSheetLayout(
                     content = it.content,
                 )
             }
-            else -> {
+            CommentEvent.Close -> {
+
+            }
+            is CommentEvent.Like -> {
+                if (it.comment.isLiked) commentViewModel.unlike(id = it.comment.id)
+                else commentViewModel.like(id = it.comment.id)
+            }
+            CommentEvent.More -> {
 
             }
         }
@@ -156,7 +163,7 @@ fun CommentSheetLayout(
             onLoadMore = {
                 commentViewModel.loadMoreComments(postId, it)
             },
-            onEvent = onEvent
+            onEvent = eventListener
         )
         CommentInput(
             scrollToTop = {
@@ -415,7 +422,7 @@ fun CommentItem(
                         .padding(end = 4.dp)
                         .size(12.dp)
                         .clickable {
-                            onEvent.invoke(CommentEvent.Like(!comment.isLiked))
+                            onEvent.invoke(CommentEvent.Like(comment))
                         },
                     colorFilter = ColorFilter.tint(color = if (comment.isLiked) Color.Red else Color.White),
                     painter = painterResource(id = R.drawable.ic_heart_outlined),

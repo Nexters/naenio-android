@@ -18,13 +18,15 @@ import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.data.network.dto.AuthType
 import com.nexters.teamvs.naenio.utils.loginWithKakao
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
-): BaseViewModel() {
+) : BaseViewModel() {
 
     private fun login(socialLoginToken: String, authType: AuthType) {
         viewModelScope.launch {
@@ -61,33 +63,10 @@ class LoginViewModel @Inject constructor(
             val account = completedTask.result
             Log.d(className, "[HandleGoogleSignInResult] success data :: " + account.email)
             Log.d(className, "[HandleGoogleSignInResult] success id_token :: " + account.idToken)
-            if(account.idToken.isNullOrEmpty()) return
+            if (account.idToken.isNullOrEmpty()) return
             login(account.idToken!!, AuthType.GOOGLE)
         } catch (e: ApiException) {
             Log.e(className, "[HandleGoogleSignInResult] failed code :: " + e.statusCode.toString())
         }
     }
-
-    fun isExistNickname(nickname: String) {
-        viewModelScope.launch {
-            try {
-                val isExist = userRepository.isExistNickname(nickname)
-                Log.d(className, "$isExist")
-            } catch (e: Exception) {
-                Log.e(className, e.stackTraceToString())
-            }
-        }
-    }
-
-    fun setNickname(nickname: String) {
-        viewModelScope.launch {
-            try {
-                val isExist = userRepository.setNickname(nickname)
-                Log.d(className, "$isExist")
-            } catch (e: Exception) {
-                Log.e(className, e.stackTraceToString())
-            }
-        }
-    }
-
 }

@@ -167,4 +167,42 @@ class CommentViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteComment(comment: Comment) {
+        viewModelScope.launch {
+            try {
+                commentRepository.deleteComment(comment.id)
+                _comments.value = comments.value - listOf(comment).toSet()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun like(id: Int) {
+        viewModelScope.launch {
+            try {
+                commentRepository.likeComment(id)
+                _comments.value = comments.value.map {
+                    if (it.id == id) it.copy(isLiked = true) else it
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun unlike(id: Int) {
+        viewModelScope.launch {
+            try {
+                commentRepository.unlikeComment(id)
+                _comments.value = comments.value.map {
+                    if (it.id == id) it.copy(isLiked = false) else it
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
 }

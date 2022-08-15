@@ -37,6 +37,7 @@
 
     <string name="new_post">New Post</string>
     <string name="upload">등록</string>
+    <string name="save">저장</string>
 
     <string name="vote_topic">투표 주제</string>
     <string name="vote_options">투표 선택지</string>
@@ -47,6 +48,9 @@
     <string name="vote_options_b_hint">B 선택지를 입력해주세요.</string>
 
     <string name="vote_content_hint">추가적으로 어떤 내용을 담을까요? (선택)</string>
+
+    <string name="set_profile">프로필 설정</string>
+
 
     <!--Profile-->
     <string name="kakao">카카오</string>
