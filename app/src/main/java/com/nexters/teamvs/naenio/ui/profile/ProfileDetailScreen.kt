@@ -1,7 +1,9 @@
 package com.nexters.teamvs.naenio.ui.profile
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -47,6 +49,10 @@ fun ProfileDetailScreen(profileType : String = "", navController: NavHostControl
             barTitle = title,
             navController = navController,
             isMoreBtnVisible = false)
+        if (profileType.contains(ProfileType.NOTICE_DETAIL)) {
+            val noticeId = profileType.replace(ProfileType.NOTICE_DETAIL+"=", "").toInt()
+            NoticeDetailLayout(noticeId = noticeId)
+        }
         when(profileType) {
             ProfileType.MY_COMMENT -> {
                 MyCommentLayout()
@@ -58,6 +64,84 @@ fun ProfileDetailScreen(profileType : String = "", navController: NavHostControl
                 VersionLayout()
             }
             ProfileType.NOTICE -> {
+                NoticeLayout(navController)
+            }
+        }
+    }
+}
+
+@Composable
+fun NoticeDetailLayout(noticeId : Int) {
+    val item = NoticeItem.noticeList[noticeId-1]
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+    ) {
+        item {
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                modifier = Modifier.padding(vertical = 4.dp),
+                text = item.title,
+                style = Font.pretendardMedium20,
+                color = Color.White,
+                lineHeight = 24.sp
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+        }
+        item {
+            Text(
+                modifier = Modifier.padding(vertical = 4.dp),
+                text = item.content,
+                style = Font.pretendardMedium16,
+                color = MyColors.grey_b3b3b3,
+                lineHeight = 28.sp
+            )
+            Spacer(modifier = Modifier.height(36.dp))
+        }
+    }
+}
+
+@Composable
+fun NoticeLayout(navController: NavHostController) {
+    Spacer(modifier = Modifier.height(20.dp))
+    if (NoticeItem.noticeList.isEmpty()) {
+        contentEmptyLayout(stringId = R.string.notice_empty)
+    } else {
+        LazyColumn (
+            modifier = Modifier.padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)){
+            items(NoticeItem.noticeList) { item ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            MyColors.postBackgroundColor,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        .padding(horizontal = 20.dp, vertical = 18.dp)
+                        .clickable {
+                            moveProfileDetailScreen(
+                                navController = navController,
+                                type = ProfileType.NOTICE_DETAIL + "=${item.id}"
+                            )
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = item.title,
+                        style = Font.pretendardMedium16,
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_back_s),
+                        contentDescription = "icon_back_s"
+                    )
+                }
             }
         }
     }
@@ -67,23 +151,10 @@ fun ProfileDetailScreen(profileType : String = "", navController: NavHostControl
 fun MyCommentLayout() {
     Spacer(modifier = Modifier.height(20.dp))
     if (MyCommentItem.myCommentList.isEmpty()) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_empty),
-                contentDescription = "icon_empty")
-            Text(
-                modifier = Modifier.padding(top = 14.dp),
-                text = stringResource(id = R.string.my_comment_empty),
-                style = Font.pretendardMedium18,
-                color = MyColors.darkGrey_828282
-            )
-        }
+        contentEmptyLayout(R.string.my_comment_empty)
     } else {
-        LazyColumn (verticalArrangement = Arrangement.spacedBy(20.dp)){
+        LazyColumn (
+            verticalArrangement = Arrangement.spacedBy(20.dp)){
             items(MyCommentItem.myCommentList) { item ->
                 Column(
                     modifier = Modifier
@@ -125,6 +196,25 @@ fun MyCommentLayout() {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun contentEmptyLayout(@StringRes stringId : Int) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.icon_empty),
+            contentDescription = "icon_empty")
+        Text(
+            modifier = Modifier.padding(top = 14.dp),
+            text = stringResource(id = stringId),
+            style = Font.pretendardMedium18,
+            color = MyColors.darkGrey_828282
+        )
     }
 }
 
@@ -181,5 +271,5 @@ fun DeveloperLayout() {
 @Composable
 @Preview
 fun ProfileDetail() {
-    ProfileDetailScreen(navController = NavHostController(LocalContext.current), profileType = ProfileType.MY_COMMENT)
+    ProfileDetailScreen(navController = NavHostController(LocalContext.current), profileType = ProfileType.NOTICE_DETAIL + "/4")
 }

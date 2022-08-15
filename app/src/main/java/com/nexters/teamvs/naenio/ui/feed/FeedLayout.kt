@@ -278,7 +278,7 @@ fun TopBar(modifier: Modifier,
     ) {
         Image(
             modifier = Modifier.clickable {
-
+                navController.popBackStack()
             },
             painter = painterResource(R.drawable.ic_back_left),
             contentDescription = "icon_back_m",
