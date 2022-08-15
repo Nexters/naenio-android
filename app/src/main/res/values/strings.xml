@@ -64,4 +64,6 @@
     <string name="profile_version">버전 정보</string>
     <string name="logout">로그아웃</string>
     <string name="profile_signout">회원 탈퇴</string>
+    <string name="my_comment_empty">아직 작성한 댓글이 없어요!</string>
+    <string name="notice_empty">아직 공지사항이 없어요!</string>
 </resources>

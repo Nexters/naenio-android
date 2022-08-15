@@ -259,7 +259,8 @@ fun ProfileButton(
     }
 }
 
-private fun moveProfileDetailScreen(navController: NavHostController, type: String) {
+
+fun moveProfileDetailScreen(navController: NavHostController, type : String) {
     navController.navigate("profileDetail/${type}")
 }
 
@@ -285,6 +286,7 @@ object ProfileType {
     const val VERSION = "version"
     const val LOGOUT = "logout"
     const val SIGNOUT = "signout"
+    const val NOTICE_DETAIL = "notice_detail"
 }
 
 @Composable
