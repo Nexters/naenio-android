@@ -234,7 +234,7 @@ fun ProfileNickName(modifier: Modifier, isIconVisible : Boolean) {
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProfileImageIcon(size = 21.dp)
+        ProfileImageIcon(size = 24.dp)
         Text(
             text = "닉네임",
             color = Color.White,
@@ -244,17 +244,10 @@ fun ProfileNickName(modifier: Modifier, isIconVisible : Boolean) {
         )
         Spacer(modifier = Modifier.weight(1f))
         if (isIconVisible) {
-            IconButton(
-                onClick = {
-                    //TODO Add More Click Event
-                }
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_feed_more),
-                    contentDescription = "icon_feed_more",
-                    tint = Color.White
-                )
-            }
+            Image(
+                painter = painterResource(R.drawable.ic_feed_more),
+                contentDescription = "icon_feed_more"
+            )
         }
     }
 }
