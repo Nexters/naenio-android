@@ -18,7 +18,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.theme.Font.montserratBold18
 import com.nexters.teamvs.naenio.theme.Font.montserratMedium12
 import com.nexters.teamvs.naenio.theme.Font.pretendardMedium16
@@ -35,12 +37,15 @@ import com.nexters.teamvs.naenio.theme.MyColors
  */
 @Composable
 fun CreateScreen(
+    navController: NavHostController,
     viewModel: CreateViewModel = hiltViewModel()
 ) {
     var title by remember { mutableStateOf("") }
     var voteOption1 by remember { mutableStateOf("") }
     var voteOption2 by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
+
+    val enabled = title.isNotEmpty() && voteOption1.isNotEmpty() && voteOption2.isNotEmpty()
 
     LaunchedEffect(key1 = Unit, block = {
         viewModel.createEvent.collect {
@@ -53,7 +58,8 @@ fun CreateScreen(
 
                 }
                 is CreateEvent.Success -> {
-
+                    navController.popBackStack()
+                    navController.navigate(Graph.MAIN) //TODO 피드에 게시한 포스트 추가(?)
                 }
             }
         }
@@ -66,7 +72,7 @@ fun CreateScreen(
             .fillMaxSize()
     ) {
         Column {
-            CreateTopBar(upload = {
+            CreateTopBar(enabled = enabled, upload = {
                 viewModel.createPost(
                     title = title,
                     choices = arrayOf(voteOption1, voteOption2),
@@ -101,6 +107,7 @@ fun CreateScreen(
 
 @Composable
 fun CreateTopBar(
+    enabled: Boolean,
     upload: () -> Unit,
 ) {
     Row(
@@ -125,11 +132,12 @@ fun CreateTopBar(
 
         Text(
             modifier = Modifier.clickable {
+                if (!enabled) return@clickable
                 upload.invoke()
             },
             text = stringResource(id = R.string.upload),
             style = pretendardSemiBold18,
-            color = MyColors.pink
+            color = if (enabled) MyColors.pink else MyColors.grey_d9d9d9
         )
     }
 }
