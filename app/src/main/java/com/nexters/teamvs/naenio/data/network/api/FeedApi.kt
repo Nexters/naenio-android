@@ -4,10 +4,11 @@ import com.nexters.teamvs.naenio.data.network.dto.*
 import retrofit2.http.*
 
 interface FeedApi {
+
     @POST("/app/posts")
-    suspend fun writePost(
-        @Body writePostRequest: WritePostRequest
-    ): PostResponse
+    suspend fun createPost(
+        @Body createRequest: CreateRequest
+    ): CreateResponse
 
     @GET("/app/feed")
     suspend fun getFeedPosts(

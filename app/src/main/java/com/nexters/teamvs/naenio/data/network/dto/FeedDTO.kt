@@ -5,15 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class WritePostRequest(
-    val title: String,
-    val content: String,
-    val categoryId: Int,
-    val choices: List<String> = emptyList()
-)
-
-@Keep
-@Serializable
 data class PostResponse(
     val author: AuthorResponse,
     val choices: List<ChoiceResponse>,

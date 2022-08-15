@@ -1,7 +1,9 @@
 package com.nexters.teamvs.naenio.ui.create
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -15,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.Font.montserratBold18
 import com.nexters.teamvs.naenio.theme.Font.montserratMedium12
@@ -31,7 +34,31 @@ import com.nexters.teamvs.naenio.theme.MyColors
  * 등록버튼 enable 옵션
  */
 @Composable
-fun CreateScreen() {
+fun CreateScreen(
+    viewModel: CreateViewModel = hiltViewModel()
+) {
+    var title by remember { mutableStateOf("") }
+    var voteOption1 by remember { mutableStateOf("") }
+    var voteOption2 by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.createEvent.collect {
+            Log.d("### CreateEvent", "$it")
+            when (it) {
+                is CreateEvent.Error -> {
+
+                }
+                CreateEvent.Loading -> {
+
+                }
+                is CreateEvent.Success -> {
+
+                }
+            }
+        }
+    })
+
     Box(
         modifier = Modifier
             .background(MyColors.screenBackgroundColor)
@@ -39,22 +66,43 @@ fun CreateScreen() {
             .fillMaxSize()
     ) {
         Column {
-            CreateTopBar()
+            CreateTopBar(upload = {
+                viewModel.createPost(
+                    title = title,
+                    choices = arrayOf(voteOption1, voteOption2),
+                    content = content,
+                )
+            })
             Spacer(modifier = Modifier.height(28.dp))
 
-            VoteTopicInput()
+            VoteTopicInput(title) {
+                title = it
+            }
             Spacer(modifier = Modifier.height(20.dp))
 
-            VoteOptionsInput()
+            VoteOptionsInput(
+                voteOption1 = voteOption1,
+                voteOption2 = voteOption2,
+                onValueChange1 = {
+                    voteOption1 = it
+                },
+                onValueChange2 = {
+                    voteOption2 = it
+                }
+            )
             Spacer(modifier = Modifier.height(20.dp))
 
-            VoteContentInput()
+            VoteContentInput(content) {
+                content = it
+            }
         }
     }
 }
 
 @Composable
-fun CreateTopBar() {
+fun CreateTopBar(
+    upload: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .padding(top = 24.dp)
@@ -76,6 +124,9 @@ fun CreateTopBar() {
         )
 
         Text(
+            modifier = Modifier.clickable {
+                upload.invoke()
+            },
             text = stringResource(id = R.string.upload),
             style = pretendardSemiBold18,
             color = MyColors.pink
@@ -96,10 +147,11 @@ fun CreateTitle(title: String, require: Boolean) {
 @Composable
 fun CreateTextField(
     modifier: Modifier,
+    text: String,
     hint: String,
-    maxLength: Int
+    maxLength: Int,
+    onValueChange: (String) -> Unit,
 ) {
-    var text by remember { mutableStateOf("") }
     var inputLength by remember { mutableStateOf(0) }
     inputLength = text.length
 
@@ -125,7 +177,7 @@ fun CreateTextField(
             value = text,
             onValueChange = {
                 if (inputLength >= maxLength) return@TextField
-                text = it
+                onValueChange.invoke(it)
             }
         )
 
@@ -141,7 +193,10 @@ fun CreateTextField(
 }
 
 @Composable
-fun VoteTopicInput() {
+fun VoteTopicInput(
+    title: String,
+    onValueChange: (String) -> Unit,
+) {
     CreateTitle(
         title = stringResource(id = R.string.vote_topic),
         require = true
@@ -151,12 +206,19 @@ fun VoteTopicInput() {
             .fillMaxWidth()
             .defaultMinSize(minHeight = 108.dp),
         maxLength = 70,
-        hint = stringResource(id = R.string.vote_topic_hint)
+        hint = stringResource(id = R.string.vote_topic_hint),
+        text = title,
+        onValueChange = onValueChange
     )
 }
 
 @Composable
-fun VoteOptionsInput() {
+fun VoteOptionsInput(
+    voteOption1: String,
+    voteOption2: String,
+    onValueChange1: (String) -> Unit,
+    onValueChange2: (String) -> Unit,
+) {
     CreateTitle(
         title = stringResource(id = R.string.vote_options),
         require = true
@@ -169,7 +231,9 @@ fun VoteOptionsInput() {
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 70.dp),
                 maxLength = 32,
-                hint = stringResource(id = R.string.vote_options_a_hint)
+                text = voteOption1,
+                hint = stringResource(id = R.string.vote_options_a_hint),
+                onValueChange = onValueChange1
             )
             Spacer(modifier = Modifier.height(18.dp))
             CreateTextField(
@@ -177,7 +241,9 @@ fun VoteOptionsInput() {
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 70.dp),
                 maxLength = 32,
-                hint = stringResource(id = R.string.vote_options_b_hint)
+                text = voteOption2,
+                hint = stringResource(id = R.string.vote_options_b_hint),
+                onValueChange = onValueChange2
             )
         }
         Image(
@@ -189,7 +255,10 @@ fun VoteOptionsInput() {
 }
 
 @Composable
-fun VoteContentInput() {
+fun VoteContentInput(
+    content: String,
+    onValueChange: (String) -> Unit,
+) {
     CreateTitle(
         title = stringResource(id = R.string.vote_content),
         require = false
@@ -199,6 +268,8 @@ fun VoteContentInput() {
             .fillMaxWidth()
             .defaultMinSize(minHeight = 108.dp),
         maxLength = 99,
-        hint = stringResource(id = R.string.vote_content_hint)
+        text = content,
+        hint = stringResource(id = R.string.vote_content_hint),
+        onValueChange = onValueChange
     )
 }
