@@ -76,6 +76,11 @@ object Font {
         fontWeight = FontWeight.W600,
         fontSize = 18.sp
     )
+    val pretendardMedium20 = TextStyle(
+        fontFamily = FontFamily(Font(R.font.pretendard_medium)),
+        fontWeight = FontWeight.W600,
+        fontSize = 20.sp
+    )
     val pretendardSemiBold16 = TextStyle(
         fontFamily = FontFamily(Font(R.font.pretendard_semibold)),
         fontWeight = FontWeight.W600,
