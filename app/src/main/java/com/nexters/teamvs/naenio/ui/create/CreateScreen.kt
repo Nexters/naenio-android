@@ -9,19 +9,25 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,11 +47,8 @@ import com.nexters.teamvs.naenio.theme.MyColors
 
 /**
  * uiState 별 대응
- * 입력 텍스트 조건 검증
  * 키보드 액션
- * 키보드 UI 대응
- * API 연동
- * 등록버튼 enable 옵션
+ * 완료 시 피드에 추가
  */
 @Composable
 fun CreateScreen(
@@ -193,14 +196,18 @@ fun CreateTitle(title: String, require: Boolean) {
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CreateTextField(
     modifier: Modifier,
     text: String,
     hint: String,
     maxLength: Int,
+    keyboardOptions: KeyboardOptions,
     onValueChange: (String) -> Unit,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     var inputLength by remember { mutableStateOf(0) }
     inputLength = text.length
 
@@ -217,6 +224,12 @@ fun CreateTextField(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
+            ),
+            keyboardOptions = keyboardOptions,
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                }
             ),
             placeholder = {
                 Text(
@@ -262,6 +275,7 @@ fun VoteTopicInput(
         maxLength = 70,
         hint = stringResource(id = R.string.vote_topic_hint),
         text = title,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         onValueChange = onValueChange
     )
 }
@@ -287,6 +301,7 @@ fun VoteOptionsInput(
                 maxLength = 32,
                 text = voteOption1,
                 hint = stringResource(id = R.string.vote_options_a_hint),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 onValueChange = onValueChange1
             )
             Spacer(modifier = Modifier.height(18.dp))
@@ -297,6 +312,7 @@ fun VoteOptionsInput(
                 maxLength = 32,
                 text = voteOption2,
                 hint = stringResource(id = R.string.vote_options_b_hint),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 onValueChange = onValueChange2
             )
         }
@@ -324,6 +340,7 @@ fun VoteContentInput(
         maxLength = 99,
         text = content,
         hint = stringResource(id = R.string.vote_content_hint),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         onValueChange = onValueChange
     )
 }
