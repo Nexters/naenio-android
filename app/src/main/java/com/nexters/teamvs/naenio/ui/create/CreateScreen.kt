@@ -47,7 +47,6 @@ import com.nexters.teamvs.naenio.theme.MyColors
 
 /**
  * uiState 별 대응
- * 키보드 액션
  * 완료 시 피드에 추가
  */
 @Composable
@@ -109,6 +108,10 @@ fun CreateScreen(
         LazyColumn {
             item {
                 CreateTopBar(enabled = enabled, upload = {
+                    if (!enabled) {
+                        Log.d("###", "필수 항목들을 모두 입력해주세요!") //TODO Toast
+                        return@CreateTopBar
+                    }
                     viewModel.createPost(
                         title = title,
                         choices = arrayOf(voteOption1, voteOption2),
@@ -116,17 +119,16 @@ fun CreateScreen(
                     )
                 })
                 Spacer(modifier = Modifier.height(28.dp))
-
             }
-            item {
 
+            item {
                 VoteTopicInput(title) {
                     title = it
                 }
                 Spacer(modifier = Modifier.height(20.dp))
             }
-            item {
 
+            item {
                 VoteOptionsInput(
                     voteOption1 = voteOption1,
                     voteOption2 = voteOption2,
@@ -176,12 +178,11 @@ fun CreateTopBar(
 
         Text(
             modifier = Modifier.clickable {
-                if (!enabled) return@clickable
                 upload.invoke()
             },
             text = stringResource(id = R.string.upload),
             style = pretendardSemiBold18,
-            color = if (enabled) MyColors.pink else MyColors.grey_d9d9d9
+            color = if (enabled) MyColors.pink else MyColors.grey4d4d4d
         )
     }
 }
