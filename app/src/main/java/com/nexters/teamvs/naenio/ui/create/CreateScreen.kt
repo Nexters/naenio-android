@@ -185,7 +185,7 @@ fun CreateTextField(
             value = text,
             onValueChange = {
                 if (inputLength >= maxLength) return@TextField
-                onValueChange.invoke(it)
+                onValueChange.invoke(it.replace("\n", ""))
             }
         )
 
