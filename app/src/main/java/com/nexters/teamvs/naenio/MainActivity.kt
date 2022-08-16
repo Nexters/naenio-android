@@ -5,12 +5,19 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 import com.nexters.teamvs.naenio.graphs.RootNavigationGraph
 import com.nexters.teamvs.naenio.theme.NaenioTheme
+import com.nexters.teamvs.naenio.ui.composables.Loading
 import com.nexters.teamvs.naenio.utils.KeyboardUtils
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,8 +29,29 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val visibleLoading = GlobalUiEvent.uiEvent.collectAsState(initial = UiEvent.None)
+            var loadingState by remember { mutableStateOf(false) }
+
+            when (visibleLoading.value) {
+                UiEvent.ShowLoading -> {
+                    loadingState = true
+                }
+                UiEvent.HideLoading -> {
+                    loadingState = false
+                }
+                else -> {}
+            }
+
             NaenioTheme {
-                RootNavigationGraph(navController = rememberNavController())
+                Box(modifier = Modifier.fillMaxSize()) {
+                    RootNavigationGraph(navController = rememberNavController())
+                    Loading(visible = loadingState)
+//                    Toast(
+//                        modifier = Modifier.align(Alignment.TopCenter),
+//                        message = "Message",
+//                        visible = true
+//                    )
+                }
             }
         }
 

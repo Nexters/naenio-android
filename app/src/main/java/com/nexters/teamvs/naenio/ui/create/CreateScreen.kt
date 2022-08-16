@@ -27,7 +27,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,6 +43,8 @@ import com.nexters.teamvs.naenio.theme.Font.montserratMedium12
 import com.nexters.teamvs.naenio.theme.Font.pretendardMedium16
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold18
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
 
 /**
  * uiState 별 대응
@@ -86,10 +87,10 @@ fun CreateScreen(
             Log.d("### CreateEvent", "$it")
             when (it) {
                 is CreateEvent.Error -> {
-
+                    GlobalUiEvent.uiEvent.emit(UiEvent.HideLoading)
                 }
                 CreateEvent.Loading -> {
-
+                    GlobalUiEvent.uiEvent.emit(UiEvent.ShowLoading)
                 }
                 is CreateEvent.Success -> {
                     navController.popBackStack()
