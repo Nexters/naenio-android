@@ -375,6 +375,7 @@ fun CommentItem(
             ProfileImageIcon()
             Text(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .wrapContentHeight()
                     .weight(1f),
                 text = comment.writer.nickname ?: "???",
