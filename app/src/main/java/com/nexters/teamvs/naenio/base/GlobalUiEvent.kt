@@ -16,4 +16,5 @@ sealed class UiEvent {
     object None: UiEvent()
     object ShowLoading: UiEvent()
     object HideLoading: UiEvent()
+    data class ShowToast(val message: String): UiEvent()
 }
