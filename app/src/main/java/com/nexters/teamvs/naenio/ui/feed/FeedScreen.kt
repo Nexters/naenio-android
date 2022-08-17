@@ -51,14 +51,6 @@ fun FeedScreen(
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
     val posts = viewModel.posts.collectAsState()
-
-    BackHandler {
-        if (modalBottomSheetState.isVisible) {
-            closeSheet.invoke()
-        } else {
-            navController.popBackStack()
-        }
-    }
     val snackbarHostState = remember { SnackbarHostState() }
     val scaffoldState = rememberScaffoldState(snackbarHostState = snackbarHostState)
     val scope = rememberCoroutineScope()
