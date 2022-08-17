@@ -22,7 +22,7 @@ class FeedRepository @Inject constructor(
         return feedApi.getFeedPosts(
             size = pageSize,
             lastPostId = lastPostId
-        ).toPostList()
+        ).posts.toPostList()
     }
 
     suspend fun createPost(

@@ -5,6 +5,12 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
+data class FeedResponse(
+    val posts: List<PostResponse>
+)
+
+@Keep
+@Serializable
 data class PostResponse(
     val author: AuthorResponse,
     val choices: List<ChoiceResponse>,
