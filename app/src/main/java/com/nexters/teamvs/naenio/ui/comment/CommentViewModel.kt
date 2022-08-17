@@ -205,4 +205,11 @@ class CommentViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 바텀시트가 닫혀도, 바텀시트의 Lifecycle 이 Destroy 상태가 되지 않아서 닫힐 때마다 수동으로 clear 처리..
+     */
+    fun clear() {
+        _comments.value = emptyList()
+        _replies.value = emptyList()
+    }
 }
