@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.base
 
+import com.nexters.teamvs.naenio.ui.composables.DialogModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
@@ -13,8 +14,10 @@ object GlobalUiEvent {
 }
 
 sealed class UiEvent {
-    object None: UiEvent()
-    object ShowLoading: UiEvent()
-    object HideLoading: UiEvent()
-    data class ShowToast(val message: String): UiEvent()
+    object None : UiEvent()
+    object ShowLoading : UiEvent()
+    object HideLoading : UiEvent()
+    data class ShowToast(val message: String) : UiEvent()
+    data class ShowDialog(val dialogModel: DialogModel) : UiEvent()
+    object HideDialog : UiEvent()
 }

@@ -17,8 +17,7 @@ import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.RootNavigationGraph
 import com.nexters.teamvs.naenio.theme.NaenioTheme
-import com.nexters.teamvs.naenio.ui.composables.Loading
-import com.nexters.teamvs.naenio.ui.composables.Toast
+import com.nexters.teamvs.naenio.ui.composables.*
 import com.nexters.teamvs.naenio.utils.KeyboardUtils
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,6 +37,7 @@ class MainActivity : ComponentActivity() {
             var job: Job? = null
             var loadingState by remember { mutableStateOf(false) }
             var toastState by remember { mutableStateOf("") }
+            var dialogState by remember { mutableStateOf<DialogModel?>(null) }
 
             LaunchedEffect(key1 = Unit) {
                 GlobalUiEvent.uiEvent.collect {
@@ -56,7 +56,15 @@ class MainActivity : ComponentActivity() {
                                 toastState = ""
                             }
                         }
-                        else -> {}
+                        is UiEvent.ShowDialog -> {
+                            dialogState = it.dialogModel
+                        }
+                        UiEvent.HideDialog -> {
+                            dialogState = null
+                        }
+                        UiEvent.None -> {
+
+                        }
                     }
                 }
             }
@@ -70,6 +78,7 @@ class MainActivity : ComponentActivity() {
                         message = "Message",
                         visible = toastState.isNotEmpty()
                     )
+                    DialogContainer(dialogModel = dialogState)
                 }
             }
         }

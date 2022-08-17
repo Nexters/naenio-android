@@ -20,10 +20,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.AuthScreen
-import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.composables.DialogModel
 import com.nexters.teamvs.naenio.ui.feed.ProfileImageIcon
 
 @Composable
@@ -57,7 +59,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
                         .background(MyColors.darkGrey_313643, shape = RoundedCornerShape(5.dp))
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                         .clickable {
-                           navController.navigate(AuthScreen.ProfileSetting.route)
+                            navController.navigate(AuthScreen.ProfileSetting.route)
                         },
                     style = Font.montserratSemiBold14,
                     color = Color.White,
@@ -260,7 +262,7 @@ fun ProfileButton(
 }
 
 
-fun moveProfileDetailScreen(navController: NavHostController, type : String) {
+fun moveProfileDetailScreen(navController: NavHostController, type: String) {
     navController.navigate("profileDetail/${type}")
 }
 
@@ -271,7 +273,22 @@ private fun setQuestionBtn() {
 
 private fun setLogoutBtn() {
     Log.d("### ProfileScreen", ProfileType.LOGOUT)
-
+    GlobalUiEvent.uiEvent.tryEmit(UiEvent.ShowDialog(
+        DialogModel(
+            title = "로그아웃",
+            message = "로그아웃 하시겠습니까?",
+            button1Text = "닫기",
+            button2Text = "로그아웃",
+            button1Callback = {
+                Log.d("####", "button1Callback()")
+                GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+            },
+            button2Callback = {
+                Log.d("####", "button2Callback()")
+                GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+            }
+        )
+    ))
 }
 
 private fun setSignoutBtn() {
