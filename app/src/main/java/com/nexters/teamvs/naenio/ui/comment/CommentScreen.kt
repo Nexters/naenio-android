@@ -85,7 +85,7 @@ fun CommentScreen(
             changeMode = {
                 mode = it
             },
-            onEvent = onEvent
+            onClose = closeSheet,
         )
     }
 
@@ -113,7 +113,7 @@ fun CommentSheetLayout(
     commentViewModel: CommentViewModel,
     postId: Int,
     changeMode: (CommentMode) -> Unit,
-    onEvent: (CommentEvent) -> Unit,
+    onClose: () -> Unit,
 ) {
     LaunchedEffect(key1 = postId, block = {
         commentViewModel.loadFirstComments(postId)
@@ -151,7 +151,7 @@ fun CommentSheetLayout(
     ) {
         CommentHeader(
             commentCount = comments.value.size,
-            onEvent = onEvent
+            onClose = onClose
         )
         CommentList(
             modifier = Modifier.weight(1f),
@@ -262,7 +262,7 @@ fun CommentEditText(
 @Composable
 fun CommentHeader(
     commentCount: Int,
-    onEvent: (CommentEvent) -> Unit,
+    onClose: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -292,7 +292,7 @@ fun CommentHeader(
 
         Image(
             modifier = Modifier.clickable {
-                onEvent.invoke(CommentEvent.Close)
+                onClose.invoke()
             },
             painter = painterResource(id = R.drawable.ic_close),
             contentDescription = "close"
