@@ -1,5 +1,8 @@
 package com.nexters.teamvs.naenio.domain.model
 
+import androidx.annotation.DrawableRes
+import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
+
 data class Post(
     val id: Int,
     val author: Author,
@@ -20,8 +23,10 @@ data class Choice(
 data class Author(
     val id: Int,
     val nickname: String?,
-    val profileImageIndex: Int?
+    private val profileImageIndex: Int = 0
 ) {
+    @DrawableRes val profileImage: Int = Profile.images[profileImageIndex].image
+
     companion object {
         val mock: Author = Author(
             id = -1,

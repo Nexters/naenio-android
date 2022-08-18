@@ -14,7 +14,7 @@ object FeedMapper {
         return Author(
             id = id,
             nickname = nickname,
-            profileImageIndex = profileImageIndex,
+            profileImageIndex = profileImageIndex ?: 0,
         )
     }
 
