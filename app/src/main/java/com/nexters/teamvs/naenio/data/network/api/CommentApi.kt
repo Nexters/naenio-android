@@ -24,7 +24,7 @@ interface CommentApi {
         @Body likeCommentRequest: LikeCommentRequest
     ): LikeCommentResponse
 
-    @DELETE("/app/comment-likes")
+    @DELETE("/app/comment-likes/{id}")
     suspend fun unlikeComment (
         @Path("id") id: Int,
     )

@@ -2,6 +2,7 @@ package com.nexters.teamvs.naenio.domain.mapper
 
 import com.nexters.teamvs.naenio.data.network.dto.AuthorResponse
 import com.nexters.teamvs.naenio.data.network.dto.ChoiceResponse
+import com.nexters.teamvs.naenio.data.network.dto.CreateResponse
 import com.nexters.teamvs.naenio.data.network.dto.PostResponse
 import com.nexters.teamvs.naenio.domain.model.Author
 import com.nexters.teamvs.naenio.domain.model.Choice
@@ -39,5 +40,21 @@ object FeedMapper {
                 choices = it.choices.toChoiceList()
             )
         }
+    }
+
+    fun CreateResponse.toPost(): Post {
+        return Post(
+            id = id,
+            author = Author.mock,
+            choices = choices.mapIndexed { i, it ->
+                Choice(
+                    id = it.id,
+                    isVoted = false,
+                    name = it.name,
+                    sequence = i
+                )
+            },
+            title = title
+        )
     }
 }

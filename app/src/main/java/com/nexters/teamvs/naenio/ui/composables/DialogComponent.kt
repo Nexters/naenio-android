@@ -1,6 +1,7 @@
 package com.nexters.teamvs.naenio.ui.composables
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -10,15 +11,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 
 data class DialogModel(
     val title: String? = null,
     val message: String? = null,
-    val positiveButtonText: String? = null,
-    val negativeButtonText: String? = null,
+    val button1Text: String? = null,
+    val button2Text: String? = null,
+    val button1Callback: (() -> Unit)? = null,
+    val button2Callback: (() -> Unit)? = null,
 )
+
+@Composable
+fun DialogContainer(
+    dialogModel: DialogModel?
+) {
+    if (dialogModel != null) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(MyColors.dimColor)
+                .noRippleClickable { },
+            contentAlignment = Alignment.Center
+        ) {
+            DialogComponent(dialogModel = dialogModel)
+        }
+    }
+}
 
 @Composable
 fun DialogComponent(
@@ -46,14 +67,17 @@ fun DialogComponent(
         Spacer(modifier = Modifier.height(33.dp))
 
         Row {
-            dialogModel.negativeButtonText?.let {
+            dialogModel.button2Text?.let {
                 Box(
                     modifier = Modifier
                         .background(
                             color = Color(0xff1e222c),
                             shape = RoundedCornerShape(16.dp)
                         )
-                        .weight(1f),
+                        .weight(1f)
+                        .clickable {
+                            dialogModel.button1Callback?.invoke()
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -65,14 +89,17 @@ fun DialogComponent(
                 }
             }
             Spacer(modifier = Modifier.width(20.dp))
-            dialogModel.positiveButtonText?.let {
+            dialogModel.button1Text?.let {
                 Box(
                     modifier = Modifier
                         .background(
                             color = MyColors.blue_3979F2,
                             shape = RoundedCornerShape(16.dp)
                         )
-                        .weight(1f),
+                        .weight(1f)
+                        .clickable {
+                            dialogModel.button2Callback?.invoke()
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -95,8 +122,8 @@ fun DialogComponentPreview() {
         dialogModel = DialogModel(
             title = "title",
             message = "message",
-            positiveButtonText = "확인",
-            negativeButtonText = "취소"
+            button1Text = "확인",
+            button2Text = "취소"
         )
     )
 }

@@ -1,5 +1,7 @@
 package com.nexters.teamvs.naenio.ui.comment
 
+import android.util.Log
+import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
@@ -18,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,9 +28,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
+import com.nexters.teamvs.naenio.extensions.requireActivity
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
@@ -60,16 +66,19 @@ fun CommentScreen(
     closeSheet: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     /**
      * 댓글 창을 보여줘야 하면 true. 답글 창을 보여줘야 하면 false
      */
     var mode by remember { mutableStateOf<CommentMode>(CommentMode.COMMENT) }
 
-    BackHandler() {
+    BackHandler {
         if (mode is CommentMode.REPLY) {
             mode = CommentMode.COMMENT
         } else {
             closeSheet.invoke()
+            commentViewModel.clear()
         }
     }
 
@@ -85,7 +94,10 @@ fun CommentScreen(
             changeMode = {
                 mode = it
             },
-            onEvent = onEvent
+            onClose = {
+                commentViewModel.clear()
+                closeSheet.invoke()
+            },
         )
     }
 
@@ -113,7 +125,7 @@ fun CommentSheetLayout(
     commentViewModel: CommentViewModel,
     postId: Int,
     changeMode: (CommentMode) -> Unit,
-    onEvent: (CommentEvent) -> Unit,
+    onClose: () -> Unit,
 ) {
     LaunchedEffect(key1 = postId, block = {
         commentViewModel.loadFirstComments(postId)
@@ -151,7 +163,7 @@ fun CommentSheetLayout(
     ) {
         CommentHeader(
             commentCount = comments.value.size,
-            onEvent = onEvent
+            onClose = onClose
         )
         CommentList(
             modifier = Modifier.weight(1f),
@@ -262,7 +274,7 @@ fun CommentEditText(
 @Composable
 fun CommentHeader(
     commentCount: Int,
-    onEvent: (CommentEvent) -> Unit,
+    onClose: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -292,7 +304,7 @@ fun CommentHeader(
 
         Image(
             modifier = Modifier.clickable {
-                onEvent.invoke(CommentEvent.Close)
+                onClose.invoke()
             },
             painter = painterResource(id = R.drawable.ic_close),
             contentDescription = "close"
@@ -375,6 +387,7 @@ fun CommentItem(
             ProfileImageIcon()
             Text(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .wrapContentHeight()
                     .weight(1f),
                 text = comment.writer.nickname ?: "???",

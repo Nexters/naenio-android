@@ -12,16 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
@@ -32,7 +28,6 @@ import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.errorMessage
-import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
@@ -41,13 +36,12 @@ import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.home.ThemeItem
 import com.nexters.teamvs.naenio.ui.home.ThemeItem.Companion.themeList
 import com.nexters.teamvs.naenio.ui.model.UiState
-import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
-    themeId : Int? = 0,
+    themeId: Int? = 0,
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
@@ -57,14 +51,6 @@ fun FeedScreen(
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
     val posts = viewModel.posts.collectAsState()
-
-    BackHandler {
-        if (modalBottomSheetState.isVisible) {
-            closeSheet.invoke()
-        } else {
-            navController.popBackStack()
-        }
-    }
     val snackbarHostState = remember { SnackbarHostState() }
     val scaffoldState = rememberScaffoldState(snackbarHostState = snackbarHostState)
     val scope = rememberCoroutineScope()
@@ -116,7 +102,7 @@ fun FeedScreen(
             )
         } else {
             themeId?.let {
-                val themeItem = themeList[it-1]
+                val themeItem = themeList[it - 1]
                 setThemeDetailLayout(
                     themeItem = themeItem,
                     navController = navController,
@@ -132,12 +118,12 @@ fun FeedScreen(
 
 @Composable
 fun setThemeDetailLayout(
-    themeItem : ThemeItem,
-    navController : NavHostController,
-    paddingValue : PaddingValues,
-    posts : State<List<Post>>,
+    themeItem: ThemeItem,
+    navController: NavHostController,
+    paddingValue: PaddingValues,
+    posts: State<List<Post>>,
     openSheet: (BottomSheetType) -> Unit,
-    composition : LottieComposition?
+    composition: LottieComposition?
 ) {
     Column(
         modifier = Modifier
@@ -170,11 +156,12 @@ fun setThemeDetailLayout(
 }
 
 @Composable
-fun setFeedLayout(navController: NavHostController,
-                  paddingValue : PaddingValues,
-                  posts : State<List<Post>>,
-                  openSheet: (BottomSheetType) -> Unit,
-                  composition : LottieComposition?
+fun setFeedLayout(
+    navController: NavHostController,
+    paddingValue: PaddingValues,
+    posts: State<List<Post>>,
+    openSheet: (BottomSheetType) -> Unit,
+    composition: LottieComposition?
 ) {
     Box(
         modifier = Modifier

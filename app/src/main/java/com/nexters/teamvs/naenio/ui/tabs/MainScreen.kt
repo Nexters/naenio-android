@@ -1,6 +1,7 @@
 package com.nexters.teamvs.naenio.ui.tabs
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +25,8 @@ import com.nexters.teamvs.naenio.theme.MyShape
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.dialog.SheetLayout
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -31,6 +34,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(navController: NavHostController = rememberNavController()) {
     val coroutineScope = rememberCoroutineScope()
+
+    navController.addOnDestinationChangedListener { controller, destination, arguments ->
+        Log.d("### destination" , "$destination $arguments")
+        coroutineScope.launch {
+            GlobalUiEvent.uiEvent.emit(UiEvent.HideLoading)
+        }
+    }
+
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
