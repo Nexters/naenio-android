@@ -31,3 +31,11 @@ data class NicknameRequest(
 data class NicknameResponse(
     val nickname: String
 )
+
+@Serializable
+data class MyProfileResponse(
+    val id : Int,
+    val nickname: String,
+    val authServiceType : String,
+    val profileImageIndex : Int
+)

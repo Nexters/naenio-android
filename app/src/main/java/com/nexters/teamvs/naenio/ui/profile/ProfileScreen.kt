@@ -1,18 +1,15 @@
 package com.nexters.teamvs.naenio.ui.profile
 
-import android.media.Image
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,16 +19,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.comment.Reply
 import com.nexters.teamvs.naenio.ui.feed.ProfileImageIcon
-import kotlin.math.log
 
 @Composable
-fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
+fun ProfileScreen(
+    navController: NavHostController,
+    modifier: Modifier,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+    val myProfile = viewModel.myProfile.collectAsState()
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -50,7 +52,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
                 ProfileImageIcon(size = 62.dp)
                 Text(
                     modifier = Modifier.padding(start = 16.dp),
-                    text = "UserName",
+                    text = myProfile.value.nickname,
                     style = Font.pretendardSemiBold22,
                     color = Color.White
                 )
@@ -75,7 +77,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
                 title = stringResource(id = R.string.profile_social_login),
                 image = painterResource(id = R.drawable.icon_social_login),
                 isLoginLayout = true,
-                loginType = "KAKAO" // TODO : LoginType 수정 필요
+                loginType = myProfile.value.authServiceType // TODO : LoginType 수정 필요
             )
         }
         item {
@@ -84,8 +86,10 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
                 navController = navController,
                 modifier = Modifier
                     .padding()
-                    .background(color = MyColors.darkGrey_313643,
-                        shape = RoundedCornerShape(10.dp)),
+                    .background(
+                        color = MyColors.darkGrey_313643,
+                        shape = RoundedCornerShape(10.dp)
+                    ),
                 title = stringResource(id = R.string.profile_my_comment),
                 image = painterResource(id = R.drawable.icon_pencil),
                 clickType = ProfileType.MY_COMMENT
@@ -94,9 +98,12 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
         item {
             Spacer(modifier = Modifier
                 .padding(top = 20.dp))
-            Column(modifier = Modifier.wrapContentHeight()
-                .background(color = MyColors.darkGrey_313643,
-                    shape = RoundedCornerShape(10.dp))
+            Column(modifier = Modifier
+                .wrapContentHeight()
+                .background(
+                    color = MyColors.darkGrey_313643,
+                    shape = RoundedCornerShape(10.dp)
+                )
             ) {
                 ProfileButton(
                     navController = navController,
@@ -177,17 +184,29 @@ fun ProfileButton(
         modifier = modifier
             .height(60.dp)
             .clickable {
-               if(clickType != "") {
-                   when(clickType) {
-                       ProfileType.MY_COMMENT -> moveProfileDetailScreen(navController, ProfileType.MY_COMMENT)
-                       ProfileType.NOTICE -> moveProfileDetailScreen(navController, ProfileType.NOTICE)
-                       ProfileType.QUESTION -> setQuestionBtn()
-                       ProfileType.DEVELOPER -> moveProfileDetailScreen(navController, ProfileType.DEVELOPER)
-                       ProfileType.VERSION  -> moveProfileDetailScreen(navController, ProfileType.VERSION)
-                       ProfileType.LOGOUT -> setLogoutBtn()
-                       ProfileType.SIGNOUT -> setSignoutBtn()
-                   }
-               }
+                if (clickType != "") {
+                    when (clickType) {
+                        ProfileType.MY_COMMENT -> moveProfileDetailScreen(
+                            navController,
+                            ProfileType.MY_COMMENT
+                        )
+                        ProfileType.NOTICE -> moveProfileDetailScreen(
+                            navController,
+                            ProfileType.NOTICE
+                        )
+                        ProfileType.QUESTION -> setQuestionBtn()
+                        ProfileType.DEVELOPER -> moveProfileDetailScreen(
+                            navController,
+                            ProfileType.DEVELOPER
+                        )
+                        ProfileType.VERSION -> moveProfileDetailScreen(
+                            navController,
+                            ProfileType.VERSION
+                        )
+                        ProfileType.LOGOUT -> setLogoutBtn()
+                        ProfileType.SIGNOUT -> setSignoutBtn()
+                    }
+                }
             },
         verticalAlignment = Alignment.CenterVertically
     ) {

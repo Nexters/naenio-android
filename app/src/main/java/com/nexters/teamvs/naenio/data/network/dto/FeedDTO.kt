@@ -1,6 +1,8 @@
 package com.nexters.teamvs.naenio.data.network.dto
 
 import androidx.annotation.Keep
+import androidx.compose.runtime.saveable.autoSaver
+import com.nexters.teamvs.naenio.domain.model.Post
 import kotlinx.serialization.Serializable
 
 @Keep

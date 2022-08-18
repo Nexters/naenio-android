@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,21 +25,35 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.home.ThemeItem
 import com.nexters.teamvs.naenio.ui.home.ThemeItem.Companion.themeList
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedDetailScreen(
-    themeId : Int? = 0,
+    type : String = "feedDetail",
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
+    val postItem = viewModel.postItem.collectAsState()
+    viewModel.setType(type)
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
+    val themeItem = viewModel.themeItem.collectAsState()
+
+    var modifier : Modifier
+    if (type.contains("random")) {
+        Log.d("### FeedDetailScreen", "Random")
+        modifier = Modifier.background(Brush.verticalGradient(themeItem.value.backgroundColorList))
+    } else {
+        Log.d("### FeedDetailScreen", "FeedDetail")
+        modifier = Modifier.background(MyColors.screenBackgroundColor)
+    }
 
    BackHandler {
         if (modalBottomSheetState.isVisible) {
@@ -48,40 +63,30 @@ fun FeedDetailScreen(
         }
     }
 
-    Box( modifier = Modifier
-        .fillMaxSize()) {
-        var modifier : Modifier
-        themeId?.let {
-            if (it == 3) {
-                val themeItem = themeList[themeId-1]
-                modifier = Modifier.background(Brush.verticalGradient(themeItem.backgroundColorList))
-            } else {
-                modifier = Modifier.background(MyColors.screenBackgroundColor)
-            }
-            FeedDetail(modifier, navController)
-            LottieAnimation(
-                composition,
-                modifier = Modifier.wrapContentSize(),
-                iterations = Int.MAX_VALUE
+    Box( modifier = Modifier.fillMaxSize()) {
+        FeedDetail(postItem.value, modifier, navController)
+        LottieAnimation(
+            composition,
+            modifier = Modifier.wrapContentSize(),
+            iterations = Int.MAX_VALUE
+        )
+        if(type.equals("random")) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_random),
+                contentDescription = "ic_random",
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 32.dp, end = 28.dp)
+                    .clickable {
+                        viewModel.getRandomPost()
+                    }
             )
-            if( it == 3) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_random),
-                    contentDescription = "ic_random",
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 32.dp, end = 28.dp)
-                        .clickable {
-                            // TODO Random API
-                        }
-                )
-            }
         }
     }
 }
 
 @Composable
-fun FeedDetail(modifier: Modifier, navController: NavHostController) {
+fun FeedDetail(post : Post, modifier: Modifier, navController: NavHostController) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -92,18 +97,27 @@ fun FeedDetail(modifier: Modifier, navController: NavHostController) {
                 .padding(horizontal = 40.dp)
                 .fillMaxHeight()
         ) {
-            ProfileNickName(
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 32.dp), false
-            )
-            VoteContent(Modifier.padding(top = 24.dp), 4)
+            post.author?.let {
+                var index = 0
+                it.profileImageIndex?.let {
+                    index = it
+                }
+                ProfileNickName(
+                    nickName = it.nickname.orEmpty(),
+                    modifier = Modifier.fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(top = 32.dp),
+                    profileImageIndex = index,
+                    isIconVisible = false
+                )
+            }
+            VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
             Spacer(modifier = Modifier.fillMaxHeight(0.044f))
             VoteGageBar(0.5f, true)
             Spacer(modifier = Modifier.height(32.dp))
             CommentLayout(
-                Modifier
+                commentCount = post.commentCount,
+                modifier =  Modifier
                     .fillMaxWidth()
                     .height(46.dp)
                     .background(
@@ -118,8 +132,5 @@ fun FeedDetail(modifier: Modifier, navController: NavHostController) {
                     )
             )
         }
-//        viewModel = viewModel()
-//    )
-//        FeedDetail(modifier = Modifier, navController = NavHostController(LocalContext.current))
     }
 }

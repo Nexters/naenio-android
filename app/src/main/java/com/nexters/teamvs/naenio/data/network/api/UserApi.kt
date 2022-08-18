@@ -17,4 +17,10 @@ interface UserApi {
     suspend fun setNickname(
         @Body nicknameRequest: NicknameRequest
     ): NicknameResponse
+
+    @GET("/app/members/me")
+    suspend fun getMyProfile(): MyProfileResponse
+
+    @DELETE("/app/members/me")
+    suspend fun deleteProfile() : Object
 }

@@ -2,6 +2,7 @@ package com.nexters.teamvs.naenio.ui.feed
 
 import android.widget.Space
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -28,6 +30,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold12
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold14
@@ -159,47 +162,49 @@ fun VoteLaout() {
 }
 
 @Composable
-fun VoteContent(modifier: Modifier, maxLine : Int) {
-    Row(
-        modifier = modifier
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_gift),
-            contentDescription = "ic_gift"
+fun VoteContent(post : Post? = null, modifier: Modifier, maxLine : Int) {
+    post?.let { post ->
+        Row(
+            modifier = modifier
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_gift),
+                contentDescription = "ic_gift"
+            )
+            Text(
+                text = post.choices.size.toString(),
+                color = Color.White,
+                style = Font.body2,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+            Text(
+                text = "명 투표",
+                color = Color.White,
+                style = Font.body2
+            )
+        }
+        Text(
+            text = post.title,
+            color = Color.White,
+            style = Font.pretendardSemiBold20,
+            modifier = Modifier.padding(top = 8.dp),
+            maxLines = maxLine,
+            overflow = TextOverflow.Ellipsis,
+            lineHeight = 29.sp
         )
         Text(
-            text = "XXX",
+            text = post.content,
             color = Color.White,
-            style = Font.body2,
-            modifier = Modifier.padding(start = 4.dp)
-        )
-        Text(
-            text = "명 투표",
-            color = Color.White,
-            style = Font.body2
+            style = Font.pretendardRegular14,
+            modifier = Modifier.padding(top = 10.dp, bottom = 8.dp),
+            maxLines = maxLine,
+            overflow = TextOverflow.Ellipsis
         )
     }
-    Text(
-        text = "세상에 모든 사람이 날 알아보기 투명인간 취급 당하기????",
-        color = Color.White,
-        style = Font.pretendardSemiBold20,
-        modifier = Modifier.padding(top = 8.dp),
-        maxLines = maxLine,
-        overflow = TextOverflow.Ellipsis,
-        lineHeight = 29.sp
-    )
-    Text(
-        text = "세상 모든 사람들이 날 알아보지 못하면 슬플 것 같아요. ㅠㅠ",
-        color = Color.White,
-        style = Font.pretendardRegular14,
-        modifier = Modifier.padding(top = 10.dp, bottom = 8.dp),
-        maxLines = maxLine,
-        overflow = TextOverflow.Ellipsis
-    )
 }
 
 @Composable
-fun CommentLayout(modifier: Modifier) {
+fun CommentLayout(commentCount: Int = 0, modifier: Modifier) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
@@ -215,28 +220,28 @@ fun CommentLayout(modifier: Modifier) {
             modifier = Modifier.padding(start = 4.dp)
         )
         Text(
-            text = "XXX",
+            text = "${commentCount}개",
             color = Color.White,
             style = Font.pretendardRegular16,
             modifier = Modifier.padding(start = 6.dp)
-        )
-        Text(
-            text = "개",
-            color = Color.White,
-            style = Font.pretendardRegular16
         )
     }
 }
 
 @Composable
-fun ProfileNickName(modifier: Modifier, isIconVisible : Boolean) {
+fun ProfileNickName(
+    modifier: Modifier,
+    isIconVisible : Boolean,
+    nickName : String = "",
+    profileImageIndex : Int = 0
+) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProfileImageIcon(size = 24.dp)
+        ProfileImageIcon(index = profileImageIndex, size = 24.dp, padding = 2.dp)
         Text(
-            text = "닉네임",
+            text = nickName,
             color = Color.White,
             style = Font.pretendardMedium16,
             modifier = Modifier.wrapContentWidth()
@@ -253,12 +258,14 @@ fun ProfileNickName(modifier: Modifier, isIconVisible : Boolean) {
 }
 
 @Composable
-fun ProfileImageIcon(size : Dp) {
+fun ProfileImageIcon(index : Int = 0, size : Dp, padding : Dp = 0.dp) {
     //TODO 프로필 이미지 타입 정의
+    // index 별로 프로필 이미지 지정하기!
     Icon(
         modifier = Modifier
             .size(size)
-            .clip(CircleShape),
+            .clip(CircleShape)
+            .padding(padding),
         tint = MyColors.mint_83d8c8,
         painter = painterResource(id = R.drawable.ic_launcher_background),
         contentDescription = "profileThumbnail"
@@ -299,6 +306,25 @@ fun TopBar(modifier: Modifier,
             }.alpha(iconVisible),
             painter = painterResource(R.drawable.ic_feed_more),
             contentDescription = "icon_feed_more"
+        )
+    }
+}
+
+@Composable
+fun contentEmptyLayout(@StringRes stringId : Int) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.icon_empty),
+            contentDescription = "icon_empty")
+        Text(
+            modifier = Modifier.padding(top = 14.dp),
+            text = stringResource(id = stringId),
+            style = Font.pretendardMedium18,
+            color = MyColors.darkGrey_828282
         )
     }
 }

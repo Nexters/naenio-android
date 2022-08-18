@@ -1,12 +1,12 @@
 package com.nexters.teamvs.naenio.domain.model
 
 data class Post(
-    val id: Int,
-    val author: Author,
-    val choices: List<Choice>,
+    val id: Int = -1,
+    val author: Author? = null,
+    val choices: List<Choice> = emptyList(),
     val commentCount: Int = 0,
     val content: String = "",
-    val title: String
+    val title: String = ""
 )
 
 data class Choice(
