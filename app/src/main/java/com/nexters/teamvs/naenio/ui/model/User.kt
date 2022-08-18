@@ -1,11 +1,9 @@
 package com.nexters.teamvs.naenio.ui.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class User(
-    val id: Int,
-    val nickname: String?,
+    val nickname: String? = null,
     val profileImageIndex: Int = 0
-) {
-    companion object {
-        val mock = User(0, "닉네임")
-    }
-}
+)
