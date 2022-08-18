@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                     Loading(visible = loadingState)
                     Toast(
                         modifier = Modifier.align(Alignment.TopCenter),
-                        message = "Message",
+                        message = toastState,
                         visible = toastState.isNotEmpty()
                     )
                     DialogContainer(dialogModel = dialogState)
