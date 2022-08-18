@@ -437,8 +437,7 @@ fun CommentItem(
                         .clickable {
                             onEvent.invoke(CommentEvent.Like(comment))
                         },
-                    colorFilter = ColorFilter.tint(color = if (comment.isLiked) Color.Red else Color.White),
-                    painter = painterResource(id = R.drawable.ic_heart_outlined),
+                    painter = painterResource(id = if (comment.isLiked) R.drawable.ic_heart_fill else R.drawable.ic_heart_outlined),
                     contentDescription = null
                 )
                 Text(

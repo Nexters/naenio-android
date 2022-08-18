@@ -184,7 +184,7 @@ class CommentViewModel @Inject constructor(
             try {
                 commentRepository.likeComment(id)
                 _comments.value = comments.value.map {
-                    if (it.id == id) it.copy(isLiked = true) else it
+                    if (it.id == id) it.copy(isLiked = true, likeCount = it.likeCount + 1) else it
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -197,7 +197,7 @@ class CommentViewModel @Inject constructor(
             try {
                 commentRepository.unlikeComment(id)
                 _comments.value = comments.value.map {
-                    if (it.id == id) it.copy(isLiked = false) else it
+                    if (it.id == id) it.copy(isLiked = false, likeCount = it.likeCount - 1) else it
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
