@@ -11,6 +11,26 @@ import kotlinx.coroutines.flow.MutableSharedFlow
  */
 object GlobalUiEvent {
     val uiEvent = MutableSharedFlow<UiEvent>(extraBufferCapacity = 1)
+
+    fun showToast(message: String) {
+        uiEvent.tryEmit(UiEvent.ShowToast(message))
+    }
+
+    fun showLoading() {
+        uiEvent.tryEmit(UiEvent.ShowLoading)
+    }
+
+    fun hideLoading() {
+        uiEvent.tryEmit(UiEvent.HideLoading)
+    }
+
+    fun showDialog(dialogModel: DialogModel) {
+        uiEvent.tryEmit(UiEvent.ShowDialog(dialogModel))
+    }
+
+    fun hideDialog() {
+        uiEvent.tryEmit(UiEvent.HideDialog)
+    }
 }
 
 sealed class UiEvent {
