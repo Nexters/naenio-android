@@ -458,7 +458,7 @@ fun CommentItem(
                         contentDescription = null
                     )
                     Text(
-                        text = comment.likeCount.toString(),
+                        text = comment.replyCount.toString(),
                         fontSize = 12.sp,
                         color = Color.White
                     )
