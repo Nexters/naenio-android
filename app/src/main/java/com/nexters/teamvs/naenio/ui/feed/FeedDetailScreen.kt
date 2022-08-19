@@ -115,7 +115,12 @@ fun FeedDetail(
                 )
                 VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
                 Spacer(modifier = Modifier.fillMaxHeight(0.044f))
-                VoteBar(post)
+                VoteBar(
+                    post = post,
+                    onVote = { postId, voteId ->
+
+                    }
+                )
                 Spacer(modifier = Modifier.height(32.dp))
                 CommentLayout(
                     commentCount = post.commentCount,

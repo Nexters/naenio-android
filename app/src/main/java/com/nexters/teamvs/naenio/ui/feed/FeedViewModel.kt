@@ -142,6 +142,23 @@ class FeedViewModel @Inject constructor(
                     postId = postId,
                     choiceId = choiceId,
                 )
+                //TODO 간결하게 수정
+                val currentPosts = posts.value ?: emptyList()
+                currentPosts.map { post ->
+                    if (post.id == postId) {
+                        post.copy(choices = post.choices.map { choice ->
+                            if (choice.id == choiceId) {
+                                choice.copy(
+                                    isVoted = true,
+                                )
+                            } else choice.copy(
+                                isVoted = false
+                            )
+                        })
+                    } else post
+                }.also {
+                    _posts.value = it
+                }
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {

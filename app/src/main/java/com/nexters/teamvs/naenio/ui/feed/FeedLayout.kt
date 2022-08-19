@@ -25,6 +25,7 @@ import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Choice
 import com.nexters.teamvs.naenio.domain.model.Post
+import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold12
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold14
@@ -33,7 +34,10 @@ import com.nexters.teamvs.naenio.theme.NaenioTypography
 import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
 
 @Composable
-fun VoteBar(post: Post) {
+fun VoteBar(
+    post: Post,
+    onVote: (Int, Int) -> Unit,
+) {
     val gageBarModifier = Modifier
         .fillMaxWidth()
         .height(72.dp)
@@ -63,7 +67,10 @@ fun VoteBar(post: Post) {
                 ),
                 choice = post.choice1,
                 isVotedForPost = isVotedForPost,
-                totalVoteCount = post.totalVoteCount
+                totalVoteCount = post.totalVoteCount,
+                onVote = { voteId ->
+                    onVote.invoke(post.id, voteId)
+                }
             )
             Spacer(modifier = Modifier.height(18.dp))
             GageBar(
@@ -74,7 +81,10 @@ fun VoteBar(post: Post) {
                 ),
                 choice = post.choice2,
                 isVotedForPost = isVotedForPost,
-                totalVoteCount = post.totalVoteCount
+                totalVoteCount = post.totalVoteCount,
+                onVote = { voteId ->
+                    onVote.invoke(post.id, voteId)
+                }
             )
         }
         Image(
@@ -93,17 +103,22 @@ fun GageBar(
     gageModifier: Modifier,
     foregroundColor: Brush,
     isVotedForPost: Boolean,
+    onVote: (Int) -> Unit
 ) {
-    val isChoose = choice.isVoted
+    val isMyChoice = choice.isVoted
 
     Box(
-        modifier = if (isVotedForPost) {
+        modifier = if (isMyChoice) {
             modifier.border(
                 border = BorderStroke(1.dp, foregroundColor),
                 shape = RoundedCornerShape(16.dp)
-            )
+            ).noRippleClickable {
+                onVote.invoke(choice.id)
+            }
         } else {
-            modifier
+            modifier.noRippleClickable {
+                onVote.invoke(choice.id)
+            }
         }
     ) {
         //What Box?
@@ -147,7 +162,9 @@ fun GageBar(
                 ) {
                     Text(
                         modifier = Modifier.padding(bottom = 4.dp),
-                        text = ((choice.voteCount / totalVoteCount) * 100).toString(), // "$percent%",
+                        text = if(totalVoteCount > 0) {
+                            "${(choice.voteCount / totalVoteCount) * 100}%"
+                        } else "0%",
                         color = Color.White, style = montserratSemiBold14
                     )
                     Text(

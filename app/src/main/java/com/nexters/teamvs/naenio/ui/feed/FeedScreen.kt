@@ -121,7 +121,10 @@ fun ThemeDetailLayout(
                 posts = posts,
                 pagerState = pagerState,
                 openSheet = openSheet,
-                navController = navController
+                navController = navController,
+                onVote = { postId, choiceId ->
+//                    viewModel.vote(postId = postId, choiceId = choiceId)
+                },
             )
             LottieAnimation(
                 composition,
@@ -189,6 +192,9 @@ fun FeedScreenContent(
                     pagerState = pagerState,
                     posts = posts.value ?: emptyList(),
                     openSheet = openSheet,
+                    onVote = { postId, choiceId ->
+                        viewModel.vote(postId = postId, choiceId = choiceId)
+                    },
                     navController = navController
                 )
             }
@@ -306,6 +312,7 @@ fun FeedPager(
     posts: List<Post>,
     pagerState: PagerState,
     openSheet: (BottomSheetType) -> Unit,
+    onVote: (Int, Int) -> Unit,
     navController: NavHostController
 ) {
     VerticalPager(
@@ -322,8 +329,9 @@ fun FeedPager(
             FeedItem(
                 page = page,
                 post = posts[page],
+                navController = navController,
+                onVote = onVote,
                 openSheet = openSheet,
-                navController = navController
             )
         }
     }
@@ -334,8 +342,9 @@ fun FeedPager(
 fun FeedItem(
     page: Int,
     post: Post,
+    navController: NavHostController,
+    onVote: (Int, Int) -> Unit,
     openSheet: (BottomSheetType) -> Unit,
-    navController: NavHostController
 ) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
@@ -370,7 +379,10 @@ fun FeedItem(
                 isIconVisible = true
             )
             VoteContent(post, Modifier, 2)
-            VoteBar(post)
+            VoteBar(
+                post = post,
+                onVote = onVote
+            )
         }
         Spacer(modifier = Modifier.weight(1f))
         CommentLayout(
