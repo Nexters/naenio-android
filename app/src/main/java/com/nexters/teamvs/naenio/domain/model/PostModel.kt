@@ -5,7 +5,7 @@ data class Post(
     val author: Author,
     val choices: List<Choice>,
     val commentCount: Int = 0,
-    val content: String = "",
+    val content: String,
     val title: String
 )
 
@@ -19,8 +19,8 @@ data class Choice(
 
 data class Author(
     val id: Int,
-    val nickname: String?,
-    val profileImageIndex: Int?
+    val nickname: String = "",
+    val profileImageIndex: Int = 0
 ) {
     companion object {
         val mock: Author = Author(

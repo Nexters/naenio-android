@@ -1,22 +1,19 @@
 package com.nexters.teamvs.naenio.ui.home
 
 import androidx.annotation.DrawableRes
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import androidx.core.content.res.TypedArrayUtils.getString
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.theme.MyColors
 
-// TODO 리스폰스모델 -> 해당 모델로 변환해서 사용하..?
 data class ThemeItem(
-    val id: Int = -1,
-    val title: String,
-    val description: String,
-    val backgroundColor: Color,
-    @DrawableRes val image: Int,
-    val backgroundColorList : List<Color>
+    val id : Int = -1,
+    val title: String = "",
+    val description: String = "",
+    val backgroundColor: Color = Color.White,
+    @DrawableRes val image: Int = 0,
+    val backgroundColorList : List<Color> = listOf(),
+    val type : String = ""
 ) {
     companion object {
         val themeList = listOf<ThemeItem>(
@@ -30,7 +27,8 @@ data class ThemeItem(
                     Color(0xffeeaaff),
                     Color(0xffc9c4f9),
                     Color(0xff6dafe9)
-                )
+                ),
+                type = themeType.TODAY_VOTE.toString()
             ),
             ThemeItem(
                 id = 2,
@@ -42,7 +40,8 @@ data class ThemeItem(
                     Color(0xff24ce9e),
                     Color(0xffaafffa),
                     Color(0xff6dafe9)
-                )
+                ),
+                type = "HALL_OF_FAME"
             ),
             ThemeItem(
                 id = 3,
@@ -54,7 +53,8 @@ data class ThemeItem(
                     Color(0xff5862ff),
                     Color(0xffa58eff),
                     Color(0xff34a1ff)
-                )
+                ),
+                type = themeType.RANDOM_PLAY.toString()
             ),
             ThemeItem(
                 id = 4,
@@ -66,7 +66,8 @@ data class ThemeItem(
                     Color(0xffffa927),
                     Color(0xffffddaa),
                     Color(0xff6dafe9)
-                )
+                ),
+                type = themeType.GOLD_BALANCE.toString()
             ),
             ThemeItem(
                 id = 5,
@@ -78,7 +79,8 @@ data class ThemeItem(
                     Color(0xffff9c80),
                     Color(0xffffc9aa),
                     Color(0xff6dafe9)
-                )
+                ),
+                type = themeType.NOISY.toString()
             ),
             ThemeItem(
                 id = 6,
@@ -90,8 +92,13 @@ data class ThemeItem(
                     Color(0xff26bdd9),
                     Color(0xffaff3ff),
                     Color(0xff6d97e9)
-                )
+                ),
+                type = themeType.COLLAPSED_BALANCE.toString()
             ),
         )
     }
+}
+
+enum class themeType {
+    COLLAPSED_BALANCE, NOISY, GOLD_BALANCE, RANDOM_PLAY, TODAY_VOTE, HALL_OF_FAME
 }

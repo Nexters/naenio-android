@@ -4,6 +4,8 @@ import com.nexters.teamvs.naenio.data.network.dto.AuthorResponse
 import com.nexters.teamvs.naenio.data.network.dto.ChoiceResponse
 import com.nexters.teamvs.naenio.data.network.dto.CreateResponse
 import com.nexters.teamvs.naenio.data.network.dto.PostResponse
+import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toAuthor
+import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toChoiceList
 import com.nexters.teamvs.naenio.domain.model.Author
 import com.nexters.teamvs.naenio.domain.model.Choice
 import com.nexters.teamvs.naenio.domain.model.Post
@@ -29,6 +31,7 @@ object FeedMapper {
             )
         }
     }
+
     fun List<PostResponse>.toPostList(): List<Post> {
         return map {
             Post(
@@ -40,6 +43,17 @@ object FeedMapper {
                 choices = it.choices.toChoiceList()
             )
         }
+    }
+
+    fun PostResponse.toPost() : Post {
+        return Post(
+            author = author.toAuthor(),
+            choices = choices.toChoiceList(),
+            commentCount = commentCount,
+            content = content,
+            id = id,
+            title = title
+        )
     }
 
     fun CreateResponse.toPost(): Post {
@@ -54,6 +68,7 @@ object FeedMapper {
                     sequence = i
                 )
             },
+            content = content,
             title = title
         )
     }

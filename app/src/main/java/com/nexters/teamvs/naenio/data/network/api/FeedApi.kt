@@ -13,6 +13,15 @@ interface FeedApi {
     @GET("/app/feed")
     suspend fun getFeedPosts(
         @Query("size") size: Int,
-        @Query("lastPostId") lastPostId: Int?
+        @Query("lastPostId") lastPostId: Int?,
+        @Query("sortType") sortType : String?
     ): FeedResponse
+
+    @GET("/app/posts")
+    suspend fun getThemePosts(
+        @Query("theme") theme : String
+    ): FeedResponse
+
+    @GET("/app/posts/random")
+    suspend fun getRandomPost(): PostResponse
 }
