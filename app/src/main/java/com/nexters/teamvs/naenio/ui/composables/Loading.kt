@@ -14,6 +14,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
+import com.nexters.teamvs.naenio.theme.MyColors
 
 @Composable
 fun Loading(
@@ -25,7 +26,7 @@ fun Loading(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Transparent)
+                .background(MyColors.dimColor)
                 .noRippleClickable { },
             contentAlignment = Alignment.Center
         ) {
