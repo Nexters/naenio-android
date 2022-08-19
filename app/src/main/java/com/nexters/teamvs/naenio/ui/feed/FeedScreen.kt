@@ -29,35 +29,31 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
-import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.domain.model.Post
-import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
-import com.nexters.teamvs.naenio.ui.composables.Toast
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.home.ThemeItem
-import com.nexters.teamvs.naenio.ui.home.ThemeItem.Companion.themeList
-import com.nexters.teamvs.naenio.ui.model.UiState
-import com.nexters.teamvs.naenio.ui.profile.DeveloperItem
-import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
-    type : String = "feed",
+    modifier: Modifier = Modifier,
+    type: String = "feed",
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier,
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
-    viewModel.setType(type)
+    viewModel.setType(type) // TODO 수정
+
     val posts = viewModel.posts.collectAsState()
     val themeItem = viewModel.themeItem.collectAsState()
     val feedButtonItem = viewModel.feedButtonItem.collectAsState()
@@ -70,51 +66,10 @@ fun FeedScreen(
         }
     }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scaffoldState = rememberScaffoldState(snackbarHostState = snackbarHostState)
-    val scope = rememberCoroutineScope()
-
-    BackHandler {
-        if (modalBottomSheetState.isVisible) {
-            closeSheet.invoke()
-        } else {
-            navController.popBackStack()
-        }
-    }
-
-    LaunchedEffect(key1 = Unit, block = {
-        viewModel.uiState.collect {
-            Log.d("### FeedScreen", "$it")
-            when (it) {
-                is UiState.Error -> {
-                    snackbarHostState.showSnackbar(it.exception.errorMessage())
-                }
-                UiState.Idle -> {
-
-                }
-                UiState.Loading -> {
-
-                }
-                UiState.Success -> {
-                    snackbarHostState.showSnackbar("Success")
-                }
-            }
-        }
-    })
-
-    Scaffold(
-        modifier = modifier,
-        scaffoldState = scaffoldState,
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState) {
-                Toast(message = it.message)
-            }
-        }
-    ) { paddingValue ->
+    Box(modifier = modifier.fillMaxSize()) {
         if (type == "feed") {
-            setFeedLayout(
+            FeedLayout(
                 navController = navController,
-                paddingValue = paddingValue,
                 posts = posts,
                 feedButton = feedButtonItem,
                 openSheet = openSheet,
@@ -122,10 +77,9 @@ fun FeedScreen(
                 viewModel = viewModel
             )
         } else {
-            setThemeDetailLayout(
+            ThemeDetailLayout(
                 themeItem = themeItem.value,
                 navController = navController,
-                paddingValue = paddingValue,
                 posts = posts,
                 openSheet = openSheet,
                 composition = composition
@@ -135,10 +89,9 @@ fun FeedScreen(
 }
 
 @Composable
-fun setThemeDetailLayout(
+fun ThemeDetailLayout(
     themeItem: ThemeItem,
     navController: NavHostController,
-    paddingValue: PaddingValues,
     posts: State<List<Post>>,
     openSheet: (BottomSheetType) -> Unit,
     composition: LottieComposition?
@@ -146,7 +99,6 @@ fun setThemeDetailLayout(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValue)
             .background(
                 Brush.verticalGradient(themeItem.backgroundColorList)
             )
@@ -174,19 +126,18 @@ fun setThemeDetailLayout(
 }
 
 @Composable
-fun setFeedLayout(navController: NavHostController,
-                  paddingValue : PaddingValues,
-                  feedButton : State<List<FeedButtonItem>>,
-                  posts : State<List<Post>>,
-                  openSheet: (BottomSheetType) -> Unit,
-                  composition : LottieComposition?,
-                  viewModel : FeedViewModel
+fun FeedLayout(
+    navController: NavHostController,
+    feedButton: State<List<FeedButtonItem>>,
+    posts: State<List<Post>>,
+    openSheet: (BottomSheetType) -> Unit,
+    composition: LottieComposition?,
+    viewModel: FeedViewModel
 ) {
     var emptyMessage = ""
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValue)
             .background(MyColors.screenBackgroundColor)
     ) {
         Column(
