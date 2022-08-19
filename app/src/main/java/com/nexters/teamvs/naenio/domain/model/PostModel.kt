@@ -10,7 +10,17 @@ data class Post(
     val commentCount: Int = 0,
     val content: String,
     val title: String
-)
+) {
+    val choice1 = choices[0] //TODO DataLayer 에서 choices 리스트가 Size 2 인 것을 보장하기. 
+    val choice2 = choices[1] 
+
+    val totalVoteCount get() = choices.sumOf { it.voteCount }
+
+    fun isVotedForPost(): Boolean {
+        val votedChoice = choices.find { it.isVoted }
+        return votedChoice != null
+    }
+}
 
 data class Choice(
     val id: Int,
