@@ -15,6 +15,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed class FeedEvent {
+    object ScrollToTop: FeedEvent()
+}
+
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     private val feedRepository: FeedRepository,
@@ -38,10 +42,27 @@ class FeedViewModel @Inject constructor(
         _selectedTab.value = feedTabItemModel
     }
 
-    val uiState = MutableSharedFlow<UiState>()
+    val event = MutableSharedFlow<FeedEvent>()
+    fun emitEvent(feedEvent: FeedEvent) {
+        viewModelScope.launch {
+            event.emit(feedEvent)
+        }
+    }
 
     init {
-        getFeedPosts(selectedTab.value.type)
+        viewModelScope.launch {
+            selectedTab.collect {
+                try {
+                    GlobalUiEvent.showLoading()
+                    getFeedPosts(it.type)
+                    emitEvent(FeedEvent.ScrollToTop)
+                } catch (e: Exception) {
+                    GlobalUiEvent.showToast(e.errorMessage())
+                } finally {
+                    GlobalUiEvent.hideLoading()
+                }
+            }
+        }
     }
 
     fun setType(type: String) {
@@ -52,7 +73,7 @@ class FeedViewModel @Inject constructor(
             val itemIndex = type.replace("feedDetail=", "").toInt()
 //            _postItem.value = _posts.value[itemIndex]
         }
-        if (type.contains("theme") ){
+        if (type.contains("theme")) {
             setThemeItem(type, "theme=")
             getThemePosts(_themeItem.value.type)
         }
@@ -62,26 +83,19 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    private fun setThemeItem(type: String, replaceStr:String) {
-        _themeItem.value = ThemeItem.themeList[type.replace(replaceStr,"").toInt()-1]
+    private fun setThemeItem(type: String, replaceStr: String) {
+        _themeItem.value = ThemeItem.themeList[type.replace(replaceStr, "").toInt() - 1]
     }
 
-    private fun getThemePosts(type : String) {
+    private fun getThemePosts(type: String) {
         viewModelScope.launch {
             try {
-                uiState.emit(UiState.Loading)
-                if (type == "ALL") {
-
-                }
                 _posts.value = feedRepository.getThemePosts(
                     theme = type
                 )
-                uiState.emit(UiState.Success)
             } catch (e: Exception) {
                 e.printStackTrace()
-                uiState.emit(UiState.Error(e))
             } finally {
-//                uiState.emit(UiState.Success)
             }
         }
     }
@@ -89,35 +103,21 @@ class FeedViewModel @Inject constructor(
     fun getRandomPost() {
         viewModelScope.launch {
             try {
-                uiState.emit(UiState.Loading)
                 _postItem.value = feedRepository.getRandomPosts()
-                uiState.emit(UiState.Success)
             } catch (e: Exception) {
                 e.printStackTrace()
-                uiState.emit(UiState.Error(e))
             } finally {
-//                uiState.emit(UiState.Success)
             }
         }
     }
 
-    fun getFeedPosts(feedTabItemType: FeedTabItemType) {
-        viewModelScope.launch {
-            try {
-                GlobalUiEvent.showLoading()
-                _posts.value = feedRepository.getFeedPosts(
-                    pageSize = 10,
-                    lastPostId = null,
-                    sortType = feedTabItemType.text
-                )
-            } catch (e: Exception) {
-                GlobalUiEvent.showToast(e.errorMessage())
-            } finally {
-                GlobalUiEvent.hideLoading()
-            }
-        }
+    private suspend fun getFeedPosts(feedTabItemType: FeedTabItemType) {
+        _posts.value = feedRepository.getFeedPosts(
+            pageSize = 10,
+            lastPostId = null,
+            sortType = feedTabItemType.text
+        )
     }
-
 
     var voteLock = false
     fun vote(
@@ -135,7 +135,7 @@ class FeedViewModel @Inject constructor(
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {
-              voteLock = false
+                voteLock = false
             }
         }
     }

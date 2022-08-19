@@ -27,7 +27,9 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.VerticalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
@@ -86,6 +88,7 @@ fun FeedScreen(
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ThemeDetailLayout(
     themeItem: ThemeItem,
@@ -94,6 +97,8 @@ fun ThemeDetailLayout(
     openSheet: (BottomSheetType) -> Unit,
     composition: LottieComposition?
 ) {
+    val pagerState = rememberPagerState(initialPage = 0)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -111,6 +116,7 @@ fun ThemeDetailLayout(
             FeedPager(
                 modifier = Modifier,
                 posts = posts,
+                pagerState = pagerState,
                 openSheet = openSheet,
                 navController = navController
             )
@@ -123,6 +129,7 @@ fun ThemeDetailLayout(
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun FeedScreenContent(
     navController: NavHostController,
@@ -138,6 +145,18 @@ fun FeedScreenContent(
     val selectedTab = viewModel.selectedTab.collectAsState()
     val posts = viewModel.posts.collectAsState()
     val isEmptyFeed = posts.value != null && posts.value?.isEmpty() == true
+
+    val pagerState = rememberPagerState(initialPage = 0)
+
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.event.collect {
+            when (it) {
+                FeedEvent.ScrollToTop -> {
+                    pagerState.scrollToPage(0)
+                }
+            }
+        }
+    })
 
     Box(
         modifier = Modifier
@@ -163,6 +182,7 @@ fun FeedScreenContent(
             } else {
                 FeedPager(
                     modifier = Modifier,
+                    pagerState = pagerState,
                     posts = posts.value ?: emptyList(),
                     openSheet = openSheet,
                     navController = navController
@@ -280,10 +300,12 @@ fun FeedScreenBox() {
 fun FeedPager(
     modifier: Modifier,
     posts: List<Post>,
+    pagerState: PagerState,
     openSheet: (BottomSheetType) -> Unit,
     navController: NavHostController
 ) {
     VerticalPager(
+        state = pagerState,
         count = posts.size,
         contentPadding = PaddingValues(bottom = 100.dp),
         modifier = modifier
