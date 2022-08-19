@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
@@ -65,20 +66,16 @@ class FeedViewModel @Inject constructor(
     }
 
     fun setType(type: String) {
-//        if (type == "feed") {
-//            _feedTabItems.value = FeedTabItem.feedButtonList
-//        }
-        if (type.contains("feedDetail")) {
-            val id = type.replace("feedDetail=", "").toInt()
-            getPostDetail(id)
-        }
+        Log.d("#### setType", type)
         if (type.contains("theme")) {
             setThemeItem(type, "theme=")
             getThemePosts(_themeItem.value.type)
-        }
-        if (type.contains("random")) {
-            setThemeItem(type, "random=")
+        } else if (type.contains("random")) {
+            setThemeItem(type, "feedDetail=random=")
             getRandomPost()
+        } else if (type.contains("feedDetail")) {
+            val id = type.replace("feedDetail=", "").toInt()
+            getPostDetail(id)
         }
     }
 

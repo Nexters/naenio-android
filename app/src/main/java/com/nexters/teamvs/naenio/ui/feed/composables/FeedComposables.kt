@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.feed.composables
 
+import android.content.Intent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -19,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
@@ -107,9 +110,11 @@ fun ProfileNickName(
         Spacer(modifier = Modifier.weight(1f))
         if (isIconVisible) {
             Image(
-                modifier = Modifier.wrapContentSize().clickable {
-                    onMore.invoke()
-                },
+                modifier = Modifier
+                    .wrapContentSize()
+                    .clickable {
+                        onMore.invoke()
+                    },
                 painter = painterResource(R.drawable.ic_feed_more),
                 contentDescription = "icon_feed_more"
             )
@@ -135,8 +140,11 @@ fun TopBar(
     barTitle: String?,
     navController: NavHostController,
     isMoreBtnVisible: Boolean = true,
-    textStyle: TextStyle = Font.pretendardSemiBold16
+    textStyle: TextStyle = Font.pretendardSemiBold16,
+    post: Post? = null,
 ) {
+
+    val context = LocalContext.current
     Row(
         modifier = modifier
             .padding(horizontal = 24.dp)
@@ -163,7 +171,25 @@ fun TopBar(
         val iconVisible = if (isMoreBtnVisible) 1f else 0f
         Image(modifier = Modifier
             .clickable {
+                //share
+                if (post == null) return@clickable
+                val shareLink = "https://naenio.shop/posts/${post.id}"
 
+                val type = "text/plain"
+                val subject = "네니오로 오세요~~~"
+                val extraText = shareLink
+                val shareWith = "ShareWith"
+
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.type = type
+                intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+                intent.putExtra(Intent.EXTRA_TEXT, extraText)
+
+                ContextCompat.startActivity(
+                    context,
+                    Intent.createChooser(intent, shareWith),
+                    null
+                )
             }
             .alpha(iconVisible),
             painter = painterResource(R.drawable.ic_feed_more),

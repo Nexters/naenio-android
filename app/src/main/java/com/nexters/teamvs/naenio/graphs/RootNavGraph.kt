@@ -12,7 +12,7 @@ fun RootNavigationGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
         route = Graph.ROOT,
-        startDestination = Graph.AUTHENTICATION //Graph.AUTHENTICATION
+        startDestination = Graph.MAIN //Graph.AUTHENTICATION
     ) {
         authNavGraph(navController = navController)
         composable(

@@ -12,7 +12,7 @@ data class ThemeItem(
     val description: String = "",
     val backgroundColor: Color = Color.White,
     @DrawableRes val image: Int = 0,
-    val backgroundColorList : List<Color> = listOf(),
+    val backgroundColorList : List<Color> = listOf(MyColors.screenBackgroundColor, MyColors.screenBackgroundColor),
     val type : String = ""
 ) {
     companion object {

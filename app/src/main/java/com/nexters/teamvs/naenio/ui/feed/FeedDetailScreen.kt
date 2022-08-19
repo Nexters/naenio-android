@@ -76,7 +76,7 @@ fun FeedDetailScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        FeedDetail(postItem.value, modifier, navController, titleBar, textStyle)
+        FeedDetail(postItem.value, modifier, navController, titleBar, textStyle,viewModel = viewModel, openSheet = openSheet)
         LottieAnimation(
             composition, modifier = Modifier.wrapContentSize(), iterations = Int.MAX_VALUE
         )
@@ -99,14 +99,16 @@ fun FeedDetail(
     modifier: Modifier,
     navController: NavHostController,
     titleBar: String?,
-    textStyle: TextStyle
+    textStyle: TextStyle,
+    viewModel: FeedViewModel,
+    openSheet: (BottomSheetType) -> Unit,
 ) {
     val context = LocalContext.current
     post?.let { post ->
         Column(
             modifier = modifier.fillMaxSize()
         ) {
-            TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle)
+            TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle, post)
             Column(
                 modifier = Modifier
                     .padding(horizontal = 40.dp)
@@ -162,7 +164,9 @@ fun FeedDetail(
                             1.dp,
                             shape = RoundedCornerShape(12.dp),
                             ambientColor = MyColors.blackShadow_35000000
-                        )
+                        ).clickable {
+                            openSheet.invoke(BottomSheetType.CommentType(postId = post.id, onEvent = {}))
+                        }
                 )
             }
         }

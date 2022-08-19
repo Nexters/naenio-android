@@ -84,7 +84,7 @@ fun FeedScreen(
             )
         } else {
             ThemeDetailLayout(
-                themeItem = themeItem.value,
+                themeItem = themeItem.value ?: return@Box,
                 navController = navController,
 //                posts = posts, 테마 뷰모델 따로 만들어야 할듯?
                 openSheet = openSheet,
