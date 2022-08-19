@@ -2,8 +2,10 @@ package com.nexters.teamvs.naenio.ui.feed
 
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
+import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.ui.home.ThemeItem
 import com.nexters.teamvs.naenio.ui.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -112,6 +114,28 @@ class FeedViewModel @Inject constructor(
                 uiState.emit(UiState.Error(e))
             } finally {
 //                uiState.emit(UiState.Success)
+            }
+        }
+    }
+
+
+    var voteLock = false
+    fun vote(
+        postId: Int,
+        choiceId: Int,
+    ) {
+        if (voteLock) return
+        voteLock = true
+        viewModelScope.launch {
+            try {
+                feedRepository.vote(
+                    postId = postId,
+                    choiceId = choiceId,
+                )
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+              voteLock = false
             }
         }
     }

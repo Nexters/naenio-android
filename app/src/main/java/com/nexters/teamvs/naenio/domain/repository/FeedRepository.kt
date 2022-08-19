@@ -3,6 +3,8 @@ package com.nexters.teamvs.naenio.domain.repository
 import com.nexters.teamvs.naenio.base.BaseRepository
 import com.nexters.teamvs.naenio.data.network.api.FeedApi
 import com.nexters.teamvs.naenio.data.network.dto.CreateRequest
+import com.nexters.teamvs.naenio.data.network.dto.VoteRequest
+import com.nexters.teamvs.naenio.data.network.dto.VoteResponse
 import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toPost
 import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toPostList
 import com.nexters.teamvs.naenio.domain.model.Post
@@ -25,12 +27,12 @@ class FeedRepository @Inject constructor(
     }
 
     suspend fun getThemePosts(
-        theme : String
+        theme: String
     ): List<Post> {
         return feedApi.getThemePosts(theme).posts.toPostList()
     }
 
-    suspend fun getRandomPosts() : Post {
+    suspend fun getRandomPosts(): Post {
         return feedApi.getRandomPost().toPost()
     }
 
@@ -49,5 +51,12 @@ class FeedRepository @Inject constructor(
             )
         )
         return response.toPost()
+    }
+
+    suspend fun vote(
+        postId: Int,
+        choiceId: Int,
+    ) {
+        feedApi.vote(VoteRequest(postId = postId, choiceId = choiceId))
     }
 }

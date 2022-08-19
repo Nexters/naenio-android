@@ -39,3 +39,21 @@ data class AuthorResponse(
     val nickname: String = "",
     val profileImageIndex: Int = 0
 )
+
+@Keep
+@Serializable
+data class VoteRequest(
+    val postId: Int,
+    val choiceId: Int
+)
+
+@Keep
+@Serializable
+data class VoteResponse(
+    val id: Int,
+    val postId: Int,
+    val choiceId: Int,
+    val memberId: Int,
+    val createDateTime: String,
+    val lastModifiedDateTime: String,
+)

@@ -24,4 +24,7 @@ interface FeedApi {
 
     @GET("/app/posts/random")
     suspend fun getRandomPost(): PostResponse
+
+    @GET("/app/votes")
+    suspend fun vote(voteRequest: VoteRequest): VoteResponse
 }
