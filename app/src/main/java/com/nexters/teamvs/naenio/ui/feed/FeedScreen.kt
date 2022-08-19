@@ -358,7 +358,7 @@ fun FeedItem(
                 .padding(horizontal = 20.dp)
         ) {
             ProfileNickName(
-                nickName = post.author?.nickname.orEmpty(),
+                nickName = post.author.nickname,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
