@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,9 +27,8 @@ import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.composables.DialogModel
-import com.nexters.teamvs.naenio.ui.feed.ProfileImageIcon
-import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
+import com.nexters.teamvs.naenio.ui.component.DialogModel
+import com.nexters.teamvs.naenio.ui.feed.composables.ProfileImageIcon
 
 @Composable
 fun ProfileScreen(

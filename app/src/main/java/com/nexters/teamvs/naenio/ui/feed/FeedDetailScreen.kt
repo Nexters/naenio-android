@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -7,8 +8,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -17,8 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
@@ -30,8 +35,7 @@ import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
-import com.nexters.teamvs.naenio.ui.home.ThemeItem
-import com.nexters.teamvs.naenio.ui.home.ThemeItem.Companion.themeList
+import com.nexters.teamvs.naenio.ui.feed.composables.*
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -43,8 +47,10 @@ fun FeedDetailScreen(
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.setType(type)
+    })
     val postItem = viewModel.postItem.collectAsState()
-    viewModel.setType(type)
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
     val themeItem = viewModel.themeItem.collectAsState()
 
@@ -95,6 +101,7 @@ fun FeedDetail(
     titleBar: String?,
     textStyle: TextStyle
 ) {
+    val context = LocalContext.current
     post?.let { post ->
         Column(
             modifier = modifier.fillMaxSize()
@@ -113,10 +120,34 @@ fun FeedDetail(
                         .padding(top = 32.dp),
                     profileImageIndex = post.author.profileImageIndex,
                     isIconVisible = false
-                )
+                ) {
+                    //share
+                    val shareLink = "https://naenio.shop/posts/${post.id}"
+
+                    val type = "text/plain"
+                    val subject = "네니오로 오세요~~~"
+                    val extraText = shareLink
+                    val shareWith = "ShareWith"
+
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.type = type
+                    intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+                    intent.putExtra(Intent.EXTRA_TEXT, extraText)
+
+                    ContextCompat.startActivity(
+                        context,
+                        Intent.createChooser(intent, shareWith),
+                        null
+                    )
+                }
                 VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
                 Spacer(modifier = Modifier.fillMaxHeight(0.044f))
-                VoteGageBar(0.5f, true)
+                VoteBar(
+                    post = post,
+                    onVote = { postId, voteId ->
+
+                    }
+                )
                 Spacer(modifier = Modifier.height(32.dp))
                 CommentLayout(
                     commentCount = post.commentCount,

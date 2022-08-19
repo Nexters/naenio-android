@@ -29,4 +29,7 @@ interface FeedApi {
     suspend fun getPostDetail(
         @Path("id") id: Int,
     ): PostResponse
+
+    @POST("/app/votes")
+    suspend fun vote(@Body voteRequest: VoteRequest): VoteResponse
 }

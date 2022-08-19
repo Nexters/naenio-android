@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio.ui.composables
+package com.nexters.teamvs.naenio.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -249,6 +249,9 @@ fun CommentEditText(
             colors = TextFieldDefaults.textFieldColors(
                 textColor = Color.White,
                 backgroundColor = Color(0xff4F5564),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
             ),
             value = input,
             shape = RoundedCornerShape(3.dp),

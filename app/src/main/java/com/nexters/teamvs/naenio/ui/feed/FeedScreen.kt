@@ -1,6 +1,6 @@
 package com.nexters.teamvs.naenio.ui.feed
 
-import android.net.Uri
+import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -21,7 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.LottieComposition
@@ -29,42 +29,37 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.VerticalPager
-import com.google.firebase.dynamiclinks.ktx.dynamicLinks
-import com.google.firebase.ktx.Firebase
+import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.R
-import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.domain.model.Post
-import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
-import com.nexters.teamvs.naenio.ui.composables.Toast
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.feed.composables.*
 import com.nexters.teamvs.naenio.ui.home.ThemeItem
-import com.nexters.teamvs.naenio.ui.home.ThemeItem.Companion.themeList
-import com.nexters.teamvs.naenio.ui.model.UiState
-import com.nexters.teamvs.naenio.ui.profile.DeveloperItem
-import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
+    modifier: Modifier = Modifier,
     type: String = "feed",
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier,
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
-    viewModel.setType(type)
-    val posts = viewModel.posts.collectAsState()
+//    viewModel.setType(type) // TODO 수정
     val themeItem = viewModel.themeItem.collectAsState()
-    val feedButtonItem = viewModel.feedButtonItem.collectAsState()
 
     var contentId: Int? = null
 
@@ -77,63 +72,21 @@ fun FeedScreen(
         }
     }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scaffoldState = rememberScaffoldState(snackbarHostState = snackbarHostState)
-    val scope = rememberCoroutineScope()
-
-    BackHandler {
-        if (modalBottomSheetState.isVisible) {
-            closeSheet.invoke()
-        } else {
-            navController.popBackStack()
-        }
-    }
-
-    LaunchedEffect(key1 = Unit, block = {
-        viewModel.uiState.collect {
-            Log.d("### FeedScreen", "$it")
-            when (it) {
-                is UiState.Error -> {
-                    snackbarHostState.showSnackbar(it.exception.errorMessage())
-                }
-                UiState.Idle -> {
-
-                }
-                UiState.Loading -> {
-
-                }
-                UiState.Success -> {
-                    snackbarHostState.showSnackbar("Success")
-                }
-            }
-        }
-    })
-
-    Scaffold(
-        modifier = modifier,
-        scaffoldState = scaffoldState,
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState) {
-                Toast(message = it.message)
-            }
-        }
-    ) { paddingValue ->
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
         if (type == "feed") {
-            setFeedLayout(
+            FeedScreenContent(
                 navController = navController,
-                paddingValue = paddingValue,
-                posts = posts,
-                feedButton = feedButtonItem,
                 openSheet = openSheet,
                 composition = composition,
                 viewModel = viewModel
             )
         } else {
-            setThemeDetailLayout(
+            ThemeDetailLayout(
                 themeItem = themeItem.value,
                 navController = navController,
-                paddingValue = paddingValue,
-                posts = posts,
+//                posts = posts, 테마 뷰모델 따로 만들어야 할듯?
                 openSheet = openSheet,
                 composition = composition
             )
@@ -141,19 +94,20 @@ fun FeedScreen(
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun setThemeDetailLayout(
+fun ThemeDetailLayout(
     themeItem: ThemeItem,
     navController: NavHostController,
-    paddingValue: PaddingValues,
-    posts: State<List<Post>>,
+    posts: List<Post> = emptyList(), //임시로 설정
     openSheet: (BottomSheetType) -> Unit,
     composition: LottieComposition?
 ) {
+    val pagerState = rememberPagerState(initialPage = 0)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValue)
             .background(
                 Brush.verticalGradient(themeItem.backgroundColorList)
             )
@@ -168,9 +122,13 @@ fun setThemeDetailLayout(
         Box {
             FeedPager(
                 modifier = Modifier,
-                posts = posts.value,
+                posts = posts,
+                pagerState = pagerState,
                 openSheet = openSheet,
-                navController = navController
+                navController = navController,
+                onVote = { postId, choiceId ->
+//                    viewModel.vote(postId = postId, choiceId = choiceId)
+                },
             )
             LottieAnimation(
                 composition,
@@ -181,127 +139,154 @@ fun setThemeDetailLayout(
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun setFeedLayout(
+fun FeedScreenContent(
     navController: NavHostController,
-    paddingValue: PaddingValues,
-    feedButton: State<List<FeedButtonItem>>,
-    posts: State<List<Post>>,
     openSheet: (BottomSheetType) -> Unit,
     composition: LottieComposition?,
     viewModel: FeedViewModel
 ) {
-    var emptyMessage = ""
+    /**
+     * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
+     * 테마에서는 아래 상태들을 알 필요가 없음.
+     */
+    val feedTabItems = viewModel.feedTabItems.collectAsState()
+    val selectedTab = viewModel.selectedTab.collectAsState()
+    val posts = viewModel.posts.collectAsState()
+    val isEmptyFeed = posts.value != null && posts.value?.isEmpty() == true
+
+    val pagerState = rememberPagerState(initialPage = 0)
+
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.event.collect {
+            when (it) {
+                FeedEvent.ScrollToTop -> {
+                    pagerState.scrollToPage(0)
+                }
+            }
+        }
+    })
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValue)
             .background(MyColors.screenBackgroundColor)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Text(
-                modifier = Modifier.padding(top = 19.dp, start = 20.dp),
-                text = stringResource(id = R.string.bottom_item_feed),
-                style = Font.montserratSemiBold24,
-                color = Color.White
+            FeedTopBar(text = stringResource(id = R.string.bottom_item_feed))
+
+            FeedTabRow(
+                feedTabItems = feedTabItems.value,
+                selectedTab = selectedTab.value,
+                onSelectTab = {
+                    viewModel.selectTab(it)
+                }
             )
-            LazyRow(
-                modifier = Modifier.padding(top = 10.dp, start = 10.dp)
-            ) {
-                items(feedButton.value) { button ->
-                    var backgroundColor = MyColors.blue_3979F2
-                    Log.d("#### feedScreen", button.isSelected.toString())
-                    if (button.isSelected) {
-                        Log.d("#### feedScreen", button.title)
-                        emptyMessage = button.emptyMessage
-                        backgroundColor = MyColors.pink
-                        viewModel.getFeedPosts(button.type)
-                    }
-                    Row(
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                            .background(backgroundColor, shape = RoundedCornerShape(50.dp))
-                            .padding(horizontal = 14.dp, vertical = 10.dp)
-                            .clickable {
-                                Log.d("#### feedScreen", "click!" + button.title)
-                                feedButton.value.forEach {
-                                    it.isSelected = false
-                                }
-                                button.isSelected = true
-                                emptyMessage = button.title
-                                viewModel.getFeedPosts(button.type)
-                            },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        var textModifier = Modifier
-                        if (button.image != null) {
-                            textModifier.padding(start = 4.dp)
-                            Image(
-                                painter = painterResource(id = button.image),
-                                contentDescription = button.title
-                            )
-                        } else {
-                            textModifier.padding(start = 0.dp)
-                        }
-                        Text(
-                            modifier = textModifier,
-                            text = button.title,
-                            style = Font.pretendardSemiBold14,
-                            color = Color.White
-                        )
-                    }
-                }
-            }
-            if (posts.value.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painterResource(id = R.drawable.icon_empty),
-                        contentDescription = "icon_empty"
-                    )
-                    Text(
-                        modifier = Modifier.padding(top = 14.dp),
-                        text = emptyMessage,
-                        style = Font.pretendardMedium18,
-                        color = MyColors.darkGrey_828282
-                    )
-                }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if (isEmptyFeed) {
+                FeedEmptyLayout()
             } else {
-                Box {
-                    FeedPager(
-                        modifier = Modifier,
-                        posts = posts.value,
-                        openSheet = openSheet,
-                        navController = navController
-                    )
-                    LottieAnimation(
-                        composition,
-                        modifier = Modifier.wrapContentSize(),
-                        iterations = Int.MAX_VALUE
-                    )
-                }
+                FeedPager(
+                    modifier = Modifier,
+                    pagerState = pagerState,
+                    posts = posts.value ?: emptyList(),
+                    openSheet = openSheet,
+                    onVote = { postId, choiceId ->
+                        viewModel.vote(postId = postId, choiceId = choiceId)
+                    },
+                    navController = navController
+                )
             }
         }
-        IconButton(
-            onClick = {
-                navController.navigate(Route.Create)
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_floating),
-                tint = Color.Unspecified,
-                contentDescription = "floating"
+        FeedCreateFloatingButton(modifier = Modifier.align(Alignment.BottomEnd)) {
+            navController.navigate(Route.Create)
+        }
+    }
+}
+
+@Composable
+fun FeedCreateFloatingButton(
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+            .padding(16.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_floating),
+            tint = Color.Unspecified,
+            contentDescription = "floating"
+        )
+    }
+}
+
+@Composable
+fun FeedTopBar(text: String) {
+    Text(
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .padding(top = 20.dp, bottom = 10.dp),
+        text = text,
+        style = Font.montserratSemiBold24,
+        color = Color.White
+    )
+}
+
+@Composable
+fun FeedTabRow(
+    feedTabItems: List<FeedTabItemModel>,
+    selectedTab: FeedTabItemModel,
+    onSelectTab: (FeedTabItemModel) -> Unit,
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        items(feedTabItems) {
+            FeedTabItem(
+                feedTabItemModel = it,
+                selectedTab = selectedTab,
+                onClick = onSelectTab
             )
         }
+    }
+}
+
+@Composable
+fun FeedTabItem(
+    feedTabItemModel: FeedTabItemModel,
+    selectedTab: FeedTabItemModel,
+    onClick: (FeedTabItemModel) -> Unit,
+) {
+    val isSelected = feedTabItemModel == selectedTab
+    Row(
+        modifier = Modifier
+            .background(
+                color = if (isSelected) MyColors.pink else MyColors.blue_3979F2,
+                shape = RoundedCornerShape(50.dp)
+            )
+            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .noRippleClickable {
+                onClick.invoke(feedTabItemModel)
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (feedTabItemModel.image != null) {
+            Image(painter = painterResource(id = feedTabItemModel.image), contentDescription = "")
+            Spacer(modifier = Modifier.width(4.dp))
+        }
+        Text(
+            text = feedTabItemModel.title,
+            style = Font.pretendardSemiBold14,
+            color = Color.White
+        )
     }
 }
 
@@ -329,24 +314,28 @@ fun FeedScreenBox() {
 fun FeedPager(
     modifier: Modifier,
     posts: List<Post>,
+    pagerState: PagerState,
     openSheet: (BottomSheetType) -> Unit,
+    onVote: (Int, Int) -> Unit,
     navController: NavHostController
 ) {
     VerticalPager(
+        state = pagerState,
         count = posts.size,
+        itemSpacing = 20.dp,
         contentPadding = PaddingValues(bottom = 100.dp),
         modifier = modifier
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxSize(),
     ) { page ->
         Box(
-            Modifier.padding(top = 20.dp)
         ) {
             FeedItem(
                 page = page,
                 post = posts[page],
+                navController = navController,
+                onVote = onVote,
                 openSheet = openSheet,
-                navController = navController
             )
         }
     }
@@ -357,8 +346,9 @@ fun FeedPager(
 fun FeedItem(
     page: Int,
     post: Post,
+    navController: NavHostController,
+    onVote: (Int, Int) -> Unit,
     openSheet: (BottomSheetType) -> Unit,
-    navController: NavHostController
 ) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
@@ -367,6 +357,7 @@ fun FeedItem(
             delay(10)
         }
     })
+    val context = LocalContext.current
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -385,15 +376,37 @@ fun FeedItem(
                 .padding(horizontal = 20.dp)
         ) {
             ProfileNickName(
-                nickName = post.author?.nickname.orEmpty(),
+                nickName = post.author.nickname,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(vertical = 24.dp),
-                isIconVisible = true
-            )
+                isIconVisible = true,
+            ) {
+                //share
+                val shareLink = "https://naenio.shop/posts/${post.id}"
+
+                val type = "text/plain"
+                val subject = "네니오로 오세요~~~"
+                val extraText = shareLink
+                val shareWith = "ShareWith"
+
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.type = type
+                intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+                intent.putExtra(Intent.EXTRA_TEXT, extraText)
+
+                ContextCompat.startActivity(
+                    context,
+                    Intent.createChooser(intent, shareWith),
+                    null
+                )
+            }
             VoteContent(post, Modifier, 2)
-            VoteGageBar(gage, true)
+            VoteBar(
+                post = post,
+                onVote = onVote
+            )
         }
         Spacer(modifier = Modifier.weight(1f))
         CommentLayout(
@@ -426,6 +439,26 @@ fun FeedItem(
                         )
                     )
                 }
+        )
+    }
+}
+
+@Composable
+fun FeedEmptyLayout() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painterResource(id = R.drawable.icon_empty),
+            contentDescription = "icon_empty"
+        )
+        Text(
+            modifier = Modifier.padding(top = 14.dp),
+            text = stringResource(id = R.string.feed_empty),
+            style = Font.pretendardMedium18,
+            color = MyColors.darkGrey_828282
         )
     }
 }

@@ -6,9 +6,9 @@ import android.content.ContextWrapper
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
@@ -57,9 +57,8 @@ fun Exception.errorMessage(): String {
 }
 
 
-@Composable
-inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier {
-    return clickable(
+inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier = composed {
+    clickable(
         indication = null,
         interactionSource = remember { MutableInteractionSource() }
     ) {

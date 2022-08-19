@@ -17,7 +17,7 @@ import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.RootNavigationGraph
 import com.nexters.teamvs.naenio.theme.NaenioTheme
-import com.nexters.teamvs.naenio.ui.composables.*
+import com.nexters.teamvs.naenio.ui.component.*
 import com.nexters.teamvs.naenio.utils.KeyboardUtils
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import dagger.hilt.android.AndroidEntryPoint

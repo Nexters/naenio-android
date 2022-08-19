@@ -23,14 +23,14 @@ import com.nexters.teamvs.naenio.BuildConfig
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.feed.ProfileNickName
-import com.nexters.teamvs.naenio.ui.feed.TopBar
-import com.nexters.teamvs.naenio.ui.feed.contentEmptyLayout
+import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
+import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
+import com.nexters.teamvs.naenio.ui.feed.composables.contentEmptyLayout
 
 @Composable
-fun ProfileDetailScreen(profileType : String = "", navController: NavHostController) {
+fun ProfileDetailScreen(profileType: String = "", navController: NavHostController) {
     var title = ""
-    when(profileType) {
+    when (profileType) {
         ProfileType.MY_COMMENT -> title = "작성한 댓글"
         ProfileType.DEVELOPER -> title = "개발자 정보"
         ProfileType.VERSION -> title = "버전 정보"
@@ -45,12 +45,13 @@ fun ProfileDetailScreen(profileType : String = "", navController: NavHostControl
             modifier = Modifier,
             barTitle = title,
             navController = navController,
-            isMoreBtnVisible = false)
+            isMoreBtnVisible = false
+        )
         if (profileType.contains(ProfileType.NOTICE_DETAIL)) {
-            val noticeId = profileType.replace(ProfileType.NOTICE_DETAIL+"=", "").toInt()
+            val noticeId = profileType.replace(ProfileType.NOTICE_DETAIL + "=", "").toInt()
             NoticeDetailLayout(noticeId = noticeId)
         }
-        when(profileType) {
+        when (profileType) {
             ProfileType.MY_COMMENT -> {
                 MyCommentLayout()
             }
@@ -68,8 +69,8 @@ fun ProfileDetailScreen(profileType : String = "", navController: NavHostControl
 }
 
 @Composable
-fun NoticeDetailLayout(noticeId : Int) {
-    val item = NoticeItem.noticeList[noticeId-1]
+fun NoticeDetailLayout(noticeId: Int) {
+    val item = NoticeItem.noticeList[noticeId - 1]
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -105,9 +106,10 @@ fun NoticeLayout(navController: NavHostController) {
     if (NoticeItem.noticeList.isEmpty()) {
         contentEmptyLayout(stringId = R.string.notice_empty)
     } else {
-        LazyColumn (
+        LazyColumn(
             modifier = Modifier.padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)){
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             items(NoticeItem.noticeList) { item ->
                 Row(
                     modifier = Modifier
@@ -150,8 +152,9 @@ fun MyCommentLayout() {
     if (MyCommentItem.myCommentList.isEmpty()) {
         contentEmptyLayout(R.string.my_comment_empty)
     } else {
-        LazyColumn (
-            verticalArrangement = Arrangement.spacedBy(20.dp)){
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
             items(MyCommentItem.myCommentList) { item ->
                 Column(
                     modifier = Modifier
@@ -166,7 +169,10 @@ fun MyCommentLayout() {
                             .fillMaxWidth()
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp),
-                        isIconVisible = true)
+                        isIconVisible = true
+                    ) {
+
+                    }
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -252,5 +258,8 @@ fun DeveloperLayout() {
 @Composable
 @Preview
 fun ProfileDetail() {
-    ProfileDetailScreen(navController = NavHostController(LocalContext.current), profileType = ProfileType.NOTICE_DETAIL + "/4")
+    ProfileDetailScreen(
+        navController = NavHostController(LocalContext.current),
+        profileType = ProfileType.NOTICE_DETAIL + "/4"
+    )
 }
