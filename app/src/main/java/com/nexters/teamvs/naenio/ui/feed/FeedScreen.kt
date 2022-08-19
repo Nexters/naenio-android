@@ -54,9 +54,6 @@ fun FeedScreen(
 
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
 //    viewModel.setType(type) // TODO 수정
-
-    val posts = viewModel.posts.collectAsState()
-
     val themeItem = viewModel.themeItem.collectAsState()
 
     BackHandler {
@@ -73,7 +70,6 @@ fun FeedScreen(
         if (type == "feed") {
             FeedScreenContent(
                 navController = navController,
-                posts = posts,
                 openSheet = openSheet,
                 composition = composition,
                 viewModel = viewModel
@@ -82,7 +78,7 @@ fun FeedScreen(
             ThemeDetailLayout(
                 themeItem = themeItem.value,
                 navController = navController,
-                posts = posts,
+//                posts = posts, 테마 뷰모델 따로 만들어야 할듯?
                 openSheet = openSheet,
                 composition = composition
             )
@@ -94,7 +90,7 @@ fun FeedScreen(
 fun ThemeDetailLayout(
     themeItem: ThemeItem,
     navController: NavHostController,
-    posts: State<List<Post>>,
+    posts: List<Post> = emptyList(), //임시로 설정
     openSheet: (BottomSheetType) -> Unit,
     composition: LottieComposition?
 ) {
@@ -114,7 +110,7 @@ fun ThemeDetailLayout(
         Box {
             FeedPager(
                 modifier = Modifier,
-                posts = posts.value,
+                posts = posts,
                 openSheet = openSheet,
                 navController = navController
             )
@@ -130,19 +126,18 @@ fun ThemeDetailLayout(
 @Composable
 fun FeedScreenContent(
     navController: NavHostController,
-    posts: State<List<Post>>,
     openSheet: (BottomSheetType) -> Unit,
     composition: LottieComposition?,
     viewModel: FeedViewModel
 ) {
     /**
      * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
-     * 테마에서는 이 상태를 알 필요가 없음.
+     * 테마에서는 아래 상태들을 알 필요가 없음.
      */
     val feedTabItems = viewModel.feedTabItems.collectAsState()
     val selectedTab = viewModel.selectedTab.collectAsState()
-
-    val isEmptyFeed = posts.value.isEmpty()
+    val posts = viewModel.posts.collectAsState()
+    val isEmptyFeed = posts.value != null && posts.value?.isEmpty() == true
 
     Box(
         modifier = Modifier
@@ -168,7 +163,7 @@ fun FeedScreenContent(
             } else {
                 FeedPager(
                     modifier = Modifier,
-                    posts = posts.value,
+                    posts = posts.value ?: emptyList(),
                     openSheet = openSheet,
                     navController = navController
                 )

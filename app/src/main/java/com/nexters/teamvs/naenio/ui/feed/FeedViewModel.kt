@@ -20,7 +20,7 @@ class FeedViewModel @Inject constructor(
     private val feedRepository: FeedRepository,
 ) : BaseViewModel() {
 
-    private val _posts = MutableStateFlow<List<Post>>(emptyList())
+    private val _posts = MutableStateFlow<List<Post>?>(null)
     val posts = _posts.asStateFlow()
 
     private val _themeItem = MutableStateFlow<ThemeItem>(ThemeItem())
@@ -41,15 +41,16 @@ class FeedViewModel @Inject constructor(
     val uiState = MutableSharedFlow<UiState>()
 
     init {
+        getFeedPosts(selectedTab.value.type)
     }
 
-    fun setType(type : String) {
+    fun setType(type: String) {
 //        if (type == "feed") {
 //            _feedTabItems.value = FeedTabItem.feedButtonList
 //        }
         if (type.contains("feedDetail")) {
-            val itemIndex = type.replace("feedDetail=","").toInt()
-            _postItem.value = _posts.value[itemIndex]
+            val itemIndex = type.replace("feedDetail=", "").toInt()
+//            _postItem.value = _posts.value[itemIndex]
         }
         if (type.contains("theme") ){
             setThemeItem(type, "theme=")
@@ -100,26 +101,19 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    fun getFeedPosts(sortType : String) {
+    fun getFeedPosts(feedTabItemType: FeedTabItemType) {
         viewModelScope.launch {
             try {
-                uiState.emit(UiState.Loading)
-                val sortTypes = if (sortType == "ALL") {
-                    null
-                } else {
-                    sortType
-                }
+                GlobalUiEvent.showLoading()
                 _posts.value = feedRepository.getFeedPosts(
                     pageSize = 10,
                     lastPostId = null,
-                    sortType = sortTypes
+                    sortType = feedTabItemType.text
                 )
-                uiState.emit(UiState.Success)
             } catch (e: Exception) {
-                e.printStackTrace()
-                uiState.emit(UiState.Error(e))
+                GlobalUiEvent.showToast(e.errorMessage())
             } finally {
-//                uiState.emit(UiState.Success)
+                GlobalUiEvent.hideLoading()
             }
         }
     }

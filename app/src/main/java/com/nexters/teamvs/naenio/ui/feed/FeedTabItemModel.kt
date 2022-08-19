@@ -8,6 +8,6 @@ data class FeedTabItemModel(
     val type : FeedTabItemType
 )
 
-enum class FeedTabItemType(val text: String) {
-    All("ALL"), MyPost("MY_POST"), MyVote("VOTED_BY_ME")
+enum class FeedTabItemType(val text: String?) {
+    All(null), MyPost("MY_POST"), MyVote("VOTED_BY_ME")
 }
