@@ -1,15 +1,11 @@
 package com.nexters.teamvs.naenio.ui.feed
 
-import android.widget.Space
-import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,20 +22,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold12
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold14
-import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold16
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.NaenioTypography
 
 @Composable
-fun VoteGageBar(gage : Float, isCountVisible : Boolean) {
+fun VoteGageBar(gage: Float, isCountVisible: Boolean) {
     val gageBarModifier = Modifier
         .fillMaxWidth()
         .height(72.dp)
@@ -51,7 +44,7 @@ fun VoteGageBar(gage : Float, isCountVisible : Boolean) {
     gageBarModifier.onGloballyPositioned { layoutCoordinates ->
         fillGageBarWidth = layoutCoordinates.size.width
     }
-    val gageBarColorList =  listOf(
+    val gageBarColorList = listOf(
         MyColors.purple_d669ff,
         MyColors.blue_5862ff,
         MyColors.blue_0bb9ff
@@ -87,7 +80,8 @@ fun VoteGageBar(gage : Float, isCountVisible : Boolean) {
         Image(
             painter = painterResource(id = R.drawable.ic_vs),
             contentDescription = "ic_vs",
-            modifier = Modifier.padding(vertical = 6.dp))
+            modifier = Modifier.padding(vertical = 6.dp)
+        )
     }
 }
 
@@ -102,7 +96,10 @@ fun GageBar(
 ) {
     Box(
         modifier = modifier
-            .border(border = BorderStroke(1.dp, foregroundColor), shape = RoundedCornerShape(16.dp)) // 사용자가 선택할 경우
+            .border(
+                border = BorderStroke(1.dp, foregroundColor),
+                shape = RoundedCornerShape(16.dp)
+            ) // 사용자가 선택할 경우
     ) {
         Box(
             modifier = gageModifier
@@ -112,10 +109,11 @@ fun GageBar(
                 )
                 .width(width = fillGageWidth * percent)
         )
-        Row(modifier = Modifier
-            .wrapContentSize()
-            .align(Alignment.Center)
-            .padding(horizontal = 14.dp),
+        Row(
+            modifier = Modifier
+                .wrapContentSize()
+                .align(Alignment.Center)
+                .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -162,7 +160,7 @@ fun VoteLaout() {
 }
 
 @Composable
-fun VoteContent(post : Post? = null, modifier: Modifier, maxLine : Int) {
+fun VoteContent(post: Post? = null, modifier: Modifier, maxLine: Int) {
     post?.let { post ->
         Row(
             modifier = modifier
@@ -231,9 +229,9 @@ fun CommentLayout(commentCount: Int = 0, modifier: Modifier) {
 @Composable
 fun ProfileNickName(
     modifier: Modifier,
-    isIconVisible : Boolean,
-    nickName : String = "",
-    profileImageIndex : Int = 0
+    isIconVisible: Boolean,
+    nickName: String = "",
+    profileImageIndex: Int = 0
 ) {
     Row(
         modifier = modifier,
@@ -244,7 +242,8 @@ fun ProfileNickName(
             text = nickName,
             color = Color.White,
             style = Font.pretendardMedium16,
-            modifier = Modifier.wrapContentWidth()
+            modifier = Modifier
+                .wrapContentWidth()
                 .padding(start = 6.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -258,7 +257,7 @@ fun ProfileNickName(
 }
 
 @Composable
-fun ProfileImageIcon(index : Int = 0, size : Dp, padding : Dp = 0.dp) {
+fun ProfileImageIcon(index: Int = 0, size: Dp, padding: Dp = 0.dp) {
     //TODO 프로필 이미지 타입 정의
     // index 별로 프로필 이미지 지정하기!
     Icon(
@@ -273,14 +272,17 @@ fun ProfileImageIcon(index : Int = 0, size : Dp, padding : Dp = 0.dp) {
 }
 
 @Composable
-fun TopBar(modifier: Modifier,
-           barTitle: String,
-           navController: NavHostController,
-           isMoreBtnVisible : Boolean = true) {
-    Row(modifier = modifier
-        .padding(horizontal = 24.dp)
-        .fillMaxWidth()
-        .padding(top = 24.dp),
+fun TopBar(
+    modifier: Modifier,
+    barTitle: String,
+    navController: NavHostController,
+    isMoreBtnVisible: Boolean = true
+) {
+    Row(
+        modifier = modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth()
+            .padding(top = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -299,11 +301,13 @@ fun TopBar(modifier: Modifier,
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        val iconVisible = if(isMoreBtnVisible) 1f else 0f
+        val iconVisible = if (isMoreBtnVisible) 1f else 0f
         Image(
-            modifier = Modifier.clickable {
+            modifier = Modifier
+                .clickable {
 
-            }.alpha(iconVisible),
+                }
+                .alpha(iconVisible),
             painter = painterResource(R.drawable.ic_feed_more),
             contentDescription = "icon_feed_more"
         )
@@ -311,7 +315,7 @@ fun TopBar(modifier: Modifier,
 }
 
 @Composable
-fun contentEmptyLayout(@StringRes stringId : Int) {
+fun contentEmptyLayout(@StringRes stringId: Int) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -319,7 +323,8 @@ fun contentEmptyLayout(@StringRes stringId : Int) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.icon_empty),
-            contentDescription = "icon_empty")
+            contentDescription = "icon_empty"
+        )
         Text(
             modifier = Modifier.padding(top = 14.dp),
             text = stringResource(id = stringId),
