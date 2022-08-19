@@ -179,6 +179,7 @@ fun FeedScreenContent(
                     viewModel.selectTab(it)
                 }
             )
+            Spacer(modifier = Modifier.height(20.dp))
 
             if (isEmptyFeed) {
                 FeedEmptyLayout()
@@ -310,13 +311,13 @@ fun FeedPager(
     VerticalPager(
         state = pagerState,
         count = posts.size,
+        itemSpacing = 20.dp,
         contentPadding = PaddingValues(bottom = 100.dp),
         modifier = modifier
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxSize(),
     ) { page ->
         Box(
-            Modifier.padding(top = 20.dp)
         ) {
             FeedItem(
                 page = page,
@@ -369,7 +370,7 @@ fun FeedItem(
                 isIconVisible = true
             )
             VoteContent(post, Modifier, 2)
-            VoteGageBar(gage, true)
+            VoteBar(post)
         }
         Spacer(modifier = Modifier.weight(1f))
         CommentLayout(
