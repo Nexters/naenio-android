@@ -2,6 +2,7 @@ package com.nexters.teamvs.naenio.ui.feed
 
 import android.widget.Space
 import androidx.activity.compose.BackHandler
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -37,29 +38,25 @@ import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold14
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold16
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.NaenioTypography
+import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
 
 @Composable
-fun VoteGageBar(gage : Float, isCountVisible : Boolean) {
+fun VoteGageBar(gage: Float, isCountVisible: Boolean) {
     val gageBarModifier = Modifier
         .fillMaxWidth()
         .height(72.dp)
         .background(color = Color.Black, shape = RoundedCornerShape(16.dp))
 
-    val fillGageBarModifier = Modifier
-        .height(72.dp)
+    val fillGageBarModifier = Modifier.height(72.dp)
     var fillGageBarWidth = 200
     gageBarModifier.onGloballyPositioned { layoutCoordinates ->
         fillGageBarWidth = layoutCoordinates.size.width
     }
-    val gageBarColorList =  listOf(
-        MyColors.purple_d669ff,
-        MyColors.blue_5862ff,
-        MyColors.blue_0bb9ff
+    val gageBarColorList = listOf(
+        MyColors.purple_d669ff, MyColors.blue_5862ff, MyColors.blue_0bb9ff
     )
     Box(
-        modifier = Modifier
-            .wrapContentHeight(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.wrapContentHeight(), contentAlignment = Alignment.Center
     ) {
         Column {
             GageBar(
@@ -87,7 +84,8 @@ fun VoteGageBar(gage : Float, isCountVisible : Boolean) {
         Image(
             painter = painterResource(id = R.drawable.ic_vs),
             contentDescription = "ic_vs",
-            modifier = Modifier.padding(vertical = 6.dp))
+            modifier = Modifier.padding(vertical = 6.dp)
+        )
     }
 }
 
@@ -101,8 +99,9 @@ fun GageBar(
     isCountVisible: Boolean
 ) {
     Box(
-        modifier = modifier
-            .border(border = BorderStroke(1.dp, foregroundColor), shape = RoundedCornerShape(16.dp)) // 사용자가 선택할 경우
+        modifier = modifier.border(
+            border = BorderStroke(1.dp, foregroundColor), shape = RoundedCornerShape(16.dp)
+        ) // 사용자가 선택할 경우
     ) {
         Box(
             modifier = gageModifier
@@ -112,16 +111,14 @@ fun GageBar(
                 )
                 .width(width = fillGageWidth * percent)
         )
-        Row(modifier = Modifier
-            .wrapContentSize()
-            .align(Alignment.Center)
-            .padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier
+                .wrapContentSize()
+                .align(Alignment.Center)
+                .padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "A.",
-                color = Color.White,
-                style = NaenioTypography.h4
+                text = "A.", color = Color.White, style = NaenioTypography.h4
             )
             Text(
                 modifier = Modifier
@@ -139,15 +136,11 @@ fun GageBar(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        modifier = Modifier.padding(bottom = 4.dp),
-                        text = "70%", // "$percent%",
-                        color = Color.White,
-                        style = montserratSemiBold14
+                        modifier = Modifier.padding(bottom = 4.dp), text = "70%", // "$percent%",
+                        color = Color.White, style = montserratSemiBold14
                     )
                     Text(
-                        text = "70" + "명",
-                        color = MyColors.grey979797,
-                        style = montserratSemiBold12
+                        text = "70" + "명", color = MyColors.grey979797, style = montserratSemiBold12
                     )
                 }
             }
@@ -162,14 +155,13 @@ fun VoteLaout() {
 }
 
 @Composable
-fun VoteContent(post : Post? = null, modifier: Modifier, maxLine : Int) {
+fun VoteContent(post: Post? = null, modifier: Modifier, maxLine: Int) {
     post?.let { post ->
         Row(
             modifier = modifier
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_gift),
-                contentDescription = "ic_gift"
+                painter = painterResource(id = R.drawable.ic_gift), contentDescription = "ic_gift"
             )
             Text(
                 text = post.choices.size.toString(),
@@ -178,9 +170,7 @@ fun VoteContent(post : Post? = null, modifier: Modifier, maxLine : Int) {
                 modifier = Modifier.padding(start = 4.dp)
             )
             Text(
-                text = "명 투표",
-                color = Color.White,
-                style = Font.body2
+                text = "명 투표", color = Color.White, style = Font.body2
             )
         }
         Text(
@@ -206,8 +196,7 @@ fun VoteContent(post : Post? = null, modifier: Modifier, maxLine : Int) {
 @Composable
 fun CommentLayout(commentCount: Int = 0, modifier: Modifier) {
     Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_comment_icon),
@@ -230,21 +219,18 @@ fun CommentLayout(commentCount: Int = 0, modifier: Modifier) {
 
 @Composable
 fun ProfileNickName(
-    modifier: Modifier,
-    isIconVisible : Boolean,
-    nickName : String = "",
-    profileImageIndex : Int = 0
+    modifier: Modifier, isIconVisible: Boolean, nickName: String = "", profileImageIndex: Int = 0
 ) {
     Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
         ProfileImageIcon(index = profileImageIndex, size = 24.dp, padding = 2.dp)
         Text(
             text = nickName,
             color = Color.White,
             style = Font.pretendardMedium16,
-            modifier = Modifier.wrapContentWidth()
+            modifier = Modifier
+                .wrapContentWidth()
                 .padding(start = 6.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -258,29 +244,29 @@ fun ProfileNickName(
 }
 
 @Composable
-fun ProfileImageIcon(index : Int = 0, size : Dp, padding : Dp = 0.dp) {
-    //TODO 프로필 이미지 타입 정의
-    // index 별로 프로필 이미지 지정하기!
-    Icon(
+fun ProfileImageIcon(index: Int = 0, size: Dp, padding: Dp = 0.dp) {
+    Image(
+        painter = painterResource(id = Profile.images[index].image),
+        contentDescription = "profile-img",
         modifier = Modifier
             .size(size)
-            .clip(CircleShape)
-            .padding(padding),
-        tint = MyColors.mint_83d8c8,
-        painter = painterResource(id = R.drawable.ic_launcher_background),
-        contentDescription = "profileThumbnail"
+            .background(MyColors.mint_83d8c8, shape = CircleShape)
+            .padding(padding)
     )
 }
 
 @Composable
-fun TopBar(modifier: Modifier,
-           barTitle: String,
-           navController: NavHostController,
-           isMoreBtnVisible : Boolean = true) {
-    Row(modifier = modifier
-        .padding(horizontal = 24.dp)
-        .fillMaxWidth()
-        .padding(top = 24.dp),
+fun TopBar(
+    modifier: Modifier,
+    barTitle: String,
+    navController: NavHostController,
+    isMoreBtnVisible: Boolean = true
+) {
+    Row(
+        modifier = modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth()
+            .padding(top = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -293,33 +279,31 @@ fun TopBar(modifier: Modifier,
         Spacer(modifier = Modifier.weight(1f))
         if (barTitle != "") {
             Text(
-                text = barTitle,
-                style = Font.pretendardSemiBold16,
-                color = Color.White
+                text = barTitle, style = Font.pretendardSemiBold16, color = Color.White
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        val iconVisible = if(isMoreBtnVisible) 1f else 0f
-        Image(
-            modifier = Modifier.clickable {
+        val iconVisible = if (isMoreBtnVisible) 1f else 0f
+        Image(modifier = Modifier
+            .clickable {
 
-            }.alpha(iconVisible),
+            }
+            .alpha(iconVisible),
             painter = painterResource(R.drawable.ic_feed_more),
-            contentDescription = "icon_feed_more"
-        )
+            contentDescription = "icon_feed_more")
     }
 }
 
 @Composable
-fun contentEmptyLayout(@StringRes stringId : Int) {
+fun contentEmptyLayout(@StringRes stringId: Int) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.icon_empty),
-            contentDescription = "icon_empty")
+            painter = painterResource(id = R.drawable.icon_empty), contentDescription = "icon_empty"
+        )
         Text(
             modifier = Modifier.padding(top = 14.dp),
             text = stringResource(id = stringId),
