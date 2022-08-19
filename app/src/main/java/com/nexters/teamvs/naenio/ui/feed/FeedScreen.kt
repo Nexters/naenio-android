@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -15,10 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.LottieComposition
@@ -354,6 +357,7 @@ fun FeedItem(
             delay(10)
         }
     })
+    val context = LocalContext.current
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -377,8 +381,27 @@ fun FeedItem(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(vertical = 24.dp),
-                isIconVisible = true
-            )
+                isIconVisible = true,
+            ) {
+                //share
+                val shareLink = "https://naenio.shop/posts/${post.id}"
+
+                val type = "text/plain"
+                val subject = "네니오로 오세요~~~"
+                val extraText = shareLink
+                val shareWith = "ShareWith"
+
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.type = type
+                intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+                intent.putExtra(Intent.EXTRA_TEXT, extraText)
+
+                ContextCompat.startActivity(
+                    context,
+                    Intent.createChooser(intent, shareWith),
+                    null
+                )
+            }
             VoteContent(post, Modifier, 2)
             VoteBar(
                 post = post,

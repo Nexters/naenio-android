@@ -86,7 +86,11 @@ fun CommentLayout(commentCount: Int = 0, modifier: Modifier) {
 
 @Composable
 fun ProfileNickName(
-    modifier: Modifier, isIconVisible: Boolean, nickName: String = "", profileImageIndex: Int = 0
+    modifier: Modifier,
+    isIconVisible: Boolean,
+    nickName: String = "",
+    profileImageIndex: Int = 0,
+    onMore: () -> Unit,
 ) {
     Row(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
@@ -103,6 +107,9 @@ fun ProfileNickName(
         Spacer(modifier = Modifier.weight(1f))
         if (isIconVisible) {
             Image(
+                modifier = Modifier.wrapContentSize().clickable {
+                    onMore.invoke()
+                },
                 painter = painterResource(R.drawable.ic_feed_more),
                 contentDescription = "icon_feed_more"
             )

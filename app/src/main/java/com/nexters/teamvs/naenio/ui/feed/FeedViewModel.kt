@@ -69,8 +69,8 @@ class FeedViewModel @Inject constructor(
 //            _feedTabItems.value = FeedTabItem.feedButtonList
 //        }
         if (type.contains("feedDetail")) {
-            val itemIndex = type.replace("feedDetail=", "").toInt()
-//            _postItem.value = _posts.value[itemIndex]
+            val id = type.replace("feedDetail=", "").toInt()
+            getPostDetail(id)
         }
         if (type.contains("theme")) {
             setThemeItem(type, "theme=")
