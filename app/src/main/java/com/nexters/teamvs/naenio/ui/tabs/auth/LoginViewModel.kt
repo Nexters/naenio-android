@@ -14,23 +14,45 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.nexters.teamvs.naenio.BuildConfig
 import com.nexters.teamvs.naenio.base.BaseViewModel
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.data.network.dto.AuthType
+import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.graphs.Route
+import com.nexters.teamvs.naenio.ui.model.User
+import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
+import com.nexters.teamvs.naenio.utils.fromJson
 import com.nexters.teamvs.naenio.utils.loginWithKakao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+sealed class LoginDestination {
+    object ProfileSettings: LoginDestination()
+    object Main: LoginDestination()
+}
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : BaseViewModel() {
 
+    val navigationEvent = MutableSharedFlow<LoginDestination>(extraBufferCapacity = 1)
+
     private fun login(socialLoginToken: String, authType: AuthType) {
         viewModelScope.launch {
-            userRepository.login(socialLoginToken, authType)
+            try {
+                GlobalUiEvent.showLoading()
+                userRepository.login(socialLoginToken, authType)
+                checkProfileInfo()
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                GlobalUiEvent.hideLoading()
+            }
         }
     }
 
@@ -67,6 +89,15 @@ class LoginViewModel @Inject constructor(
             login(account.idToken!!, AuthType.GOOGLE)
         } catch (e: ApiException) {
             Log.e(className, "[HandleGoogleSignInResult] failed code :: " + e.statusCode.toString())
+        }
+    }
+
+    fun checkProfileInfo() {
+        val user = AuthDataStore.userJson.fromJson<User>()
+        if (user == null || user.nickname.isNullOrEmpty()) {
+            navigationEvent.tryEmit(LoginDestination.ProfileSettings)
+        } else {
+            navigationEvent.tryEmit(LoginDestination.Main)
         }
     }
 }
