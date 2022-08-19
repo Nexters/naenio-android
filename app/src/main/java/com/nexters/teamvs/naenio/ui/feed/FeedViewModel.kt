@@ -24,7 +24,7 @@ class FeedViewModel @Inject constructor(
     private val _themeItem = MutableStateFlow<ThemeItem>(ThemeItem())
     val themeItem = _themeItem.asStateFlow()
 
-    private val _postItem = MutableStateFlow<Post>(Post())
+    private val _postItem = MutableStateFlow<Post?>(null)
     val postItem = _postItem.asStateFlow()
 
     private val _feedButtonItem = MutableStateFlow<List<FeedButtonItem>>(emptyList())

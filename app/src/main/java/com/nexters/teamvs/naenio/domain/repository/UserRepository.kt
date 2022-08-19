@@ -39,8 +39,8 @@ class UserRepository @Inject constructor(
         return userApi.getMyProfile().toMyProfile()
     }
 
-    suspend fun deleteProfile(): Boolean {
-        return userApi.deleteProfile() == {}
+    suspend fun deleteProfile() {
+        userApi.deleteProfile()
     }
 
     suspend fun setProfileImage(index: Int): Boolean {

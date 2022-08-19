@@ -67,7 +67,9 @@ object FeedMapper {
                     name = it.name,
                     sequence = i
                 )
-            }
+            },
+            content = content,
+            title = title
         )
     }
 }

@@ -15,12 +15,9 @@ class AuthTokenInterceptor(
         val tokenRequest = if (authToken.isNotEmpty()) {
             chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer test_member_3") //test_member_3
-                .addHeader("Accept", "application/json;charset=utf-8")
                 .build()
         } else {
             chain.request().newBuilder()
-                .addHeader("Authorization", "Bearer test_member_3") //test_member_3
-                .addHeader("Accept", "application/json;charset=utf-8")
                 .build()
         }
 

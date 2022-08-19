@@ -86,51 +86,47 @@ fun FeedDetailScreen(
 }
 
 @Composable
-fun FeedDetail(post : Post, modifier: Modifier, navController: NavHostController) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        TopBar(Modifier.wrapContentHeight(), "", navController)
+fun FeedDetail(post : Post?, modifier: Modifier, navController: NavHostController) {
+    post?.let { post ->
         Column(
-            modifier = Modifier
-                .padding(horizontal = 40.dp)
-                .fillMaxHeight()
+            modifier = modifier
+                .fillMaxSize()
         ) {
-            post.author?.let {
-                var index = 0
-                it.profileImageIndex?.let {
-                    index = it
-                }
+            TopBar(Modifier.wrapContentHeight(), "", navController)
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 40.dp)
+                    .fillMaxHeight()
+            ) {
                 ProfileNickName(
-                    nickName = it.nickname.orEmpty(),
+                    nickName = post.author.nickname.orEmpty(),
                     modifier = Modifier.fillMaxWidth()
                         .wrapContentHeight()
                         .padding(top = 32.dp),
-                    profileImageIndex = index,
+                    profileImageIndex = post.author.profileImageIndex,
                     isIconVisible = false
                 )
+                VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
+                Spacer(modifier = Modifier.fillMaxHeight(0.044f))
+                VoteGageBar(0.5f, true)
+                Spacer(modifier = Modifier.height(32.dp))
+                CommentLayout(
+                    commentCount = post.commentCount,
+                    modifier =  Modifier
+                        .fillMaxWidth()
+                        .height(46.dp)
+                        .background(
+                            Color.Black,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 14.dp)
+                        .shadow(
+                            1.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            ambientColor = MyColors.blackShadow_35000000
+                        )
+                )
             }
-            VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
-            Spacer(modifier = Modifier.fillMaxHeight(0.044f))
-            VoteGageBar(0.5f, true)
-            Spacer(modifier = Modifier.height(32.dp))
-            CommentLayout(
-                commentCount = post.commentCount,
-                modifier =  Modifier
-                    .fillMaxWidth()
-                    .height(46.dp)
-                    .background(
-                        Color.Black,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 14.dp)
-                    .shadow(
-                        1.dp,
-                        shape = RoundedCornerShape(12.dp),
-                        ambientColor = MyColors.blackShadow_35000000
-                    )
-            )
         }
     }
 }

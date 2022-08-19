@@ -37,7 +37,6 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val myProfile = viewModel.myProfile.collectAsState()
-
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -56,9 +55,9 @@ fun ProfileScreen(
                 ProfileImageIcon(size = 62.dp)
                 Text(
                     modifier = Modifier.padding(start = 16.dp),
-                    text = myProfile.value.nickname,
-                    style = Font.pretendardSemiBold22,
-                    color = Color.White
+                    text = myProfile.value?.nickname.orEmpty(),
+                style = Font.pretendardSemiBold22,
+                color = Color.White
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
@@ -87,7 +86,7 @@ fun ProfileScreen(
                 title = stringResource(id = R.string.profile_social_login),
                 image = painterResource(id = R.drawable.icon_social_login),
                 isLoginLayout = true,
-                loginType = myProfile.value.authServiceType // TODO : LoginType 수정 필요
+                loginType = myProfile.value?.authServiceType.orEmpty() // TODO : LoginType 수정 필요
             )
         }
         item {

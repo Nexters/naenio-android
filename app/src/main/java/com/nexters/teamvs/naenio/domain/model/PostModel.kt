@@ -1,12 +1,12 @@
 package com.nexters.teamvs.naenio.domain.model
 
 data class Post(
-    val id: Int = -1,
-    val author: Author? = null,
-    val choices: List<Choice> = emptyList(),
+    val id: Int,
+    val author: Author,
+    val choices: List<Choice>,
     val commentCount: Int = 0,
-    val content: String = "",
-    val title: String = ""
+    val content: String,
+    val title: String
 )
 
 data class Choice(
@@ -19,8 +19,8 @@ data class Choice(
 
 data class Author(
     val id: Int,
-    val nickname: String?,
-    val profileImageIndex: Int?
+    val nickname: String = "",
+    val profileImageIndex: Int = 0
 ) {
     companion object {
         val mock: Author = Author(

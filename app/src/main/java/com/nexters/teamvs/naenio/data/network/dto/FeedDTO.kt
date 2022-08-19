@@ -36,6 +36,6 @@ data class ChoiceResponse(
 @Serializable
 data class AuthorResponse(
     val id: Int,
-    val nickname: String?,
-    val profileImageIndex: Int?
+    val nickname: String = "",
+    val profileImageIndex: Int = 0
 )

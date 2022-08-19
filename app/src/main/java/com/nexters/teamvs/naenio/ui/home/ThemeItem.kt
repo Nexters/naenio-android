@@ -1,10 +1,7 @@
 package com.nexters.teamvs.naenio.ui.home
 
 import androidx.annotation.DrawableRes
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import androidx.core.content.res.TypedArrayUtils.getString
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.theme.MyColors
@@ -31,7 +28,7 @@ data class ThemeItem(
                     Color(0xffc9c4f9),
                     Color(0xff6dafe9)
                 ),
-                type = "TODAY_VOTE"
+                type = themeType.TODAY_VOTE.toString()
             ),
             ThemeItem(
                 id = 2,
@@ -57,7 +54,7 @@ data class ThemeItem(
                     Color(0xffa58eff),
                     Color(0xff34a1ff)
                 ),
-                type = "RANDOM_PLAY"
+                type = themeType.RANDOM_PLAY.toString()
             ),
             ThemeItem(
                 id = 4,
@@ -70,7 +67,7 @@ data class ThemeItem(
                     Color(0xffffddaa),
                     Color(0xff6dafe9)
                 ),
-                type = "GOLD_BALANCE"
+                type = themeType.GOLD_BALANCE.toString()
             ),
             ThemeItem(
                 id = 5,
@@ -83,7 +80,7 @@ data class ThemeItem(
                     Color(0xffffc9aa),
                     Color(0xff6dafe9)
                 ),
-                type = "NOISY"
+                type = themeType.NOISY.toString()
             ),
             ThemeItem(
                 id = 6,
@@ -96,8 +93,12 @@ data class ThemeItem(
                     Color(0xffaff3ff),
                     Color(0xff6d97e9)
                 ),
-                type = "COLLAPSED_BALANCE"
+                type = themeType.COLLAPSED_BALANCE.toString()
             ),
         )
     }
+}
+
+enum class themeType {
+    COLLAPSED_BALANCE, NOISY, GOLD_BALANCE, RANDOM_PLAY, TODAY_VOTE, HALL_OF_FAME
 }

@@ -35,9 +35,9 @@ data class NicknameResponse(
 @Serializable
 data class MyProfileResponse(
     val id: Int,
-    val nickname: String,
+    val nickname: String = "",
     val authServiceType: String,
-    val profileImageIndex: Int
+    val profileImageIndex: Int = 0
 )
 
 data class ProfileImageRequest(

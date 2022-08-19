@@ -21,7 +21,7 @@ class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : BaseViewModel() {
 
-    private val _myProfile = MutableStateFlow<Profile>(Profile())
+    private val _myProfile = MutableStateFlow<Profile?>(null)
     val myProfile = _myProfile.asStateFlow()
 
     val uiState = MutableSharedFlow<UiState>()
