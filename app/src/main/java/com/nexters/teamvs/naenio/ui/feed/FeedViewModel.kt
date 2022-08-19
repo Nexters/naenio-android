@@ -27,6 +27,9 @@ class FeedViewModel @Inject constructor(
     private val _posts = MutableStateFlow<List<Post>?>(null)
     val posts = _posts.asStateFlow()
 
+    private val _themePosts = MutableStateFlow<List<Post>?>(null)
+    val themePosts = _themePosts.asStateFlow()
+
     private val _themeItem = MutableStateFlow<ThemeItem>(ThemeItem())
     val themeItem = _themeItem.asStateFlow()
 
@@ -86,10 +89,13 @@ class FeedViewModel @Inject constructor(
     private fun getPostDetail(id: Int) {
         viewModelScope.launch {
             try {
+                GlobalUiEvent.showLoading()
                 _postItem.value = feedRepository.getPostDetail(id = id)
             } catch (e: Exception) {
                 e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             } finally {
+                GlobalUiEvent.hideLoading()
             }
         }
     }
@@ -97,12 +103,15 @@ class FeedViewModel @Inject constructor(
     private fun getThemePosts(type: String) {
         viewModelScope.launch {
             try {
-                _posts.value = feedRepository.getThemePosts(
+                GlobalUiEvent.showLoading()
+                _themePosts.value = feedRepository.getThemePosts(
                     theme = type
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             } finally {
+                GlobalUiEvent.hideLoading()
             }
         }
     }
@@ -110,10 +119,13 @@ class FeedViewModel @Inject constructor(
     fun getRandomPost() {
         viewModelScope.launch {
             try {
+                GlobalUiEvent.showLoading()
                 _postItem.value = feedRepository.getRandomPosts()
             } catch (e: Exception) {
                 e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             } finally {
+                GlobalUiEvent.hideLoading()
             }
         }
     }

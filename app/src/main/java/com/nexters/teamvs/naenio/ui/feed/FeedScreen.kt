@@ -58,11 +58,6 @@ fun FeedScreen(
     val scope = rememberCoroutineScope()
 
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
-//    viewModel.setType(type) // TODO 수정
-    val themeItem = viewModel.themeItem.collectAsState()
-
-    var contentId: Int? = null
-
 
     BackHandler {
         if (modalBottomSheetState.isVisible) {
@@ -84,9 +79,8 @@ fun FeedScreen(
             )
         } else {
             ThemeDetailLayout(
-                themeItem = themeItem.value ?: return@Box,
+                type = type,
                 navController = navController,
-//                posts = posts, 테마 뷰모델 따로 만들어야 할듯?
                 openSheet = openSheet,
                 composition = composition
             )
@@ -97,13 +91,25 @@ fun FeedScreen(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ThemeDetailLayout(
-    themeItem: ThemeItem,
+    viewModel: FeedViewModel = hiltViewModel(),
+    type: String,
     navController: NavHostController,
-    posts: List<Post> = emptyList(), //임시로 설정
     openSheet: (BottomSheetType) -> Unit,
     composition: LottieComposition?
 ) {
     val pagerState = rememberPagerState(initialPage = 0)
+    val themeItemState = viewModel.themeItem.collectAsState()
+    val themeItem = themeItemState.value
+    LaunchedEffect(key1 = type, block = {
+        viewModel.setType(type)
+    })
+
+
+//    LaunchedEffect(key1 = themeItem.value.type, block = {
+//        viewModel.setType(themeItem.value.type)
+//    })
+
+    val posts = viewModel.themePosts.collectAsState()
 
     Column(
         modifier = Modifier
@@ -113,7 +119,7 @@ fun ThemeDetailLayout(
             )
     ) {
         TopBar(
-            modifier = Modifier,
+            modifier = Modifier.padding(bottom = 20.dp),
             barTitle = themeItem.title,
             navController = navController,
             isMoreBtnVisible = false,
@@ -122,7 +128,7 @@ fun ThemeDetailLayout(
         Box {
             FeedPager(
                 modifier = Modifier,
-                posts = posts,
+                posts = posts.value ?: emptyList(),
                 pagerState = pagerState,
                 openSheet = openSheet,
                 navController = navController,
@@ -145,7 +151,7 @@ fun FeedScreenContent(
     navController: NavHostController,
     openSheet: (BottomSheetType) -> Unit,
     composition: LottieComposition?,
-    viewModel: FeedViewModel
+    viewModel: FeedViewModel = hiltViewModel()
 ) {
     /**
      * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
