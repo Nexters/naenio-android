@@ -48,7 +48,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
-    type : String = "feed",
+    type: String = "feed",
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
@@ -151,11 +151,12 @@ fun setThemeDetailLayout(
                 Brush.verticalGradient(themeItem.backgroundColorList)
             )
     ) {
-        Text(
-            modifier = Modifier.padding(top = 19.dp, start = 20.dp),
-            text = themeItem.title,
-            fontSize = 24.sp,
-            color = Color.White
+        TopBar(
+            modifier = Modifier,
+            barTitle = themeItem.title,
+            navController = navController,
+            isMoreBtnVisible = false,
+            textStyle = Font.pretendardSemiBold22
         )
         Box {
             FeedPager(
@@ -174,13 +175,14 @@ fun setThemeDetailLayout(
 }
 
 @Composable
-fun setFeedLayout(navController: NavHostController,
-                  paddingValue : PaddingValues,
-                  feedButton : State<List<FeedButtonItem>>,
-                  posts : State<List<Post>>,
-                  openSheet: (BottomSheetType) -> Unit,
-                  composition : LottieComposition?,
-                  viewModel : FeedViewModel
+fun setFeedLayout(
+    navController: NavHostController,
+    paddingValue: PaddingValues,
+    feedButton: State<List<FeedButtonItem>>,
+    posts: State<List<Post>>,
+    openSheet: (BottomSheetType) -> Unit,
+    composition: LottieComposition?,
+    viewModel: FeedViewModel
 ) {
     var emptyMessage = ""
     Box(

@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -258,9 +259,10 @@ fun ProfileImageIcon(index: Int = 0, size: Dp, padding: Dp = 0.dp) {
 @Composable
 fun TopBar(
     modifier: Modifier,
-    barTitle: String,
+    barTitle: String?,
     navController: NavHostController,
-    isMoreBtnVisible: Boolean = true
+    isMoreBtnVisible: Boolean = true,
+    textStyle : TextStyle = Font.pretendardSemiBold16
 ) {
     Row(
         modifier = modifier
@@ -277,10 +279,12 @@ fun TopBar(
             contentDescription = "icon_back_m",
         )
         Spacer(modifier = Modifier.weight(1f))
-        if (barTitle != "") {
-            Text(
-                text = barTitle, style = Font.pretendardSemiBold16, color = Color.White
-            )
+        barTitle?.let { barTitle ->
+            if (barTitle != "") {
+                Text(
+                    text = barTitle, style = textStyle, color = Color.White
+                )
+            }
         }
         Spacer(modifier = Modifier.weight(1f))
         val iconVisible = if (isMoreBtnVisible) 1f else 0f
