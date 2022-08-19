@@ -29,8 +29,14 @@ class FeedViewModel @Inject constructor(
     private val _postItem = MutableStateFlow<Post?>(null)
     val postItem = _postItem.asStateFlow()
 
-    private val _feedButtonItem = MutableStateFlow<List<FeedButtonItem>>(emptyList())
-    val feedButtonItem = _feedButtonItem.asStateFlow()
+    private val _feedTabItems = MutableStateFlow(feedRepository.getFeedTabItems())
+    val feedTabItems = _feedTabItems.asStateFlow()
+
+    private val _selectedTab = MutableStateFlow<FeedTabItemModel>(feedTabItems.value[0])
+    val selectedTab = _selectedTab.asStateFlow()
+    fun selectTab(feedTabItemModel: FeedTabItemModel) {
+        _selectedTab.value = feedTabItemModel
+    }
 
     val uiState = MutableSharedFlow<UiState>()
 
@@ -38,9 +44,9 @@ class FeedViewModel @Inject constructor(
     }
 
     fun setType(type : String) {
-        if (type == "feed") {
-            _feedButtonItem.value = FeedButtonItem.feedButtonList
-        }
+//        if (type == "feed") {
+//            _feedTabItems.value = FeedTabItem.feedButtonList
+//        }
         if (type.contains("feedDetail")) {
             val itemIndex = type.replace("feedDetail=","").toInt()
             _postItem.value = _posts.value[itemIndex]

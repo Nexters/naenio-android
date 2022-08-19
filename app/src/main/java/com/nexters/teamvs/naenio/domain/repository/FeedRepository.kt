@@ -1,13 +1,16 @@
 package com.nexters.teamvs.naenio.domain.repository
 
+import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.BaseRepository
+import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.data.network.api.FeedApi
 import com.nexters.teamvs.naenio.data.network.dto.CreateRequest
 import com.nexters.teamvs.naenio.data.network.dto.VoteRequest
-import com.nexters.teamvs.naenio.data.network.dto.VoteResponse
 import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toPost
 import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toPostList
 import com.nexters.teamvs.naenio.domain.model.Post
+import com.nexters.teamvs.naenio.ui.feed.FeedTabItemModel
+import com.nexters.teamvs.naenio.ui.feed.FeedTabItemType
 import javax.inject.Inject
 
 class FeedRepository @Inject constructor(
@@ -58,5 +61,25 @@ class FeedRepository @Inject constructor(
         choiceId: Int,
     ) {
         feedApi.vote(VoteRequest(postId = postId, choiceId = choiceId))
+    }
+
+    fun getFeedTabItems(): List<FeedTabItemModel> {
+        return listOf(
+            FeedTabItemModel(
+                title = NaenioApp.context.getString(R.string.feed_all_vote),
+                type = FeedTabItemType.All,
+                image = null
+            ),
+            FeedTabItemModel(
+                title = NaenioApp.context.getString(R.string.feed_my_posted_vote),
+                type = FeedTabItemType.MyPost,
+                image = R.drawable.icon_posted
+            ),
+            FeedTabItemModel(
+                title = NaenioApp.context.getString(R.string.feed_my_vote),
+                type = FeedTabItemType.MyVote,
+                image = R.drawable.icon_participated
+            )
+        )
     }
 }

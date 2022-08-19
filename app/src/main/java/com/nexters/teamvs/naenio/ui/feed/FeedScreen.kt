@@ -30,6 +30,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
+import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
@@ -52,11 +53,11 @@ fun FeedScreen(
     val scope = rememberCoroutineScope()
 
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
-    viewModel.setType(type) // TODO 수정
+//    viewModel.setType(type) // TODO 수정
 
     val posts = viewModel.posts.collectAsState()
+
     val themeItem = viewModel.themeItem.collectAsState()
-    val feedButtonItem = viewModel.feedButtonItem.collectAsState()
 
     BackHandler {
         if (modalBottomSheetState.isVisible) {
@@ -68,10 +69,9 @@ fun FeedScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         if (type == "feed") {
-            FeedLayout(
+            FeedScreenContent(
                 navController = navController,
                 posts = posts,
-                feedButton = feedButtonItem,
                 openSheet = openSheet,
                 composition = composition,
                 viewModel = viewModel
@@ -126,15 +126,20 @@ fun ThemeDetailLayout(
 }
 
 @Composable
-fun FeedLayout(
+fun FeedScreenContent(
     navController: NavHostController,
-    feedButton: State<List<FeedButtonItem>>,
     posts: State<List<Post>>,
     openSheet: (BottomSheetType) -> Unit,
     composition: LottieComposition?,
     viewModel: FeedViewModel
 ) {
-    var emptyMessage = ""
+    /**
+     * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
+     * 테마에서는 이 상태를 알 필요가 없음.
+     */
+    val feedTabItems = viewModel.feedTabItems.collectAsState()
+    val selectedTab = viewModel.selectedTab.collectAsState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -144,59 +149,15 @@ fun FeedLayout(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Text(
-                modifier = Modifier.padding(top = 19.dp, start = 20.dp),
-                text = stringResource(id = R.string.bottom_item_feed),
-                style = Font.montserratSemiBold24,
-                color = Color.White
-            )
-            LazyRow(
-                modifier = Modifier.padding(top = 10.dp, start = 10.dp)
-            ) {
-                items(feedButton.value) { button ->
-                    var backgroundColor = MyColors.blue_3979F2
-                    Log.d("#### feedScreen", button.isSelected.toString())
-                    if (button.isSelected) {
-                        Log.d("#### feedScreen", button.title)
-                        emptyMessage = button.emptyMessage
-                        backgroundColor = MyColors.pink
-                        viewModel.getFeedPosts(button.type)
-                    }
-                    Row(
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                            .background(backgroundColor, shape = RoundedCornerShape(50.dp))
-                            .padding(horizontal = 14.dp, vertical = 10.dp)
-                            .clickable {
-                                Log.d("#### feedScreen", "click!" + button.title)
-                                feedButton.value.forEach {
-                                    it.isSelected = false
-                                }
-                                button.isSelected = true
-                                emptyMessage = button.title
-                                viewModel.getFeedPosts(button.type)
-                            },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        var textModifier = Modifier
-                        if (button.image != null) {
-                            textModifier.padding(start = 4.dp)
-                            Image(
-                                painter = painterResource(id = button.image),
-                                contentDescription = button.title
-                            )
-                        } else {
-                            textModifier.padding(start = 0.dp)
-                        }
-                        Text(
-                            modifier = textModifier,
-                            text = button.title,
-                            style = Font.pretendardSemiBold14,
-                            color = Color.White
-                        )
-                    }
+            FeedTopBar(text = stringResource(id = R.string.bottom_item_feed))
+
+            FeedTabRow(
+                feedTabItems = feedTabItems.value,
+                selectedTab = selectedTab.value,
+                onSelectTab = {
+                    viewModel.selectTab(it)
                 }
-            }
+            )
             if (posts.value.isEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -209,7 +170,7 @@ fun FeedLayout(
                     )
                     Text(
                         modifier = Modifier.padding(top = 14.dp),
-                        text = emptyMessage,
+                        text = stringResource(id = R.string.feed_empty),
                         style = Font.pretendardMedium18,
                         color = MyColors.darkGrey_828282
                     )
@@ -244,6 +205,69 @@ fun FeedLayout(
                 contentDescription = "floating"
             )
         }
+    }
+}
+
+@Composable
+fun FeedTopBar(text: String) {
+    Text(
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .padding(top = 20.dp, bottom = 10.dp),
+        text = text,
+        style = Font.montserratSemiBold24,
+        color = Color.White
+    )
+}
+
+@Composable
+fun FeedTabRow(
+    feedTabItems: List<FeedTabItemModel>,
+    selectedTab: FeedTabItemModel,
+    onSelectTab: (FeedTabItemModel) -> Unit,
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        items(feedTabItems) {
+            FeedTabItem(
+                feedTabItemModel = it,
+                selectedTab = selectedTab,
+                onClick = onSelectTab
+            )
+        }
+    }
+}
+
+@Composable
+fun FeedTabItem(
+    feedTabItemModel: FeedTabItemModel,
+    selectedTab: FeedTabItemModel,
+    onClick: (FeedTabItemModel) -> Unit,
+) {
+    val isSelected = feedTabItemModel == selectedTab
+    Row(
+        modifier = Modifier
+            .background(
+                color = if (isSelected) MyColors.pink else MyColors.blue_3979F2,
+                shape = RoundedCornerShape(50.dp)
+            )
+            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .noRippleClickable {
+                onClick.invoke(feedTabItemModel)
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (feedTabItemModel.image != null) {
+            Image(painter = painterResource(id = feedTabItemModel.image), contentDescription = "")
+            Spacer(modifier = Modifier.width(4.dp))
+        }
+        Text(
+            text = feedTabItemModel.title,
+            style = Font.pretendardSemiBold14,
+            color = Color.White
+        )
     }
 }
 
