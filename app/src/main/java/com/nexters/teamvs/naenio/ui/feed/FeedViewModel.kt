@@ -146,15 +146,20 @@ class FeedViewModel @Inject constructor(
                 val currentPosts = posts.value ?: emptyList()
                 currentPosts.map { post ->
                     if (post.id == postId) {
-                        post.copy(choices = post.choices.map { choice ->
-                            if (choice.id == choiceId) {
-                                choice.copy(
-                                    isVoted = true,
+                        val isVotedForPost = post.isVotedForPost()
+                        post.copy(
+                            choices = post.choices.map { choice ->
+                                if (choice.id == choiceId) {
+                                    choice.copy(
+                                        isVoted = true,
+                                        voteCount = choice.voteCount + 1
+                                    )
+                                } else choice.copy(
+                                    isVoted = false,
+                                    voteCount = if (isVotedForPost) choice.voteCount - 1 else choice.voteCount
                                 )
-                            } else choice.copy(
-                                isVoted = false
-                            )
-                        })
+                            },
+                        )
                     } else post
                 }.also {
                     _posts.value = it

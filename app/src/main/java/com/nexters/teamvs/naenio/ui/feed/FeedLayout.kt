@@ -194,13 +194,10 @@ fun VoteContent(post: Post? = null, modifier: Modifier, maxLine: Int) {
                 painter = painterResource(id = R.drawable.ic_gift), contentDescription = "ic_gift"
             )
             Text(
-                text = post.choices.size.toString(),
+                text = "${post.totalVoteCount}명 투표",
                 color = Color.White,
                 style = Font.body2,
                 modifier = Modifier.padding(start = 4.dp)
-            )
-            Text(
-                text = "명 투표", color = Color.White, style = Font.body2
             )
         }
         Text(
