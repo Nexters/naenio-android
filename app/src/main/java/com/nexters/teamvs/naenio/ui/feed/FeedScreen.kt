@@ -142,6 +142,8 @@ fun FeedScreenContent(
     val feedTabItems = viewModel.feedTabItems.collectAsState()
     val selectedTab = viewModel.selectedTab.collectAsState()
 
+    val isEmptyFeed = posts.value.isEmpty()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -160,37 +162,16 @@ fun FeedScreenContent(
                     viewModel.selectTab(it)
                 }
             )
-            if (posts.value.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painterResource(id = R.drawable.icon_empty),
-                        contentDescription = "icon_empty"
-                    )
-                    Text(
-                        modifier = Modifier.padding(top = 14.dp),
-                        text = stringResource(id = R.string.feed_empty),
-                        style = Font.pretendardMedium18,
-                        color = MyColors.darkGrey_828282
-                    )
-                }
+
+            if (isEmptyFeed) {
+                FeedEmptyLayout()
             } else {
-                Box {
-                    FeedPager(
-                        modifier = Modifier,
-                        posts = posts.value,
-                        openSheet = openSheet,
-                        navController = navController
-                    )
-                    LottieAnimation(
-                        composition,
-                        modifier = Modifier.wrapContentSize(),
-                        iterations = Int.MAX_VALUE
-                    )
-                }
+                FeedPager(
+                    modifier = Modifier,
+                    posts = posts.value,
+                    openSheet = openSheet,
+                    navController = navController
+                )
             }
         }
         FeedCreateFloatingButton(modifier = Modifier.align(Alignment.BottomEnd)) {
@@ -401,6 +382,26 @@ fun FeedItem(
                         )
                     )
                 }
+        )
+    }
+}
+
+@Composable
+fun FeedEmptyLayout() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painterResource(id = R.drawable.icon_empty),
+            contentDescription = "icon_empty"
+        )
+        Text(
+            modifier = Modifier.padding(top = 14.dp),
+            text = stringResource(id = R.string.feed_empty),
+            style = Font.pretendardMedium18,
+            color = MyColors.darkGrey_828282
         )
     }
 }

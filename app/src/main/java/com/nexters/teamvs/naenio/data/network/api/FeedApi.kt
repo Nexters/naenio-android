@@ -14,7 +14,7 @@ interface FeedApi {
     suspend fun getFeedPosts(
         @Query("size") size: Int,
         @Query("lastPostId") lastPostId: Int?,
-        @Query("sortType") sortType : String?
+        @Query("sortType") sortType : String? //3개
     ): FeedResponse
 
     @GET("/app/posts")
