@@ -23,7 +23,7 @@ data class Choice(
 data class Author(
     val id: Int,
     val nickname: String?,
-    private val profileImageIndex: Int = 0
+    val profileImageIndex: Int = 0
 ) {
     @DrawableRes val profileImage: Int = Profile.images[profileImageIndex].image
 
