@@ -8,6 +8,7 @@ data class LoginRequest(
     val authServiceType: AuthType
 )
 
+@Serializable
 enum class AuthType {
     KAKAO, GOOGLE
 }
@@ -40,10 +41,12 @@ data class MyProfileResponse(
     val profileImageIndex: Int = 0
 )
 
+@Serializable
 data class ProfileImageRequest(
     val profileImageIndex: Int,
 )
 
+@Serializable
 data class ProfileImageResponse(
     val profileImageIndex: Int,
 )
