@@ -163,7 +163,7 @@ fun GageBar(
                     Text(
                         modifier = Modifier.padding(bottom = 4.dp),
                         text = if(totalVoteCount > 0) {
-                            "${(choice.voteCount / totalVoteCount) * 100}%"
+                            "${((choice.voteCount.toFloat() / totalVoteCount.toFloat()) * 100).toInt()}%"
                         } else "0%",
                         color = Color.White, style = montserratSemiBold14
                     )
