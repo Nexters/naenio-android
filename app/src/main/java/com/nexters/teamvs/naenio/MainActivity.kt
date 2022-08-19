@@ -32,6 +32,22 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Firebase.dynamicLinks.getDynamicLink(intent)
+            .addOnSuccessListener { pendingDynamicLinkData ->
+                var deepLink: Uri? = null
+                if (pendingDynamicLinkData != null) {
+                    deepLink = pendingDynamicLinkData.link
+                    deepLink?.let {
+                        Log.d("### dynamic link", "dynamicLink 수신 테스트 :: ${it.toString()}")
+                        Log.d("### dynamic link", "dynamicLink 수신 테스트 :: ${it.host}")
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("### dynamic link", "dynamicLink 수신 에러 :: $e")
+            }
+
         setContent {
             val scope = rememberCoroutineScope()
             var job: Job? = null
@@ -86,17 +102,5 @@ class MainActivity : ComponentActivity() {
         keyboardUtils.setKeyboardListener(window.decorView)
 
         Log.d("### user token ", AuthDataStore.authToken)
-
-        Firebase.dynamicLinks.getDynamicLink(intent)
-            .addOnSuccessListener { pendingDynamicLinkData ->
-                var deepLink: Uri? = null
-                if (pendingDynamicLinkData != null) {
-                    deepLink = pendingDynamicLinkData.link
-                    Log.d("###", "dynamicLink 수신 테스트 :: ${deepLink.toString()}")
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("###", "dynamicLink 수신 에러 :: $e")
-            }
     }
 }

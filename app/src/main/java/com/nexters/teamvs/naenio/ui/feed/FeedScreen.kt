@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +30,8 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
+import com.google.firebase.dynamiclinks.ktx.dynamicLinks
+import com.google.firebase.ktx.Firebase
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.domain.model.Post
@@ -48,7 +52,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
-    type : String = "feed",
+    type: String = "feed",
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
@@ -61,6 +65,9 @@ fun FeedScreen(
     val posts = viewModel.posts.collectAsState()
     val themeItem = viewModel.themeItem.collectAsState()
     val feedButtonItem = viewModel.feedButtonItem.collectAsState()
+
+    var contentId: Int? = null
+
 
     BackHandler {
         if (modalBottomSheetState.isVisible) {
@@ -151,11 +158,12 @@ fun setThemeDetailLayout(
                 Brush.verticalGradient(themeItem.backgroundColorList)
             )
     ) {
-        Text(
-            modifier = Modifier.padding(top = 19.dp, start = 20.dp),
-            text = themeItem.title,
-            fontSize = 24.sp,
-            color = Color.White
+        TopBar(
+            modifier = Modifier,
+            barTitle = themeItem.title,
+            navController = navController,
+            isMoreBtnVisible = false,
+            textStyle = Font.pretendardSemiBold22
         )
         Box {
             FeedPager(
@@ -174,13 +182,14 @@ fun setThemeDetailLayout(
 }
 
 @Composable
-fun setFeedLayout(navController: NavHostController,
-                  paddingValue : PaddingValues,
-                  feedButton : State<List<FeedButtonItem>>,
-                  posts : State<List<Post>>,
-                  openSheet: (BottomSheetType) -> Unit,
-                  composition : LottieComposition?,
-                  viewModel : FeedViewModel
+fun setFeedLayout(
+    navController: NavHostController,
+    paddingValue: PaddingValues,
+    feedButton: State<List<FeedButtonItem>>,
+    posts: State<List<Post>>,
+    openSheet: (BottomSheetType) -> Unit,
+    composition: LottieComposition?,
+    viewModel: FeedViewModel
 ) {
     var emptyMessage = ""
     Box(
@@ -367,7 +376,7 @@ fun FeedItem(
         )
         .clickable {
             Log.d("####", "Feed Item Click")
-            navController.navigate("FeedDetail/feedDetail=${page}")
+            navController.navigate("FeedDetail/feedDetail=${post.id}")
         }
     ) {
         Column(

@@ -2,6 +2,7 @@ package com.nexters.teamvs.naenio.ui.feed
 
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.ui.home.ThemeItem
@@ -35,15 +36,15 @@ class FeedViewModel @Inject constructor(
     init {
     }
 
-    fun setType(type : String) {
+    fun setType(type: String) {
         if (type == "feed") {
             _feedButtonItem.value = FeedButtonItem.feedButtonList
         }
         if (type.contains("feedDetail")) {
-            val itemIndex = type.replace("feedDetail=","").toInt()
-            _postItem.value = _posts.value[itemIndex]
+            val id = type.replace("feedDetail=", "").toInt()
+            getPostDetail(id)
         }
-        if (type.contains("theme") ){
+        if (type.contains("theme")) {
             setThemeItem(type, "theme=")
             getThemePosts(_themeItem.value.type)
         }
@@ -53,17 +54,27 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    private fun setThemeItem(type: String, replaceStr:String) {
-        _themeItem.value = ThemeItem.themeList[type.replace(replaceStr,"").toInt()-1]
+    private fun getPostDetail(id: Int) {
+        viewModelScope.launch {
+            try {
+                _postItem.value = feedRepository.getPostDetail(id = id)
+                uiState.emit(UiState.Success)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                uiState.emit(UiState.Error(e))
+            } finally {
+            }
+        }
     }
 
-    private fun getThemePosts(type : String) {
+    private fun setThemeItem(type: String, replaceStr: String) {
+        _themeItem.value = ThemeItem.themeList[type.replace(replaceStr, "").toInt() - 1]
+    }
+
+    private fun getThemePosts(type: String) {
         viewModelScope.launch {
             try {
                 uiState.emit(UiState.Loading)
-                if (type == "ALL") {
-
-                }
                 _posts.value = feedRepository.getThemePosts(
                     theme = type
                 )
@@ -92,7 +103,7 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    fun getFeedPosts(sortType : String) {
+    fun getFeedPosts(sortType: String) {
         viewModelScope.launch {
             try {
                 uiState.emit(UiState.Loading)
