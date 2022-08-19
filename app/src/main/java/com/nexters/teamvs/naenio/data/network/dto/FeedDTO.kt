@@ -1,6 +1,8 @@
 package com.nexters.teamvs.naenio.data.network.dto
 
 import androidx.annotation.Keep
+import androidx.compose.runtime.saveable.autoSaver
+import com.nexters.teamvs.naenio.domain.model.Post
 import kotlinx.serialization.Serializable
 
 @Keep
@@ -34,6 +36,6 @@ data class ChoiceResponse(
 @Serializable
 data class AuthorResponse(
     val id: Int,
-    val nickname: String?,
-    val profileImageIndex: Int?
+    val nickname: String = "",
+    val profileImageIndex: Int = 0
 )

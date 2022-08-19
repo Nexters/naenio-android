@@ -8,7 +8,7 @@ data class Post(
     val author: Author,
     val choices: List<Choice>,
     val commentCount: Int = 0,
-    val content: String = "",
+    val content: String,
     val title: String
 )
 

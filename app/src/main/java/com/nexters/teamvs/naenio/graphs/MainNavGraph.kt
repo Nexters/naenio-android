@@ -47,6 +47,7 @@ fun MainNavGraph(
         }
         composable(BottomNavItem.Feed.route) {
             FeedScreen(
+                type = "feed",
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
                 modifier = modifier,
@@ -75,11 +76,11 @@ fun NavGraphBuilder.detailsNavGraph(
 ) {
     navigation(
         route = Graph.DETAILS,
-        startDestination = "FeedDetail/{themeId}"
+        startDestination = "FeedDetail/{type}"
     ) {
-        composable(route = "FeedDetail/{themeId}") {
+        composable(route = "FeedDetail/{type}") {
             FeedDetailScreen(
-                themeId = it.arguments?.getString("themeId")?.toInt(),
+                type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
                 openSheet = openSheet,
@@ -115,16 +116,18 @@ fun NavGraphBuilder.themeDetailNavGraph(
 ) {
     navigation(
         route = Graph.THEME_DETAIL,
-        startDestination = "ThemeDetail/{themeId}"
+        startDestination = "ThemeDetail/{type}"
     ) {
-        composable(route = "ThemeDetail/{themeId}") {
-          FeedScreen(
-              themeId = it.arguments?.getString("themeId")?.toInt(),
-              navController = navController,
-              modalBottomSheetState = modalBottomSheetState,
-              openSheet = openSheet,
-              closeSheet = closeSheet
-          )
+        composable(route = "ThemeDetail/{type}") {
+            it.arguments?.getString("type")?.let { type->
+                FeedScreen(
+                    type = type,
+                    navController = navController,
+                    modalBottomSheetState = modalBottomSheetState,
+                    openSheet = openSheet,
+                    closeSheet = closeSheet
+                )
+            }
         }
     }
 }

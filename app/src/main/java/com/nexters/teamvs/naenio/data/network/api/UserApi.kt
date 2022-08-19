@@ -18,6 +18,12 @@ interface UserApi {
         @Body nicknameRequest: NicknameRequest
     ): NicknameResponse
 
+    @GET("/app/members/me")
+    suspend fun getMyProfile(): MyProfileResponse
+
+    @DELETE("/app/members/me")
+    suspend fun deleteProfile() : Object
+
     @PUT("/app/members/profile-image")
     suspend fun setProfileImage(
         @Body profileImageRequest: ProfileImageRequest

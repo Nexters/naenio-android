@@ -53,7 +53,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier) {
                 verticalAlignment = Alignment.CenterVertically
 
             ) {
-                ProfileImageIcon(62.dp)
+                ProfileImageIcon(size = 62.dp)
                 Text(
                     modifier = Modifier.padding(start = 16.dp),
                     text = "UserName",

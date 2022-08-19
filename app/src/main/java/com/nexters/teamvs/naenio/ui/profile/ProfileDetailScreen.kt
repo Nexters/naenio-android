@@ -1,6 +1,5 @@
 package com.nexters.teamvs.naenio.ui.profile
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,11 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -29,6 +25,7 @@ import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.feed.ProfileNickName
 import com.nexters.teamvs.naenio.ui.feed.TopBar
+import com.nexters.teamvs.naenio.ui.feed.contentEmptyLayout
 
 @Composable
 fun ProfileDetailScreen(profileType : String = "", navController: NavHostController) {
@@ -163,10 +160,13 @@ fun MyCommentLayout() {
                         .padding(horizontal = 20.dp)
                         .background(MyColors.postBackgroundColor, shape = RoundedCornerShape(16.dp))
                 ) {
-                    ProfileNickName(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp)
-                        .padding(horizontal = 20.dp), isIconVisible = true)
+                    ProfileNickName(
+                        nickName = "닉네임",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp)
+                            .padding(horizontal = 20.dp),
+                        isIconVisible = true)
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -196,25 +196,6 @@ fun MyCommentLayout() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun contentEmptyLayout(@StringRes stringId : Int) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.icon_empty),
-            contentDescription = "icon_empty")
-        Text(
-            modifier = Modifier.padding(top = 14.dp),
-            text = stringResource(id = stringId),
-            style = Font.pretendardMedium18,
-            color = MyColors.darkGrey_828282
-        )
     }
 }
 

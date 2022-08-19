@@ -3,11 +3,8 @@ package com.nexters.teamvs.naenio.domain.repository
 import com.nexters.teamvs.naenio.base.BaseRepository
 import com.nexters.teamvs.naenio.data.network.api.FeedApi
 import com.nexters.teamvs.naenio.data.network.dto.CreateRequest
-import com.nexters.teamvs.naenio.data.network.dto.CreateResponse
 import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toPost
 import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toPostList
-import com.nexters.teamvs.naenio.domain.model.Author
-import com.nexters.teamvs.naenio.domain.model.Choice
 import com.nexters.teamvs.naenio.domain.model.Post
 import javax.inject.Inject
 
@@ -17,12 +14,24 @@ class FeedRepository @Inject constructor(
 
     suspend fun getFeedPosts(
         pageSize: Int,
-        lastPostId: Int?
+        lastPostId: Int?,
+        sortType: String?
     ): List<Post> {
         return feedApi.getFeedPosts(
             size = pageSize,
-            lastPostId = lastPostId
+            lastPostId = lastPostId,
+            sortType = sortType
         ).posts.toPostList()
+    }
+
+    suspend fun getThemePosts(
+        theme : String
+    ): List<Post> {
+        return feedApi.getThemePosts(theme).posts.toPostList()
+    }
+
+    suspend fun getRandomPosts() : Post {
+        return feedApi.getRandomPost().toPost()
     }
 
     suspend fun createPost(

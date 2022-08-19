@@ -33,11 +33,17 @@ data class NicknameResponse(
 )
 
 @Serializable
+data class MyProfileResponse(
+    val id: Int,
+    val nickname: String = "",
+    val authServiceType: String,
+    val profileImageIndex: Int = 0
+)
+
 data class ProfileImageRequest(
     val profileImageIndex: Int,
 )
 
-@Serializable
 data class ProfileImageResponse(
     val profileImageIndex: Int,
 )

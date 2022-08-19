@@ -67,13 +67,12 @@ fun ThemeScreen(
             items(ThemeItem.themeList) {
                 ThemeGridItem(themeItem = it) { themeItem ->
                     var route : String
-                    if (themeItem.id == 3) { //랜덤투표면
-                        //todo navigate detail
-                        Log.e("####", "랜덤 투표 테마")
-                        route = "FeedDetail/${themeItem.id}"
+                    if (themeItem.type == "RANDOM_PLAY") {
+                        Log.d("### ThemeScreen", "랜덤 투표 테마")
+                        route = "FeedDetail/random=${themeItem.id}"
                     } else {
-                        Log.e("####", "랜덤 투표 외 테마")
-                        route = "ThemeDetail/${themeItem.id}"
+                        Log.d("### ThemeScreen", "랜덤 투표 외 테마")
+                        route = "ThemeDetail/theme=${themeItem.id}"
                     }
                     navController.navigate(route)
                 }
