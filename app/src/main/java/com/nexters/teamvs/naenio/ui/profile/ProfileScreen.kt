@@ -27,7 +27,7 @@ import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.composables.DialogModel
+import com.nexters.teamvs.naenio.ui.component.DialogModel
 import com.nexters.teamvs.naenio.ui.feed.ProfileImageIcon
 
 @Composable

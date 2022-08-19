@@ -1,6 +1,6 @@
 package com.nexters.teamvs.naenio.base
 
-import com.nexters.teamvs.naenio.ui.composables.DialogModel
+import com.nexters.teamvs.naenio.ui.component.DialogModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
