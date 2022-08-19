@@ -1,22 +1,15 @@
 package com.nexters.teamvs.naenio.ui.feed
 
-import android.widget.Space
-import androidx.activity.compose.BackHandler
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -28,21 +21,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.domain.model.Choice
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold12
 import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold14
-import com.nexters.teamvs.naenio.theme.Font.montserratSemiBold16
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.NaenioTypography
 import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
 
 @Composable
-fun VoteGageBar(gage: Float, isCountVisible: Boolean) {
+fun VoteBar(post: Post) {
     val gageBarModifier = Modifier
         .fillMaxWidth()
         .height(72.dp)
@@ -56,6 +47,10 @@ fun VoteGageBar(gage: Float, isCountVisible: Boolean) {
     val gageBarColorList = listOf(
         MyColors.purple_d669ff, MyColors.blue_5862ff, MyColors.blue_0bb9ff
     )
+
+    /** 둘 중 하나라도 투표를 했는 지 */
+    val isVotedForPost = post.isVotedForPost()
+
     Box(
         modifier = Modifier.wrapContentHeight(), contentAlignment = Alignment.Center
     ) {
@@ -66,9 +61,9 @@ fun VoteGageBar(gage: Float, isCountVisible: Boolean) {
                 foregroundColor = Brush.horizontalGradient(
                     gageBarColorList
                 ),
-                percent = gage,
-                fillGageWidth = Dp(fillGageBarWidth * gage),
-                isCountVisible = isCountVisible
+                choice = post.choice1,
+                isVotedForPost = isVotedForPost,
+                totalVoteCount = post.totalVoteCount
             )
             Spacer(modifier = Modifier.height(18.dp))
             GageBar(
@@ -77,9 +72,9 @@ fun VoteGageBar(gage: Float, isCountVisible: Boolean) {
                 foregroundColor = Brush.horizontalGradient(
                     gageBarColorList
                 ),
-                percent = gage,
-                fillGageWidth = Dp(fillGageBarWidth * gage),
-                isCountVisible = isCountVisible
+                choice = post.choice2,
+                isVotedForPost = isVotedForPost,
+                totalVoteCount = post.totalVoteCount
             )
         }
         Image(
@@ -93,24 +88,32 @@ fun VoteGageBar(gage: Float, isCountVisible: Boolean) {
 @Composable
 fun GageBar(
     modifier: Modifier,
+    choice: Choice,
+    totalVoteCount: Int,
     gageModifier: Modifier,
     foregroundColor: Brush,
-    percent: Float,
-    fillGageWidth: Dp,
-    isCountVisible: Boolean
+    isVotedForPost: Boolean,
 ) {
+    val isChoose = choice.isVoted
+
     Box(
-        modifier = modifier.border(
-            border = BorderStroke(1.dp, foregroundColor), shape = RoundedCornerShape(16.dp)
-        ) // 사용자가 선택할 경우
+        modifier = if (isVotedForPost) {
+            modifier.border(
+                border = BorderStroke(1.dp, foregroundColor),
+                shape = RoundedCornerShape(16.dp)
+            )
+        } else {
+            modifier
+        }
     ) {
+        //What Box?
         Box(
             modifier = gageModifier
                 .background(
-                    foregroundColor,
+                    brush = foregroundColor,
                     shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp)
                 )
-                .width(width = fillGageWidth * percent)
+//                .width(width = fillGageWidth * percent)
         )
         Row(
             modifier = Modifier
@@ -119,29 +122,38 @@ fun GageBar(
                 .padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "A.", color = Color.White, style = NaenioTypography.h4
+                text = "A.",
+                color = Color.White,
+                style = NaenioTypography.h4
             )
             Text(
                 modifier = Modifier
                     .padding(start = 6.dp, end = 8.dp)
                     .weight(1f),
-                text = "투명인간 취급당하며 힘들게 살기투명인간 취급당하며 힘들게 살기투명인간 취급당하며 힘들게 살기투명인간 취급당하며 힘들게 살기",
+                text = choice.name,
                 color = Color.White,
                 style = Font.pretendardSemiBold14,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.width(8.dp))
-            if (isCountVisible) {
+
+            /**
+             * 투표 비율 및 인원
+             */
+            if (isVotedForPost) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        modifier = Modifier.padding(bottom = 4.dp), text = "70%", // "$percent%",
+                        modifier = Modifier.padding(bottom = 4.dp),
+                        text = ((choice.voteCount / totalVoteCount) * 100).toString(), // "$percent%",
                         color = Color.White, style = montserratSemiBold14
                     )
                     Text(
-                        text = "70" + "명", color = MyColors.grey979797, style = montserratSemiBold12
+                        text = "${choice.voteCount} 명",
+                        color = MyColors.grey979797,
+                        style = montserratSemiBold12
                     )
                 }
             }
@@ -152,7 +164,7 @@ fun GageBar(
 @Composable
 @Preview
 fun VoteLaout() {
-    VoteGageBar(gage = 0.8f, true)
+//    VoteBar(gage = 0.8f, true)
 }
 
 @Composable
