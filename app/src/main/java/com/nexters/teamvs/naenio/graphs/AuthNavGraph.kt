@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.tabs.DetailScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.LoginScreen
-import com.nexters.teamvs.naenio.ui.tabs.auth.NicknameScreen
+import com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileSettingScreen
 
 fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
     navigation(
@@ -19,7 +19,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                 viewModel = hiltViewModel(),
                 onNickName = {
                     navController.popBackStack()
-                    navController.navigate(AuthScreen.Nickname.route)
+                    navController.navigate(AuthScreen.ProfileSetting.route)
                 },
                 onNext = {
                     navController.popBackStack()
@@ -27,8 +27,8 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                 }
             )
         }
-        composable(route = AuthScreen.Nickname.route) {
-            NicknameScreen(viewModel = hiltViewModel()) {
+        composable(route = AuthScreen.ProfileSetting.route) {
+            ProfileSettingScreen(navController = navController, viewModel = hiltViewModel()) {
                 navController.popBackStack()
                 navController.navigate(Graph.MAIN)
             }
@@ -41,6 +41,6 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
 
 sealed class AuthScreen(val route: String) {
     object Login : AuthScreen(route = "LOGIN")
-    object Nickname : AuthScreen(route = "Nickname")
+    object ProfileSetting : AuthScreen(route = "ProfileSetting")
     object Forgot : AuthScreen(route = "FORGOT")
 }

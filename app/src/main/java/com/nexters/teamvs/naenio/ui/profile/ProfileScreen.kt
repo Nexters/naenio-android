@@ -22,8 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
+import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.composables.DialogModel
 import com.nexters.teamvs.naenio.ui.feed.ProfileImageIcon
 
 @Composable
@@ -61,10 +65,14 @@ fun ProfileScreen(
                     modifier = Modifier
                         .padding()
                         .background(MyColors.darkGrey_313643, shape = RoundedCornerShape(5.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable {
+                            navController.navigate(AuthScreen.ProfileSetting.route)
+                        },
                     style = Font.montserratSemiBold14,
                     color = Color.White,
-                    text = stringResource(id = com.nexters.teamvs.naenio.R.string.edit))
+                    text = stringResource(id = R.string.edit)
+                )
             }
         }
         item {
@@ -72,8 +80,10 @@ fun ProfileScreen(
             ProfileButton(
                 navController = navController,
                 modifier = Modifier
-                    .background(color = MyColors.darkGrey_313643,
-                        shape = RoundedCornerShape(10.dp)),
+                    .background(
+                        color = MyColors.darkGrey_313643,
+                        shape = RoundedCornerShape(10.dp)
+                    ),
                 title = stringResource(id = R.string.profile_social_login),
                 image = painterResource(id = R.drawable.icon_social_login),
                 isLoginLayout = true,
@@ -96,14 +106,17 @@ fun ProfileScreen(
             )
         }
         item {
-            Spacer(modifier = Modifier
-                .padding(top = 20.dp))
-            Column(modifier = Modifier
-                .wrapContentHeight()
-                .background(
-                    color = MyColors.darkGrey_313643,
-                    shape = RoundedCornerShape(10.dp)
-                )
+            Spacer(
+                modifier = Modifier
+                    .padding(top = 20.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .background(
+                        color = MyColors.darkGrey_313643,
+                        shape = RoundedCornerShape(10.dp)
+                    )
             ) {
                 ProfileButton(
                     navController = navController,
@@ -136,12 +149,16 @@ fun ProfileScreen(
             }
         }
         item {
-            Spacer(modifier = Modifier
-                .padding(top = 20.dp)
-                .wrapContentHeight())
-            Column(modifier = Modifier
-                .wrapContentHeight()
-                .background(MyColors.darkGrey_313643, shape = RoundedCornerShape(10.dp))) {
+            Spacer(
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .wrapContentHeight()
+            )
+            Column(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .background(MyColors.darkGrey_313643, shape = RoundedCornerShape(10.dp))
+            ) {
                 ProfileButton(
                     navController = navController,
                     title = stringResource(id = R.string.logout),
@@ -163,22 +180,24 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileButtonLine() {
-    Spacer(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 9.dp)
-        .height(1.dp)
-        .background(MyColors.darkGrey_424A5C))
+    Spacer(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 9.dp)
+            .height(1.dp)
+            .background(MyColors.darkGrey_424A5C)
+    )
 }
 
 @Composable
 fun ProfileButton(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    title : String,
+    title: String,
     image: Painter,
-    isLoginLayout : Boolean = false,
-    loginType : String = "",
-    clickType : String = ""
+    isLoginLayout: Boolean = false,
+    loginType: String = "",
+    clickType: String = ""
 ) {
     Row(
         modifier = modifier
@@ -223,8 +242,9 @@ fun ProfileButton(
         )
         Spacer(modifier = Modifier.weight(1f))
         if (isLoginLayout) {
-            val titleStringId = if(loginType == "KAKAO") R.string.kakao else R.string.google
-            val imagePainterId = if(loginType == "KAKAO") R.drawable.login_kakao else R.drawable.login_google
+            val titleStringId = if (loginType == "KAKAO") R.string.kakao else R.string.google
+            val imagePainterId =
+                if (loginType == "KAKAO") R.drawable.login_kakao else R.drawable.login_google
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -249,7 +269,8 @@ fun ProfileButton(
     }
 }
 
-fun moveProfileDetailScreen(navController: NavHostController, type : String) {
+
+fun moveProfileDetailScreen(navController: NavHostController, type: String) {
     navController.navigate("profileDetail/${type}")
 }
 
@@ -260,7 +281,22 @@ private fun setQuestionBtn() {
 
 private fun setLogoutBtn() {
     Log.d("### ProfileScreen", ProfileType.LOGOUT)
-
+    GlobalUiEvent.uiEvent.tryEmit(UiEvent.ShowDialog(
+        DialogModel(
+            title = "로그아웃",
+            message = "로그아웃 하시겠습니까?",
+            button1Text = "닫기",
+            button2Text = "로그아웃",
+            button1Callback = {
+                Log.d("####", "button1Callback()")
+                GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+            },
+            button2Callback = {
+                Log.d("####", "button2Callback()")
+                GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+            }
+        )
+    ))
 }
 
 private fun setSignoutBtn() {

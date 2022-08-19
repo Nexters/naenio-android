@@ -23,4 +23,9 @@ interface UserApi {
 
     @DELETE("/app/members/me")
     suspend fun deleteProfile() : Object
+
+    @PUT("/app/members/profile-image")
+    suspend fun setProfileImage(
+        @Body profileImageRequest: ProfileImageRequest
+    ): ProfileImageResponse
 }

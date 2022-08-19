@@ -167,4 +167,49 @@ class CommentViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteComment(comment: Comment) {
+        viewModelScope.launch {
+            try {
+                commentRepository.deleteComment(comment.id)
+                _comments.value = comments.value - listOf(comment).toSet()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun like(id: Int) {
+        viewModelScope.launch {
+            try {
+                commentRepository.likeComment(id)
+                _comments.value = comments.value.map {
+                    if (it.id == id) it.copy(isLiked = true) else it
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun unlike(id: Int) {
+        viewModelScope.launch {
+            try {
+                commentRepository.unlikeComment(id)
+                _comments.value = comments.value.map {
+                    if (it.id == id) it.copy(isLiked = false) else it
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * 바텀시트가 닫혀도, 바텀시트의 Lifecycle 이 Destroy 상태가 되지 않아서 닫힐 때마다 수동으로 clear 처리..
+     */
+    fun clear() {
+        _comments.value = emptyList()
+        _replies.value = emptyList()
+    }
 }

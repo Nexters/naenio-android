@@ -3,6 +3,11 @@ package com.nexters.teamvs.naenio.extensions
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
@@ -46,5 +51,16 @@ fun Exception.errorMessage(): String {
         "네트워크 연결 상태를 확인해주세요."
     } else {
         "일시적 오류가 발생했습니다. 재시도 해주세요."
+    }
+}
+
+
+@Composable
+inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier {
+    return clickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() }
+    ) {
+        onClick()
     }
 }

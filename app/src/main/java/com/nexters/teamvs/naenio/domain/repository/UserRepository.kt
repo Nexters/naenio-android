@@ -12,7 +12,7 @@ import javax.inject.Inject
 class UserRepository @Inject constructor(
     private val userApi: UserApi,
     private val authDataStore: AuthDataStore = AuthDataStore
-): BaseRepository() {
+) : BaseRepository() {
 
     suspend fun login(oAuthToken: String, authType: AuthType): String {
         val jwt = userApi.login(LoginRequest(oAuthToken, authType)).token
@@ -26,8 +26,8 @@ class UserRepository @Inject constructor(
         return jwt
     }
 
-    suspend fun isExistNickname(nickname: String): IsExistNicknameResponse {
-        return userApi.isExistNickname(nickname)
+    suspend fun isExistNickname(nickname: String): Boolean {
+        return userApi.isExistNickname(nickname).exist
     }
 
     suspend fun setNickname(nickname: String): Boolean {
@@ -35,11 +35,16 @@ class UserRepository @Inject constructor(
         return response.nickname == nickname
     }
 
-    suspend fun getMyProfile() : Profile {
+    suspend fun getMyProfile(): Profile {
         return userApi.getMyProfile().toMyProfile()
     }
 
-    suspend fun deleteProfile() : Boolean {
+    suspend fun deleteProfile(): Boolean {
         return userApi.deleteProfile() == {}
+    }
+
+    suspend fun setProfileImage(index: Int): Boolean {
+        val response = userApi.setProfileImage(ProfileImageRequest(index))
+        return index == response.profileImageIndex
     }
 }

@@ -5,7 +5,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,7 +17,6 @@ import com.nexters.teamvs.naenio.ui.feed.FeedScreen
 import com.nexters.teamvs.naenio.ui.tabs.*
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
 import com.nexters.teamvs.naenio.ui.home.ThemeScreen
-import com.nexters.teamvs.naenio.ui.profile.ProfileDetail
 import com.nexters.teamvs.naenio.ui.profile.ProfileDetailScreen
 import com.nexters.teamvs.naenio.ui.profile.ProfileScreen
 
@@ -58,7 +56,9 @@ fun MainNavGraph(
             )
         }
         composable(Route.Create) {
-            CreateScreen()
+            CreateScreen(
+                navController = navController
+            )
         }
         detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)

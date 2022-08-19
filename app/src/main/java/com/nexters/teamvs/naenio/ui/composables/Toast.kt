@@ -12,16 +12,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nexters.teamvs.naenio.theme.Font
 
 @Composable
-fun Toast(message: String) {
+fun Toast(
+    modifier: Modifier = Modifier,
+    message: String,
+    visible: Boolean = false,
+) {
+    if (!visible) return
     Text(
-        modifier = Modifier
+        modifier = modifier
+            .padding(16.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .background(Color(0xff313643), shape = RoundedCornerShape(10.dp))
@@ -43,7 +48,6 @@ fun Toast(message: String) {
         style = Font.pretendardRegular16,
         color = Color.White
     )
-
 }
 
 @Preview

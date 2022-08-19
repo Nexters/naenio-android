@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @Keep
-data class LikeCommentRequest(val commentId: String)
+data class LikeCommentRequest(val commentId: Int)
 
 @Serializable
 @Keep

@@ -11,10 +11,10 @@ data class Post(
 
 data class Choice(
     val id: Int,
-    val isVoted: Boolean,
+    val isVoted: Boolean = false,
     val name: String,
     val sequence: Int,
-    val voteCount: Int
+    val voteCount: Int = 0
 )
 
 data class Author(

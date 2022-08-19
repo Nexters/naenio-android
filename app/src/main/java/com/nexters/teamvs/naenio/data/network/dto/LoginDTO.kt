@@ -19,7 +19,7 @@ data class LoginResponse(
 
 @Serializable
 data class IsExistNicknameResponse(
-    val exist: String
+    val exist: Boolean
 )
 
 @Serializable
@@ -34,8 +34,16 @@ data class NicknameResponse(
 
 @Serializable
 data class MyProfileResponse(
-    val id : Int,
+    val id: Int,
     val nickname: String,
-    val authServiceType : String,
-    val profileImageIndex : Int
+    val authServiceType: String,
+    val profileImageIndex: Int
+)
+
+data class ProfileImageRequest(
+    val profileImageIndex: Int,
+)
+
+data class ProfileImageResponse(
+    val profileImageIndex: Int,
 )

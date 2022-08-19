@@ -7,11 +7,8 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class WritePostRequest(
-    val title: String,
-    val content: String,
-    val categoryId: Int,
-    val choices: List<String> = emptyList()
+data class FeedResponse(
+    val posts: List<PostResponse>
 )
 
 @Keep
