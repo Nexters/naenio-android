@@ -9,6 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.create.CreateScreen
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
@@ -40,7 +41,8 @@ fun MainNavGraph(
                 modifier = modifier,
                 modalBottomSheetState = modalBottomSheetState,
                 openSheet = openSheet,
-                closeSheet = closeSheet)
+                closeSheet = closeSheet
+            )
         }
         composable(BottomNavItem.Profile.route) {
             ProfileScreen(navController = navController, modifier = modifier)
@@ -60,6 +62,20 @@ fun MainNavGraph(
                 navController = navController
             )
         }
+
+        composable(route = "FeedDetail/{type}",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "https://{type}" }
+            )
+        ) {
+            FeedDetailScreen(
+                type = "feedDetail=" + it.arguments?.getString("type").orEmpty(),
+                navController = navController,
+                modalBottomSheetState = modalBottomSheetState,
+                openSheet = openSheet,
+                closeSheet = closeSheet
+            )
+        }
         detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)
         themeDetailNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
@@ -76,7 +92,7 @@ fun NavGraphBuilder.detailsNavGraph(
 ) {
     navigation(
         route = Graph.DETAILS,
-        startDestination = "FeedDetail/{type}"
+        startDestination = "FeedDetail/{type}",
     ) {
         composable(route = "FeedDetail/{type}") {
             FeedDetailScreen(
@@ -98,12 +114,12 @@ fun NavGraphBuilder.profileDetailNavGraph(
         route = Graph.PROFILE_DETAIL,
         startDestination = "ProfileDetail/{profileType}"
     ) {
-       composable(route = "ProfileDetail/{profileType}") {
-           ProfileDetailScreen(
-               profileType = it.arguments?.getString("profileType").orEmpty(),
-               navController = navController
-           )
-       }
+        composable(route = "ProfileDetail/{profileType}") {
+            ProfileDetailScreen(
+                profileType = it.arguments?.getString("profileType").orEmpty(),
+                navController = navController
+            )
+        }
     }
 }
 
@@ -119,7 +135,7 @@ fun NavGraphBuilder.themeDetailNavGraph(
         startDestination = "ThemeDetail/{type}"
     ) {
         composable(route = "ThemeDetail/{type}") {
-            it.arguments?.getString("type")?.let { type->
+            it.arguments?.getString("type")?.let { type ->
                 FeedScreen(
                     type = type,
                     navController = navController,

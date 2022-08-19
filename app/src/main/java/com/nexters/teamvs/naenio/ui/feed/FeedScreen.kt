@@ -19,7 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.LottieComposition
@@ -57,6 +56,9 @@ fun FeedScreen(
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
 //    viewModel.setType(type) // TODO 수정
     val themeItem = viewModel.themeItem.collectAsState()
+
+    var contentId: Int? = null
+
 
     BackHandler {
         if (modalBottomSheetState.isVisible) {
@@ -106,11 +108,12 @@ fun ThemeDetailLayout(
                 Brush.verticalGradient(themeItem.backgroundColorList)
             )
     ) {
-        Text(
-            modifier = Modifier.padding(top = 19.dp, start = 20.dp),
-            text = themeItem.title,
-            fontSize = 24.sp,
-            color = Color.White
+        TopBar(
+            modifier = Modifier,
+            barTitle = themeItem.title,
+            navController = navController,
+            isMoreBtnVisible = false,
+            textStyle = Font.pretendardSemiBold22
         )
         Box {
             FeedPager(
@@ -349,7 +352,7 @@ fun FeedItem(
         )
         .clickable {
             Log.d("####", "Feed Item Click")
-            navController.navigate("FeedDetail/feedDetail=${page}")
+            navController.navigate("FeedDetail/feedDetail=${post.id}")
         }
     ) {
         Column(

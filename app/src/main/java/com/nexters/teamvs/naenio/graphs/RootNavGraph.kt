@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import com.nexters.teamvs.naenio.ui.tabs.MainScreen
 
 @Composable
@@ -14,7 +15,9 @@ fun RootNavigationGraph(navController: NavHostController) {
         startDestination = Graph.MAIN //Graph.AUTHENTICATION
     ) {
         authNavGraph(navController = navController)
-        composable(route = Graph.MAIN) { MainScreen() }
+        composable(
+            route = Graph.MAIN
+        ) { MainScreen() }
     }
 }
 

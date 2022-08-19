@@ -7,7 +7,6 @@ import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.ui.home.ThemeItem
-import com.nexters.teamvs.naenio.ui.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class FeedEvent {
-    object ScrollToTop: FeedEvent()
+    object ScrollToTop : FeedEvent()
 }
 
 @HiltViewModel
@@ -85,6 +84,17 @@ class FeedViewModel @Inject constructor(
 
     private fun setThemeItem(type: String, replaceStr: String) {
         _themeItem.value = ThemeItem.themeList[type.replace(replaceStr, "").toInt() - 1]
+    }
+
+    private fun getPostDetail(id: Int) {
+        viewModelScope.launch {
+            try {
+                _postItem.value = feedRepository.getPostDetail(id = id)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+            }
+        }
     }
 
     private fun getThemePosts(type: String) {

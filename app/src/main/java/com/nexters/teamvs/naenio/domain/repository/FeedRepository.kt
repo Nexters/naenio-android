@@ -82,4 +82,10 @@ class FeedRepository @Inject constructor(
             )
         )
     }
+
+    suspend fun getPostDetail(
+        id: Int
+    ): Post {
+        return feedApi.getPostDetail(id).toPost()
+    }
 }
