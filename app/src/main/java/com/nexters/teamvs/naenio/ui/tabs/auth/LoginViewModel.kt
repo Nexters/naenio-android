@@ -50,7 +50,8 @@ class LoginViewModel @Inject constructor(
                 val token = loginWithKakao(context)
                 Log.d(className, "$token")
                 login(token.accessToken, AuthType.KAKAO)
-                checkProfileInfo()
+//                checkProfileInfo()
+                navigationEvent.tryEmit(LoginDestination.ProfileSettings)
             } catch (e: Exception) {
                 if (e is ClientError && e.reason == ClientErrorCause.Cancelled) {
                     Log.d(className, "사용자가 명시적으로 취소")
