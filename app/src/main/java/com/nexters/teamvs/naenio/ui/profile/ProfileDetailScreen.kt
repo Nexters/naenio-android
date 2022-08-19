@@ -23,9 +23,9 @@ import com.nexters.teamvs.naenio.BuildConfig
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.feed.ProfileNickName
-import com.nexters.teamvs.naenio.ui.feed.TopBar
-import com.nexters.teamvs.naenio.ui.feed.contentEmptyLayout
+import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
+import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
+import com.nexters.teamvs.naenio.ui.feed.composables.contentEmptyLayout
 
 @Composable
 fun ProfileDetailScreen(profileType : String = "", navController: NavHostController) {
