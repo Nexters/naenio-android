@@ -3,6 +3,7 @@ package com.nexters.teamvs.naenio.extensions
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
@@ -47,6 +48,7 @@ fun Throwable.isNetworkException(): Boolean {
 }
 
 fun Exception.errorMessage(): String {
+    Log.e("### error", "${this.printStackTrace()}")
     return if (isNetworkException()) {
         "네트워크 연결 상태를 확인해주세요."
     } else {

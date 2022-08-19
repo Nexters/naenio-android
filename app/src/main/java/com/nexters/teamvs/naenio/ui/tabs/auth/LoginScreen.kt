@@ -6,17 +6,30 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
@@ -24,7 +37,11 @@ import com.google.firebase.dynamiclinks.ktx.androidParameters
 import com.google.firebase.dynamiclinks.ktx.dynamicLink
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
+import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.extensions.requireActivity
+import com.nexters.teamvs.naenio.theme.Font
+
+//TODO 의식의 흐름으로 개발해서 리팩토링 필요
 
 @Composable
 fun LoginScreen(
@@ -33,6 +50,19 @@ fun LoginScreen(
     onNext: () -> Unit
 ) {
     val context = LocalContext.current
+
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.navigationEvent.collect {
+            when (it) {
+                LoginDestination.Main -> {
+                    onNext.invoke()
+                }
+                LoginDestination.ProfileSettings -> {
+                    onNickName.invoke()
+                }
+            }
+        }
+    })
 
     val startForResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
@@ -48,6 +78,15 @@ fun LoginScreen(
             }
         }
 
+    LoginScreenContent(
+        onGoogleLogin = {
+            startForResult.launch(viewModel.getGoogleLoginAuth(context.requireActivity()).signInIntent)
+        },
+        onKakaoLogin = {
+            viewModel.loginKakao(context)
+        }
+    )
+
     Column(modifier = Modifier.background(Color.LightGray)) {
         Button(
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.Yellow),
@@ -57,48 +96,155 @@ fun LoginScreen(
                 text = "카카오"
             )
         }
-        Button(
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
-            onClick = {
-                startForResult.launch(
-                    viewModel.getGoogleLoginAuth(
-                        context.requireActivity() ?: return@Button
-                    ).signInIntent
-                )
-            }
-        ) {
-            Text(
-                text = "구글"
-            )
-        }
-        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Magenta), onClick = {
-            onNickName.invoke()
-        }) {
-            Text(
-                text = "닉네임 설정 화면으로"
-            )
-        }
-
-        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue), onClick = {
-            onNext.invoke()
-        }) {
-            Text(
-                text = "메인 화면으로"
-            )
-        }
 
         Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan), onClick = {
             val dynamicLink = Firebase.dynamicLinks.dynamicLink {
-                        link = Uri.parse("https://naenioapp.page.link/")
-                        domainUriPrefix = "https://naenioapp.page.link"
-                        androidParameters("com.nexters.teamversus.naenio") {
-                            fallbackUrl = Uri.parse("https://naver.com")
-                        }
+                link = Uri.parse("https://naenioapp.page.link/")
+                domainUriPrefix = "https://naenioapp.page.link"
+                androidParameters("com.nexters.teamversus.naenio") {
+                    fallbackUrl = Uri.parse("https://naver.com")
+                }
             }
             Log.d("###", "dynamicLink 생성 테스트:: ${dynamicLink.uri.toString()}")
         }) {
             Text(text = "다이나믹 링크 생성 테스트")
         }
+    }
+}
+
+@Composable
+fun LoginScreenContent(
+    onGoogleLogin: () -> Unit,
+    onKakaoLogin: () -> Unit
+) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.full_loading))
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(
+                        Color(0xffcc69ff),
+                        Color(0xff5661ff)
+                    )
+                )
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            Color(0xB3000000),
+                            Color(0xFF000000)
+                        )
+                    )
+                )
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LottieAnimation(
+                    composition,
+                    modifier = Modifier
+                        .wrapContentSize(),
+                    iterations = Int.MAX_VALUE
+                )
+                Image(
+                    modifier = Modifier.padding(top = 12.dp),
+                    painter = painterResource(id = R.drawable.ic_wordmark),
+                    contentDescription = ""
+                )
+            }
+
+            Column(
+                modifier = Modifier
+            ) {
+                GoogleLoginButton(onGoogleLogin = onGoogleLogin)
+                Spacer(Modifier.height(7.dp))
+                KakaoLoginButton(onKakaoLogin = onKakaoLogin)
+            }
+
+            Text(
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(vertical = 21.dp).fillMaxWidth(),
+                style = Font.montserratMedium12,
+                color = Color(0xff6d6d6d),
+                text = "가입 시, 네니오의 다음 사항에 동의하는 것으로 간주합니다.\n 서비스 이용 약관 및 개인 정보 정책"
+            )
+
+        }
+
+    }
+}
+
+@Composable
+fun GoogleLoginButton(
+    onGoogleLogin: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 30.dp)
+            .fillMaxWidth()
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(6.dp)
+            )
+            .height(45.dp)
+            .clickable { onGoogleLogin.invoke() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.padding(start = 16.dp),
+            painter = painterResource(id = R.drawable.login_google),
+            contentDescription = ""
+        )
+        Text(
+            modifier = Modifier.weight(1f).padding(end = 20.dp),
+            textAlign = TextAlign.Center,
+            text = "구글 로그인",
+            style = Font.pretendardMedium16,
+            color = Color.Black
+        )
+    }
+}
+
+@Composable
+fun KakaoLoginButton(
+    onKakaoLogin: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 30.dp)
+            .fillMaxWidth()
+            .background(
+                color = Color.Yellow,
+                shape = RoundedCornerShape(6.dp)
+            )
+            .height(45.dp)
+            .clickable {
+                onKakaoLogin.invoke()
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.padding(start = 16.dp),
+            painter = painterResource(id = R.drawable.login_kakao),
+            contentDescription = ""
+        )
+        Text(
+            modifier = Modifier.padding(end = 20.dp).weight(1f),
+            textAlign = TextAlign.Center,
+            text = "카카오 로그인",
+            style = Font.pretendardMedium16,
+            color = Color.Black
+        )
     }
 }
 

@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.theme.Font
@@ -46,7 +47,6 @@ fun ProfileSettingScreen(
     onNext: () -> Unit,
 ) {
 
-    var showToast by remember { mutableStateOf<String>("") }
     LaunchedEffect(key1 = Unit, block = {
         viewModel.uiState.collect {
             when (it) {
@@ -56,15 +56,17 @@ fun ProfileSettingScreen(
                     } else {
                         it.exception.errorMessage()
                     }
-                    showToast = errorMessage
+                    GlobalUiEvent.showToast(errorMessage)
+                    GlobalUiEvent.hideLoading()
                 }
                 UiState.Idle -> {
 
                 }
                 UiState.Loading -> {
-
+                    GlobalUiEvent.showLoading()
                 }
                 UiState.Success -> {
+                    GlobalUiEvent.hideLoading()
                     onNext.invoke()
                 }
             }

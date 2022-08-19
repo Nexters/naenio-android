@@ -3,6 +3,7 @@ package com.nexters.teamvs.naenio.ui.comment
 import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -39,6 +40,7 @@ import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.model.UiState
+import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
 import kotlinx.coroutines.launch
 
 sealed class CommentEvent {
@@ -384,7 +386,9 @@ fun CommentItem(
                 .wrapContentHeight(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ProfileImageIcon()
+            ProfileImageIcon(
+                profileImageRes = comment.writer.profileImage
+            )
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -398,7 +402,7 @@ fun CommentItem(
             )
             Text(
                 modifier = Modifier.padding(end = 6.dp),
-                text = comment.writeTime.toString(),
+                text = comment.writeTime.split(" ")[0], //TODO 수정하기
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1
@@ -437,8 +441,7 @@ fun CommentItem(
                         .clickable {
                             onEvent.invoke(CommentEvent.Like(comment))
                         },
-                    colorFilter = ColorFilter.tint(color = if (comment.isLiked) Color.Red else Color.White),
-                    painter = painterResource(id = R.drawable.ic_heart_outlined),
+                    painter = painterResource(id = if (comment.isLiked) R.drawable.ic_heart_fill else R.drawable.ic_heart_outlined),
                     contentDescription = null
                 )
                 Text(
@@ -459,7 +462,7 @@ fun CommentItem(
                         contentDescription = null
                     )
                     Text(
-                        text = comment.likeCount.toString(),
+                        text = comment.replyCount.toString(),
                         fontSize = 12.sp,
                         color = Color.White
                     )
@@ -490,15 +493,17 @@ fun CommentItem(
 }
 
 @Composable
-fun ProfileImageIcon(modifier: Modifier = Modifier) {
-    //TODO 프로필 이미지 타입 정의
-    Icon(
+fun ProfileImageIcon(
+    modifier: Modifier = Modifier,
+    @DrawableRes profileImageRes: Int = R.drawable.profile_cat_3 //TODO MyProfile 이미지 넣기
+) {
+    Image(
         modifier = modifier
             .padding(end = 8.dp)
             .size(21.dp)
             .clip(CircleShape),
-        tint = Color.Yellow,
-        painter = painterResource(id = R.drawable.ic_launcher_background),
+//        tint = Color.Yellow,
+        painter = painterResource(profileImageRes),
         contentDescription = "profileThumbnail"
     )
 }
