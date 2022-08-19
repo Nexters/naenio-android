@@ -70,7 +70,7 @@ fun FeedDetailScreen(
             modifier = Modifier.wrapContentSize(),
             iterations = Int.MAX_VALUE
         )
-        if(type.equals("random")) {
+        if(type.contains("random")) {
             Image(
                 painter = painterResource(id = R.drawable.ic_random),
                 contentDescription = "ic_random",

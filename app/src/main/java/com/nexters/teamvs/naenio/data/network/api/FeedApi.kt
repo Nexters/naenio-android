@@ -22,6 +22,6 @@ interface FeedApi {
         @Query("theme") theme : String
     ): FeedResponse
 
-    @GET("/app/posts/random")
+    @GET("/app/posts-random")
     suspend fun getRandomPost(): PostResponse
 }
