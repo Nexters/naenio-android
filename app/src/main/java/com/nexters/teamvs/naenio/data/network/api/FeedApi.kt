@@ -30,6 +30,6 @@ interface FeedApi {
         @Path("id") id: Int,
     ): PostResponse
 
-    @GET("/app/votes")
-    suspend fun vote(voteRequest: VoteRequest): VoteResponse
+    @POST("/app/votes")
+    suspend fun vote(@Body voteRequest: VoteRequest): VoteResponse
 }

@@ -54,6 +54,6 @@ data class VoteResponse(
     val postId: Int,
     val choiceId: Int,
     val memberId: Int,
-    val createDateTime: String,
-    val lastModifiedDateTime: String,
+//    val createDateTime: String,
+//    val lastModifiedDateTime: String,
 )
