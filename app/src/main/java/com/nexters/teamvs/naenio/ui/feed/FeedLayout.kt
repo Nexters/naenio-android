@@ -225,7 +225,7 @@ fun ProfileNickName(
     Row(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
-        ProfileImageIcon(index = profileImageIndex, size = 24.dp, padding = 2.dp)
+        ProfileImageIcon(index = profileImageIndex, size = 24.dp)
         Text(
             text = nickName,
             color = Color.White,
@@ -262,7 +262,7 @@ fun TopBar(
     barTitle: String?,
     navController: NavHostController,
     isMoreBtnVisible: Boolean = true,
-    textStyle : TextStyle = Font.pretendardSemiBold16
+    textStyle: TextStyle = Font.pretendardSemiBold16
 ) {
     Row(
         modifier = modifier

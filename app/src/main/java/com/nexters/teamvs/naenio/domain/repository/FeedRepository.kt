@@ -25,12 +25,12 @@ class FeedRepository @Inject constructor(
     }
 
     suspend fun getThemePosts(
-        theme : String
+        theme: String
     ): List<Post> {
         return feedApi.getThemePosts(theme).posts.toPostList()
     }
 
-    suspend fun getRandomPosts() : Post {
+    suspend fun getRandomPosts(): Post {
         return feedApi.getRandomPost().toPost()
     }
 
@@ -49,5 +49,11 @@ class FeedRepository @Inject constructor(
             )
         )
         return response.toPost()
+    }
+
+    suspend fun getPostDetail(
+        id: Int
+    ): Post {
+        return feedApi.getPostDetail(id).toPost()
     }
 }

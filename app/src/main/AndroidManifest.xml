@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.nexters.teamvs.naenio"
-    >
+    package="com.nexters.teamvs.naenio">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name="com.nexters.teamvs.naenio.base.NaenioApp"
@@ -17,29 +15,29 @@
         android:roundIcon="@drawable/app_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Naenio"
-        tools:targetApi="31"
-        >
+        tools:targetApi="31">
 
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
-                <data android:host="oauth"
+                <data
+                    android:host="oauth"
                     android:scheme="kakao${KAKAO_API_KEY}" />
             </intent-filter>
         </activity>
 
         <activity
             android:name="com.nexters.teamvs.naenio.MainActivity"
-            android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustNothing"
             android:exported="true"
-            >
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,14 +45,18 @@
             </intent-filter>
 
             <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
 
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:host="naenioapp.page.link" android:scheme="https"/>
-                <data android:host="naenioapp.page.link" android:scheme="http"/>
+                <data
+                    android:host="*"
+                    android:scheme="https" />
+                <data
+                    android:host="*"
+                    android:scheme="http" />
             </intent-filter>
         </activity>
     </application>
