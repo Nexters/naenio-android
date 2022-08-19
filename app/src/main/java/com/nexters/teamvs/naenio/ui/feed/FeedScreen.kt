@@ -67,7 +67,9 @@ fun FeedScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
         if (type == "feed") {
             FeedScreenContent(
                 navController = navController,
@@ -191,20 +193,27 @@ fun FeedScreenContent(
                 }
             }
         }
-        IconButton(
-            onClick = {
-                navController.navigate(Route.Create)
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_floating),
-                tint = Color.Unspecified,
-                contentDescription = "floating"
-            )
+        FeedCreateFloatingButton(modifier = Modifier.align(Alignment.BottomEnd)) {
+            navController.navigate(Route.Create)
         }
+    }
+}
+
+@Composable
+fun FeedCreateFloatingButton(
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+            .padding(16.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_floating),
+            tint = Color.Unspecified,
+            contentDescription = "floating"
+        )
     }
 }
 
