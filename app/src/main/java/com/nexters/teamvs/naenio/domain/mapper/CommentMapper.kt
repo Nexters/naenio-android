@@ -1,10 +1,8 @@
 package com.nexters.teamvs.naenio.domain.mapper
 
-import com.nexters.teamvs.naenio.data.network.dto.CommentResponse
-import com.nexters.teamvs.naenio.data.network.dto.ReplyResponse
-import com.nexters.teamvs.naenio.data.network.dto.WriteCommentResponse
+import com.nexters.teamvs.naenio.data.network.dto.*
 import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toAuthor
-import com.nexters.teamvs.naenio.domain.model.Author
+import com.nexters.teamvs.naenio.domain.model.*
 import com.nexters.teamvs.naenio.ui.comment.Comment
 import com.nexters.teamvs.naenio.ui.comment.Reply
 
@@ -61,5 +59,23 @@ object CommentMapper {
             likeCount = 0,
             writeTime = this.createdDateTime,
         )
+    }
+
+    fun MyCommentPostResponse.toCommentPost() : CommentPost {
+        return CommentPost(
+            id = id,
+            title = title,
+            author = author.toAuthor()
+        )
+    }
+
+    fun MyCommentResponse.toMyComment() : List<MyComments> {
+        return comments.map {
+            MyComments(
+                id = it.id,
+                content = it.content,
+                post = it.post.toCommentPost()
+            )
+        }
     }
 }

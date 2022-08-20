@@ -67,6 +67,8 @@ fun FeedDetailScreen(
         modifier = Modifier.background(MyColors.screenBackgroundColor)
     }
 
+    val isEmptyPost = postItem.value != null
+
     BackHandler {
         if (modalBottomSheetState.isVisible) {
             closeSheet.invoke()
@@ -76,10 +78,21 @@ fun FeedDetailScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        FeedDetail(postItem.value, modifier, navController, titleBar, textStyle,viewModel = viewModel, openSheet = openSheet)
-        LottieAnimation(
-            composition, modifier = Modifier.wrapContentSize(), iterations = Int.MAX_VALUE
-        )
+        if (isEmptyPost) {
+            FeedDetail(postItem.value!!, modifier, navController, titleBar, textStyle,viewModel = viewModel, openSheet = openSheet)
+            LottieAnimation(
+                composition, modifier = Modifier.wrapContentSize(), iterations = Int.MAX_VALUE
+            )
+        } else {
+            Column(
+                modifier = modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle, null)
+                FeedEmptyLayout(Color.White)
+            }
+        }
         if (type.contains("random")) {
             Image(painter = painterResource(id = R.drawable.ic_random),
                 contentDescription = "ic_random",
@@ -95,7 +108,7 @@ fun FeedDetailScreen(
 
 @Composable
 fun FeedDetail(
-    post: Post?,
+    post: Post,
     modifier: Modifier,
     navController: NavHostController,
     titleBar: String?,
@@ -104,71 +117,74 @@ fun FeedDetail(
     openSheet: (BottomSheetType) -> Unit,
 ) {
     val context = LocalContext.current
-    post?.let { post ->
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle, post)
         Column(
-            modifier = modifier.fillMaxSize()
+            modifier = Modifier
+                .padding(horizontal = 40.dp)
+                .fillMaxHeight()
         ) {
-            TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle, post)
-            Column(
+            ProfileNickName(
+                nickName = post.author.nickname.orEmpty(),
                 modifier = Modifier
-                    .padding(horizontal = 40.dp)
-                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(top = 32.dp),
+                profileImageIndex = post.author.profileImageIndex,
+                isIconVisible = false
             ) {
-                ProfileNickName(
-                    nickName = post.author.nickname.orEmpty(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(top = 32.dp),
-                    profileImageIndex = post.author.profileImageIndex,
-                    isIconVisible = false
-                ) {
-                    //share
-                    val shareLink = "https://naenio.shop/posts/${post.id}"
+                //share
+                val shareLink = "https://naenio.shop/posts/${post.id}"
 
-                    val type = "text/plain"
-                    val subject = "네니오로 오세요~~~"
-                    val extraText = shareLink
-                    val shareWith = "ShareWith"
+                val type = "text/plain"
+                val subject = "네니오로 오세요~~~"
+                val extraText = shareLink
+                val shareWith = "ShareWith"
 
-                    val intent = Intent(Intent.ACTION_SEND)
-                    intent.type = type
-                    intent.putExtra(Intent.EXTRA_SUBJECT, subject)
-                    intent.putExtra(Intent.EXTRA_TEXT, extraText)
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.type = type
+                intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+                intent.putExtra(Intent.EXTRA_TEXT, extraText)
 
-                    ContextCompat.startActivity(
-                        context,
-                        Intent.createChooser(intent, shareWith),
-                        null
-                    )
-                }
-                VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
-                Spacer(modifier = Modifier.fillMaxHeight(0.044f))
-                VoteBar(
-                    post = post,
-                    onVote = { postId, voteId ->
-
-                    }
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-                CommentLayout(
-                    commentCount = post.commentCount,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(46.dp)
-                        .background(
-                            Color.Black, shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(horizontal = 14.dp)
-                        .shadow(
-                            1.dp,
-                            shape = RoundedCornerShape(12.dp),
-                            ambientColor = MyColors.blackShadow_35000000
-                        ).clickable {
-                            openSheet.invoke(BottomSheetType.CommentType(postId = post.id, onEvent = {}))
-                        }
+                ContextCompat.startActivity(
+                    context,
+                    Intent.createChooser(intent, shareWith),
+                    null
                 )
             }
+            VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
+            Spacer(modifier = Modifier.fillMaxHeight(0.044f))
+            VoteBar(
+                post = post,
+                onVote = { postId, voteId ->
+
+                }
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            CommentLayout(
+                commentCount = post.commentCount,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(46.dp)
+                    .background(
+                        Color.Black, shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(horizontal = 14.dp)
+                    .shadow(
+                        1.dp,
+                        shape = RoundedCornerShape(12.dp),
+                        ambientColor = MyColors.blackShadow_35000000
+                    )
+                    .clickable {
+                        openSheet.invoke(
+                            BottomSheetType.CommentType(
+                                postId = post.id,
+                                onEvent = {})
+                        )
+                    }
+            )
         }
     }
 }

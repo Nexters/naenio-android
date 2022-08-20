@@ -38,4 +38,9 @@ interface CommentApi {
     suspend fun writeComment (
         @Body writeCommentRequest: WriteCommentRequest
     ): WriteCommentResponse
+
+    @GET("/app/commments/me")
+    suspend fun getMyComment (
+        @Query("size") size : Int
+    ) : MyCommentResponse
 }

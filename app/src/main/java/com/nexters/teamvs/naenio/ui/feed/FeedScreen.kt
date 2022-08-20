@@ -110,6 +110,8 @@ fun ThemeDetailLayout(
 //    })
 
     val posts = viewModel.themePosts.collectAsState()
+    val isEmptyTheme = posts.value != null && posts.value?.isEmpty() == true
+
 
     Column(
         modifier = Modifier
@@ -126,21 +128,25 @@ fun ThemeDetailLayout(
             textStyle = Font.pretendardSemiBold22
         )
         Box {
-            FeedPager(
-                modifier = Modifier,
-                posts = posts.value ?: emptyList(),
-                pagerState = pagerState,
-                openSheet = openSheet,
-                navController = navController,
-                onVote = { postId, choiceId ->
+            if (isEmptyTheme) {
+                FeedEmptyLayout(Color.White)
+            } else {
+                FeedPager(
+                    modifier = Modifier,
+                    posts = posts.value ?: emptyList(),
+                    pagerState = pagerState,
+                    openSheet = openSheet,
+                    navController = navController,
+                    onVote = { postId, choiceId ->
 //                    viewModel.vote(postId = postId, choiceId = choiceId)
-                },
-            )
-            LottieAnimation(
-                composition,
-                modifier = Modifier.wrapContentSize(),
-                iterations = Int.MAX_VALUE
-            )
+                    },
+                )
+                LottieAnimation(
+                    composition,
+                    modifier = Modifier.wrapContentSize(),
+                    iterations = Int.MAX_VALUE
+                )
+            }
         }
     }
 }
@@ -450,7 +456,7 @@ fun FeedItem(
 }
 
 @Composable
-fun FeedEmptyLayout() {
+fun FeedEmptyLayout(color : Color =  MyColors.darkGrey_828282) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -464,15 +470,9 @@ fun FeedEmptyLayout() {
             modifier = Modifier.padding(top = 14.dp),
             text = stringResource(id = R.string.feed_empty),
             style = Font.pretendardMedium18,
-            color = MyColors.darkGrey_828282
+            color = color
         )
     }
-}
-
-object FeedType {
-    const val ALL_VOTE = "all_vote"
-    const val MY_POSTED_VOTE = "my_posted_vote"
-    const val MY_VOTE = "my_vote"
 }
 
 @OptIn(ExperimentalMaterialApi::class)

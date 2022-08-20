@@ -83,7 +83,9 @@ class FeedViewModel @Inject constructor(
     }
 
     private fun setThemeItem(type: String, replaceStr: String) {
+        Log.d("### setThemeItem", "${type} // ${replaceStr}")
         _themeItem.value = ThemeItem.themeList[type.replace(replaceStr, "").toInt() - 1]
+        Log.d("### setThemeItem", _themeItem.value.type)
     }
 
     private fun getPostDetail(id: Int) {

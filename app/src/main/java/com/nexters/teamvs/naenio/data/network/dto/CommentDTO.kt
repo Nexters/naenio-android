@@ -1,6 +1,7 @@
 package com.nexters.teamvs.naenio.data.network.dto
 
 import androidx.annotation.Keep
+import com.nexters.teamvs.naenio.domain.model.MyCommentList
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -80,3 +81,25 @@ data class CommentReply(
 enum class CommentParentType {
     POST, COMMENT
 }
+
+@Serializable
+@Keep
+data class MyCommentResponse (
+    val comments : List<MyComment>
+)
+
+@Serializable
+@Keep
+data class MyComment (
+    val id : Int,
+    val content : String,
+    val post : MyCommentPostResponse
+)
+
+@Serializable
+@Keep
+data class MyCommentPostResponse (
+    val id : Int,
+    val author: AuthorResponse,
+    val title : String
+)
