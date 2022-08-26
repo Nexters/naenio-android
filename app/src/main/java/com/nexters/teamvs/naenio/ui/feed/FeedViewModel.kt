@@ -140,21 +140,33 @@ class FeedViewModel @Inject constructor(
         )
     }
 
-    var voteLock = false
+    private var voteLock = false
     fun vote(
         postId: Int,
         choiceId: Int,
     ) {
         if (voteLock) return
         voteLock = true
+
+        val currentPosts = posts.value ?: emptyList()
+
+        /**
+         * 같은 선택지에 또 투표를 할 경우, API 요청 막기.
+         */
+        val post = currentPosts.find { it.id == postId }
+        val choice = post?.choices?.find { it.id == choiceId }
+        if (post?.isVotedForPost() == true && choice?.isVoted == true) {
+            voteLock = false
+            return
+        }
+
         viewModelScope.launch {
             try {
                 feedRepository.vote(
                     postId = postId,
                     choiceId = choiceId,
                 )
-                //TODO 간결하게 수정
-                val currentPosts = posts.value ?: emptyList()
+
                 currentPosts.map { post ->
                     if (post.id == postId) {
                         val isVotedForPost = post.isVotedForPost()
