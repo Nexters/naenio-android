@@ -41,7 +41,6 @@ import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.feed.composables.*
-import com.nexters.teamvs.naenio.ui.home.ThemeItem
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -140,6 +139,7 @@ fun ThemeDetailLayout(
                     onVote = { postId, choiceId ->
 //                    viewModel.vote(postId = postId, choiceId = choiceId)
                     },
+                    loadNextPage = viewModel::loadNextPage
                 )
                 LottieAnimation(
                     composition,
@@ -211,6 +211,7 @@ fun FeedScreenContent(
                     onVote = { postId, choiceId ->
                         viewModel.vote(postId = postId, choiceId = choiceId)
                     },
+                    loadNextPage = viewModel::loadNextPage,
                     navController = navController
                 )
             }
@@ -329,8 +330,12 @@ fun FeedPager(
     pagerState: PagerState,
     openSheet: (BottomSheetType) -> Unit,
     onVote: (Int, Int) -> Unit,
-    navController: NavHostController
+    navController: NavHostController,
+    loadNextPage: () -> Unit,
 ) {
+    val threshold = 3
+    val lastIndex = posts.lastIndex
+
     VerticalPager(
         state = pagerState,
         count = posts.size,
@@ -340,8 +345,13 @@ fun FeedPager(
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxSize(),
     ) { page ->
-        Box(
-        ) {
+        if (page + threshold >= lastIndex) {
+            SideEffect {
+                Log.d("###", "$page $lastIndex")
+                loadNextPage()
+            }
+        }
+        Box {
             FeedItem(
                 page = page,
                 post = posts[page],

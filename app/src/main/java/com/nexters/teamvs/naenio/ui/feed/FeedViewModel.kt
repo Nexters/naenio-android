@@ -1,12 +1,15 @@
 package com.nexters.teamvs.naenio.ui.feed
 
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource
+import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.home.ThemeItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,10 +25,29 @@ sealed class FeedEvent {
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     private val feedRepository: FeedRepository,
-) : BaseViewModel() {
+) : BaseViewModel(), PagingSource {
 
     private val _posts = MutableStateFlow<List<Post>?>(null)
     val posts = _posts.asStateFlow()
+    private val _loadingState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
+    private val _firstPageState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
+    private val _isRefreshing = MutableStateFlow(false)
+    private var isFirstPage = true
+    private var loadedAllPage = false
+
+    private inline val shouldLoadNextPage: Boolean
+        get() = if (isFirstPage) {
+            _firstPageState.value is PlaceholderState.Idle
+        } else {
+            _loadingState.value is PlaceholderState.Idle
+        } && !loadedAllPage
+
+    private inline val shouldRetry: Boolean
+        get() = if (isFirstPage) {
+            _firstPageState.value is PlaceholderState.Failure
+        } else {
+            _loadingState.value is PlaceholderState.Failure
+        }
 
     private val _themePosts = MutableStateFlow<List<Post>?>(null)
     val themePosts = _themePosts.asStateFlow()
@@ -39,7 +61,7 @@ class FeedViewModel @Inject constructor(
     private val _feedTabItems = MutableStateFlow(feedRepository.getFeedTabItems())
     val feedTabItems = _feedTabItems.asStateFlow()
 
-    private val _selectedTab = MutableStateFlow<FeedTabItemModel>(feedTabItems.value[0])
+    private val _selectedTab = MutableStateFlow(feedTabItems.value[0])
     val selectedTab = _selectedTab.asStateFlow()
     fun selectTab(feedTabItemModel: FeedTabItemModel) {
         _selectedTab.value = feedTabItemModel
@@ -138,6 +160,75 @@ class FeedViewModel @Inject constructor(
             lastPostId = null,
             sortType = feedTabItemType.text
         )
+    }
+
+    @MainThread
+    override fun loadNextPage() {
+        if (shouldLoadNextPage) {
+            loadPageInternal()
+        }
+    }
+
+    @MainThread
+    override fun retry() {
+        if (shouldRetry) {
+            loadPageInternal()
+        }
+    }
+
+    @MainThread
+    override fun refresh() {
+        loadPageInternal(refresh = true)
+    }
+
+    @MainThread
+    private fun updateState(state: PlaceholderState) {
+        if (isFirstPage) {
+            _firstPageState.value = state
+        } else {
+            _loadingState.value = state
+        }
+    }
+
+    private fun loadPageInternal(refresh: Boolean = false) {
+        val currentSortType = selectedTab.value.type
+        val currentPosts = posts.value
+        viewModelScope.launch {
+            if (refresh) {
+                _isRefreshing.value = true
+            } else {
+                updateState(PlaceholderState.Loading)
+            }
+
+            val currentList = if (refresh) emptyList() else _posts.value
+
+            runCatching {
+                feedRepository.getFeedPosts(
+                    pageSize = 10,
+                    lastPostId = currentPosts?.getOrNull(currentPosts.size - 1)?.id,
+                    sortType = currentSortType.text,
+                )
+            }.fold(
+                onSuccess = {
+                    if (refresh) {
+                        _isRefreshing.value = false
+                    } else {
+                        updateState(PlaceholderState.Idle(it.isEmpty()))
+                    }
+                    _posts.value = currentList?.plus(it)
+
+                    isFirstPage = false
+                    loadedAllPage = it.isEmpty()
+                },
+                onFailure = {
+                    if (refresh) {
+                        _isRefreshing.value = false
+                    } else {
+                        updateState(PlaceholderState.Failure(it))
+                    }
+                }
+            )
+        }
     }
 
     private var voteLock = false

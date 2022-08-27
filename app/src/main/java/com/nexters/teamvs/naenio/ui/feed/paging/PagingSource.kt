@@ -1,0 +1,15 @@
+package com.nexters.teamvs.naenio.ui.feed.paging
+
+sealed class PlaceholderState {
+    data class Idle(val isEmpty: Boolean) : PlaceholderState()
+    object Loading : PlaceholderState()
+    data class Failure(val throwable: Throwable) : PlaceholderState()
+}
+
+interface PagingSource {
+    fun loadNextPage()
+
+    fun retry()
+
+    fun refresh()
+}
