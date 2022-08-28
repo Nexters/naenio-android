@@ -3,6 +3,7 @@ package com.nexters.teamvs.naenio.ui.profile
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.data.network.dto.MyProfileResponse
 import com.nexters.teamvs.naenio.domain.model.*
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository

@@ -67,7 +67,7 @@ fun DialogComponent(
         Spacer(modifier = Modifier.height(33.dp))
 
         Row {
-            dialogModel.button2Text?.let {
+            dialogModel.button1Text?.let {
                 Box(
                     modifier = Modifier
                         .background(
@@ -89,7 +89,7 @@ fun DialogComponent(
                 }
             }
             Spacer(modifier = Modifier.width(20.dp))
-            dialogModel.button1Text?.let {
+            dialogModel.button2Text?.let {
                 Box(
                     modifier = Modifier
                         .background(

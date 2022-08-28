@@ -3,7 +3,10 @@ package com.nexters.teamvs.naenio.ui.tabs.auth.setting
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
+import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.ui.model.UiState
 import com.nexters.teamvs.naenio.ui.model.User
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
@@ -45,6 +48,30 @@ class ProfileViewModel @Inject constructor(
         AuthDataStore.userJson = User(nickname, profileImageIndex).toJson().also {
             Log.d("### saveUserInfo()", "userJson: \n $it")
         }
+    }
+
+    fun logout() {
+        AuthDataStore.authToken = ""
+        AuthDataStore.userJson = User("", 1).toJson().also {
+            Log.d("### logoutUserInfo()", "userJson: \n $it")
+        }
+        // TODO 화면 어디로 이동?
+    }
+
+    fun signout() {
+        viewModelScope.launch {
+            try {
+                GlobalUiEvent.showLoading()
+                userRepository.deleteProfile()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                GlobalUiEvent.hideLoading()
+                GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+            }
+        }
+        // TODO 화면 어디로 이동?
     }
 
 }
