@@ -193,7 +193,7 @@ fun FeedDetail(
             VoteBar(
                 post = post,
                 onVote = { postId, voteId ->
-
+                    viewModel.vote(postId, voteId)
                 }
             )
             Spacer(modifier = Modifier.height(32.dp))

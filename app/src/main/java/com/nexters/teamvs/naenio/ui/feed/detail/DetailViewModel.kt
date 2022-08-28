@@ -50,4 +50,40 @@ class DetailViewModel @Inject constructor(
             }
         }
     }
+
+    var voteLock = false
+    fun vote(postId: Int, choiceId: Int) {
+        if (voteLock) return
+        voteLock = true
+        viewModelScope.launch {
+            try {
+                feedRepository.vote(postId, choiceId)
+                val post = postItem.value!!
+                val alreadyIsVote = post.isVotedForPost()
+
+                post.copy(
+                    choices = post.choices.map {
+                        if (it.id == choiceId) {
+                            it.copy(
+                                isVoted = true,
+                                voteCount = if (alreadyIsVote) it.voteCount + 1 else it.voteCount
+                            )
+                        } else {
+                            it.copy(
+                                isVoted = false,
+                                voteCount = if (alreadyIsVote) it.voteCount - 1 else it.voteCount
+                            )
+                        }
+                    }
+                ).also {
+                    _postItem.value = it
+                }
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                voteLock = false
+            }
+
+        }
+    }
 }
