@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ReplySheetLayout(
     modifier: Modifier,
-    commentViewModel: CommentViewModel,
+    commentViewModel: ReplyViewModel,
     parentComment: Comment,
     changeMode: (CommentMode) -> Unit,
     onEvent: (CommentEvent) -> Unit,
@@ -39,14 +39,14 @@ fun ReplySheetLayout(
     val commentUiState by remember { commentViewModel.commentUiState }
 
     LaunchedEffect(key1 = parentComment.id, block = {
-        commentViewModel.loadFirstReplies(parentComment.id)
+        commentViewModel.loadNextPage(parentComment.id)
     })
 
     val eventListener: (CommentEvent) -> Unit = {
         when (it) {
             is CommentEvent.Write -> {
-                commentViewModel.writeComment(
-                    postId = it.parentId,
+                commentViewModel.writeReply(
+                    commentId = it.parentId,
                     content = it.content,
                 )
             }
@@ -76,7 +76,7 @@ fun ReplySheetLayout(
             mode = CommentMode.REPLY(parentComment),
             changeMode = changeMode,
             onLoadMore = {
-                commentViewModel.loadMoreReplies(parentComment.id, it)
+                commentViewModel.loadNextPage(parentComment.id)
             },
             onEvent = eventListener
         )

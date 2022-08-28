@@ -64,7 +64,7 @@ data class Comment(
 
 data class Reply(
     override val id: Int,
-    val parentId: Int = -1,
+    val parentId: Int,
     override val content: String,
     override val writer: Author = Author.mock,
     override val likeCount: Int = 0,
@@ -82,17 +82,20 @@ data class Reply(
         val mock = listOf<Reply>(
             Reply(
                 id = 0,
+                parentId = -1,
                 content = "그대로 하고 싶은데",
                 writeTime = "123123123",
                 isLiked = true
             ),
             Reply(
                 id = 0,
+                parentId = -1,
                 content = "너의 얘기대로",
                 writeTime = "123123123",
             ),
             Reply(
                 id = 0,
+                parentId = -1,
                 content = "너 없이 행복하란 말",
                 writeTime = "123123123",
                 isLiked = true

@@ -1,8 +1,9 @@
 package com.nexters.teamvs.naenio.ui.comment
 
-import android.util.Log
 import androidx.annotation.MainThread
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
@@ -10,6 +11,7 @@ import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource2
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.model.UiState
+import dagger.assisted.AssistedFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,18 +19,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CommentViewModel @Inject constructor(
+class ReplyViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
 ) : BaseViewModel(), PagingSource2 {
 
     val commentUiState = mutableStateOf<UiState>(UiState.Idle)
-    private val _comments = MutableStateFlow<List<Comment>>(emptyList())
-    val comments = _comments.asStateFlow()
     private val _loadingState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
     private val _firstPageState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
     private val _isRefreshing = MutableStateFlow(false)
     private var isFirstPage = true
     private var loadedAllPage = false
+
+    private val _replies = MutableStateFlow<List<Reply>>(emptyList())
+    val replies = _replies.asStateFlow()
+
+    val inputUiState = mutableStateOf<UiState>(UiState.Idle)
 
     private inline val shouldLoadNextPage: Boolean
         get() = if (isFirstPage) {
@@ -43,31 +48,6 @@ class CommentViewModel @Inject constructor(
         } else {
             _loadingState.value is PlaceholderState.Failure
         }
-
-    private val _replies = MutableStateFlow<List<Reply>>(emptyList())
-    val replies = _replies.asStateFlow()
-
-    val inputUiState = mutableStateOf<UiState>(UiState.Idle)
-
-    fun writeComment(
-        postId: Int,
-        content: String,
-    ) {
-        inputUiState.value = UiState.Loading
-        viewModelScope.launch {
-            try {
-                val comment = commentRepository.writeComment(
-                    postId = postId,
-                    content = content,
-                )
-
-                _comments.value = listOf(comment) + comments.value
-                inputUiState.value = UiState.Success
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
     fun writeReply(
         commentId: Int,
@@ -89,11 +69,11 @@ class CommentViewModel @Inject constructor(
         }
     }
 
-    fun deleteComment(comment: Comment) {
+    fun deleteComment(reply: Reply) {
         viewModelScope.launch {
             try {
-                commentRepository.deleteComment(comment.id)
-                _comments.value = comments.value - listOf(comment).toSet()
+                commentRepository.deleteComment(reply.id)
+                _replies.value = replies.value - listOf(reply).toSet()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -104,7 +84,7 @@ class CommentViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 commentRepository.likeComment(id)
-                _comments.value = comments.value.map {
+                _replies.value = replies.value.map {
                     if (it.id == id) it.copy(isLiked = true, likeCount = it.likeCount + 1) else it
                 }
             } catch (e: Exception) {
@@ -117,7 +97,7 @@ class CommentViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 commentRepository.unlikeComment(id)
-                _comments.value = comments.value.map {
+                _replies.value = replies.value.map {
                     if (it.id == id) it.copy(isLiked = false, likeCount = it.likeCount - 1) else it
                 }
             } catch (e: Exception) {
@@ -130,8 +110,7 @@ class CommentViewModel @Inject constructor(
      * 바텀시트가 닫혀도, 바텀시트의 Lifecycle 이 Destroy 상태가 되지 않아서 닫힐 때마다 수동으로 clear 처리..
      */
     fun clear() {
-        _comments.value = emptyList()
-
+        _replies.value = emptyList()
         _loadingState.value = PlaceholderState.Idle(true)
         _firstPageState.value = PlaceholderState.Idle(true)
         _isRefreshing.value = false
@@ -147,8 +126,8 @@ class CommentViewModel @Inject constructor(
         }
     }
 
-    private fun loadPageInternal(refresh: Boolean = false, postId: Int) {
-        val currentComments = comments.value
+    private fun loadPageInternal(refresh: Boolean = false, id: Int) {
+        val currentComments = replies.value
         viewModelScope.launch {
             if (refresh) {
                 _isRefreshing.value = true
@@ -156,14 +135,14 @@ class CommentViewModel @Inject constructor(
                 updateState(PlaceholderState.Loading)
             }
 
-            val currentList = if (refresh) emptyList() else comments.value
+            val currentList = if (refresh) emptyList() else replies.value
 
             runCatching {
-                val lastComment = currentComments.lastOrNull()
-                commentRepository.getComments(
-                    postId = postId,
+                val lastComment = currentComments.last()
+                commentRepository.getReplies(
+                    commentId = id,
                     size = 10,
-                    lastCommentId = lastComment?.id
+                    lastCommentId = lastComment.id
                 )
             }.fold(
                 onSuccess = {
@@ -172,7 +151,7 @@ class CommentViewModel @Inject constructor(
                     } else {
                         updateState(PlaceholderState.Idle(it.isEmpty()))
                     }
-                    _comments.value = currentList + it
+                    _replies.value = currentList + it
 
                     isFirstPage = false
                     loadedAllPage = it.isEmpty()
@@ -188,22 +167,19 @@ class CommentViewModel @Inject constructor(
         }
     }
 
-    @MainThread
     override fun loadNextPage(id: Int) {
         if (shouldLoadNextPage) {
-            loadPageInternal(postId = id)
+            loadPageInternal(id = id)
         }
     }
 
-    @MainThread
     override fun retry(id: Int) {
         if (shouldRetry) {
-            loadPageInternal(postId = id)
+            loadPageInternal(id = id)
         }
     }
 
-    @MainThread
     override fun refresh(id: Int) {
-        loadPageInternal(refresh = true, postId = id)
+        loadPageInternal(refresh = true, id)
     }
 }

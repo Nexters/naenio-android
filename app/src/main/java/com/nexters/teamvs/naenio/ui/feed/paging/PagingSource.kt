@@ -13,3 +13,11 @@ interface PagingSource {
 
     fun refresh()
 }
+
+interface PagingSource2 {
+    fun loadNextPage(id: Int)
+
+    fun retry(id: Int)
+
+    fun refresh(id: Int)
+}

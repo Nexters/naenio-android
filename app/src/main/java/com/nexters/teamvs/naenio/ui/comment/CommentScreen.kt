@@ -7,10 +7,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -110,7 +107,7 @@ fun CommentScreen(
     ) {
         ReplySheetLayout(
             modifier = modifier,
-            commentViewModel = commentViewModel,
+            commentViewModel = hiltViewModel(),
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
@@ -130,7 +127,7 @@ fun CommentSheetLayout(
     onClose: () -> Unit,
 ) {
     LaunchedEffect(key1 = postId, block = {
-        commentViewModel.loadFirstComments(postId)
+        commentViewModel.loadNextPage(postId)
     })
 
     val listState = rememberLazyListState()
@@ -175,7 +172,7 @@ fun CommentSheetLayout(
             comments = comments.value,
             changeMode = changeMode,
             onLoadMore = {
-                commentViewModel.loadMoreComments(postId, it)
+                commentViewModel.loadNextPage(id = postId)
             },
             onEvent = eventListener
         )
@@ -325,12 +322,11 @@ fun CommentList(
     uiState: UiState,
     comments: List<BaseComment>,
     changeMode: (CommentMode) -> Unit,
-    onLoadMore: (Int) -> Unit,
+    onLoadMore: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
-    val nextKey = comments.lastOrNull()?.id
-    val requestLoadMoreKey = comments.getOrNull(comments.size - 1)?.id //TODO 사이즈 조용
-
+    val threshold = 3
+    val lastIndex = comments.lastIndex
     LazyColumn(modifier = modifier, state = listState) {
         item {
             Spacer(
@@ -341,12 +337,14 @@ fun CommentList(
                     .background(MyColors.grey3f3f3f)
             )
         }
-        items(comments) {
-            if (requestLoadMoreKey == it.id && nextKey != null) {
-                onLoadMore.invoke(nextKey)
+        itemsIndexed(comments) { index, comment ->
+            if (index + threshold >= lastIndex) {
+                SideEffect {
+                    onLoadMore()
+                }
             }
             CommentItem(
-                comment = it,
+                comment = comment,
                 mode = mode,
                 onCommentMode = changeMode,
                 onEvent = onEvent
