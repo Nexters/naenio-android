@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio.ui.feed
+package com.nexters.teamvs.naenio.ui.feed.detail
 
 import android.content.Intent
 import android.util.Log
@@ -35,34 +35,41 @@ import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
+import com.nexters.teamvs.naenio.ui.feed.FeedViewModel
 import com.nexters.teamvs.naenio.ui.feed.composables.*
+import com.nexters.teamvs.naenio.ui.theme.ThemeItem
+import com.nexters.teamvs.naenio.ui.theme.ThemeType
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun FeedDetailScreen(
-    type: String = "feedDetail",
+fun DetailScreen(
+    type: String,
     navController: NavHostController,
-    viewModel: FeedViewModel = hiltViewModel(),
+    viewModel: DetailViewModel = hiltViewModel(),
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
-    LaunchedEffect(key1 = Unit, block = {
-        viewModel.setType(type)
-    })
     val postItem = viewModel.postItem.collectAsState()
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
-    val themeItem = viewModel.themeItem.collectAsState()
 
-    var modifier: Modifier
-    var titleBar: String = ""
+    val modifier: Modifier
+    var titleBar = ""
     var textStyle: TextStyle = Font.pretendardSemiBold16
-    if (type.contains("random")) {
+    if (type == ThemeType.RANDOM_PLAY.name) {
         Log.d("### FeedDetailScreen", "Random")
-        titleBar = themeItem.value.title
+        LaunchedEffect(key1 = Unit, block = {
+            viewModel.getRandomPost()
+        })
+        titleBar = ThemeItem.themeList[2].title
         textStyle = Font.pretendardSemiBold22
-        modifier = Modifier.background(Brush.verticalGradient(themeItem.value.backgroundColorList))
+        modifier =
+            Modifier.background(Brush.verticalGradient(ThemeItem.themeList[2].backgroundColorList))
     } else {
+        LaunchedEffect(key1 = Unit, block = {
+            viewModel.getPostDetail(type.toInt())
+        })
         Log.d("### FeedDetailScreen", "FeedDetail")
         modifier = Modifier.background(MyColors.screenBackgroundColor)
     }
@@ -79,7 +86,15 @@ fun FeedDetailScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isEmptyPost) {
-            FeedDetail(postItem.value!!, modifier, navController, titleBar, textStyle,viewModel = viewModel, openSheet = openSheet)
+            FeedDetail(
+                postItem.value!!,
+                modifier,
+                navController,
+                titleBar,
+                textStyle,
+                viewModel = viewModel,
+                openSheet = openSheet
+            )
             LottieAnimation(
                 composition, modifier = Modifier.wrapContentSize(), iterations = Int.MAX_VALUE
             )
@@ -89,7 +104,16 @@ fun FeedDetailScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle, null)
+                TopBar(
+                    modifier = Modifier.wrapContentHeight(),
+                    barTitle = titleBar,
+                    close = {
+                        navController.popBackStack()
+                    },
+                    isMoreBtnVisible = true,
+                    textStyle = textStyle,
+                    post = null
+                )
                 FeedEmptyLayout(Color.White)
             }
         }
@@ -101,7 +125,8 @@ fun FeedDetailScreen(
                     .padding(bottom = 32.dp, end = 28.dp)
                     .clickable {
                         viewModel.getRandomPost()
-                    })
+                    }
+            )
         }
     }
 }
@@ -113,14 +138,23 @@ fun FeedDetail(
     navController: NavHostController,
     titleBar: String?,
     textStyle: TextStyle,
-    viewModel: FeedViewModel,
+    viewModel: DetailViewModel,
     openSheet: (BottomSheetType) -> Unit,
 ) {
     val context = LocalContext.current
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle, post)
+        TopBar(
+            modifier = Modifier.wrapContentHeight(),
+            barTitle = titleBar,
+            close = {
+                navController.popBackStack()
+            },
+            isMoreBtnVisible = true,
+            textStyle = textStyle,
+            post = post
+        )
         Column(
             modifier = Modifier
                 .padding(horizontal = 40.dp)

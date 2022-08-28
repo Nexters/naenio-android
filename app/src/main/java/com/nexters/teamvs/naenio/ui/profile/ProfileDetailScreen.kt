@@ -44,7 +44,9 @@ fun ProfileDetailScreen(profileType: String = "", navController: NavHostControll
         TopBar(
             modifier = Modifier,
             barTitle = title,
-            navController = navController,
+            close = {
+                navController.popBackStack()
+            },
             isMoreBtnVisible = false
         )
         if (profileType.contains(ProfileType.NOTICE_DETAIL)) {

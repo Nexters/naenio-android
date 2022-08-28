@@ -47,17 +47,12 @@ import kotlinx.coroutines.delay
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
-    type: String = "feed",
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
-
     BackHandler {
         if (modalBottomSheetState.isVisible) {
             closeSheet.invoke()
@@ -69,94 +64,20 @@ fun FeedScreen(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        if (type == "feed") {
-            FeedScreenContent(
-                navController = navController,
-                openSheet = openSheet,
-                composition = composition,
-                viewModel = viewModel
-            )
-        } else {
-            ThemeDetailLayout(
-                type = type,
-                navController = navController,
-                openSheet = openSheet,
-                composition = composition
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-fun ThemeDetailLayout(
-    viewModel: FeedViewModel = hiltViewModel(),
-    type: String,
-    navController: NavHostController,
-    openSheet: (BottomSheetType) -> Unit,
-    composition: LottieComposition?
-) {
-    val pagerState = rememberPagerState(initialPage = 0)
-    val themeItemState = viewModel.themeItem.collectAsState()
-    val themeItem = themeItemState.value
-    LaunchedEffect(key1 = type, block = {
-        viewModel.setType(type)
-    })
-
-
-//    LaunchedEffect(key1 = themeItem.value.type, block = {
-//        viewModel.setType(themeItem.value.type)
-//    })
-
-    val posts = viewModel.themePosts.collectAsState()
-    val isEmptyTheme = posts.value != null && posts.value?.isEmpty() == true
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(themeItem.backgroundColorList)
-            )
-    ) {
-        TopBar(
-            modifier = Modifier.padding(bottom = 20.dp),
-            barTitle = themeItem.title,
+        FeedScreenContent(
             navController = navController,
-            isMoreBtnVisible = false,
-            textStyle = Font.pretendardSemiBold22
+            openSheet = openSheet,
+            viewModel = viewModel
         )
-        Box {
-            if (isEmptyTheme) {
-                FeedEmptyLayout(Color.White)
-            } else {
-                FeedPager(
-                    modifier = Modifier,
-                    posts = posts.value ?: emptyList(),
-                    pagerState = pagerState,
-                    openSheet = openSheet,
-                    navController = navController,
-                    onVote = { postId, choiceId ->
-//                    viewModel.vote(postId = postId, choiceId = choiceId)
-                    },
-                    loadNextPage = viewModel::loadNextPage
-                )
-                LottieAnimation(
-                    composition,
-                    modifier = Modifier.wrapContentSize(),
-                    iterations = Int.MAX_VALUE
-                )
-            }
-        }
     }
 }
+
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun FeedScreenContent(
     navController: NavHostController,
     openSheet: (BottomSheetType) -> Unit,
-    composition: LottieComposition?,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     /**
@@ -389,7 +310,7 @@ fun FeedItem(
         )
         .clickable {
             Log.d("####", "Feed Item Click")
-            navController.navigate("FeedDetail/feedDetail=${post.id}")
+            navController.navigate("FeedDetail/${post.id}")
         }
     ) {
         Column(

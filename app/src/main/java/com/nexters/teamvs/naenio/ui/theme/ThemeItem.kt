@@ -1,22 +1,31 @@
-package com.nexters.teamvs.naenio.ui.home
+package com.nexters.teamvs.naenio.ui.theme
 
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.theme.ThemeItem.Companion.themeList
+
+enum class ThemeType {
+    COLLAPSED_BALANCE, NOISY, GOLD_BALANCE, RANDOM_PLAY, TODAY_VOTE, HALL_OF_FAME
+}
+
+fun ThemeType.findTheme(): ThemeItem {
+    return themeList.find { it.type == this }!! // ThemeItem 을 로컬에서 관리하기 때문에 Nonnull 보장 가능
+}
 
 data class ThemeItem(
-    val id : Int = -1,
-    val title: String = "",
-    val description: String = "",
+    val id : Int,
+    val title: String,
+    val description: String,
     val backgroundColor: Color = Color.White,
-    @DrawableRes val image: Int = 0,
-    val backgroundColorList : List<Color> = listOf(MyColors.screenBackgroundColor, MyColors.screenBackgroundColor),
-    val type : String = ""
+    val backgroundColorList : List<Color>,
+    @DrawableRes val image: Int,
+    val type : ThemeType
 ) {
     companion object {
-        val themeList = listOf<ThemeItem>(
+        val themeList = listOf(
             ThemeItem(
                 id = 1,
                 title = NaenioApp.context.getString(R.string.theme_item_title1),
@@ -28,7 +37,7 @@ data class ThemeItem(
                     Color(0xffc9c4f9),
                     Color(0xff6dafe9)
                 ),
-                type = themeType.TODAY_VOTE.toString()
+                type = ThemeType.TODAY_VOTE
             ),
             ThemeItem(
                 id = 2,
@@ -41,7 +50,7 @@ data class ThemeItem(
                     Color(0xffaafffa),
                     Color(0xff6dafe9)
                 ),
-                type = "HALL_OF_FAME"
+                type = ThemeType.HALL_OF_FAME
             ),
             ThemeItem(
                 id = 3,
@@ -54,7 +63,7 @@ data class ThemeItem(
                     Color(0xffa58eff),
                     Color(0xff34a1ff)
                 ),
-                type = themeType.RANDOM_PLAY.toString()
+                type = ThemeType.RANDOM_PLAY
             ),
             ThemeItem(
                 id = 4,
@@ -67,7 +76,7 @@ data class ThemeItem(
                     Color(0xffffddaa),
                     Color(0xff6dafe9)
                 ),
-                type = themeType.GOLD_BALANCE.toString()
+                type = ThemeType.GOLD_BALANCE
             ),
             ThemeItem(
                 id = 5,
@@ -80,7 +89,7 @@ data class ThemeItem(
                     Color(0xffffc9aa),
                     Color(0xff6dafe9)
                 ),
-                type = themeType.NOISY.toString()
+                type = ThemeType.NOISY
             ),
             ThemeItem(
                 id = 6,
@@ -93,12 +102,8 @@ data class ThemeItem(
                     Color(0xffaff3ff),
                     Color(0xff6d97e9)
                 ),
-                type = themeType.COLLAPSED_BALANCE.toString()
+                type = ThemeType.COLLAPSED_BALANCE
             ),
         )
     }
-}
-
-enum class themeType {
-    COLLAPSED_BALANCE, NOISY, GOLD_BALANCE, RANDOM_PLAY, TODAY_VOTE, HALL_OF_FAME
 }

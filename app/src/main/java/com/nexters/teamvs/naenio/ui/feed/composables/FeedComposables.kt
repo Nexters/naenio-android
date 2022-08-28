@@ -138,7 +138,7 @@ fun ProfileImageIcon(index: Int = 0, size: Dp, padding: Dp = 0.dp) {
 fun TopBar(
     modifier: Modifier,
     barTitle: String?,
-    navController: NavHostController,
+    close: () -> Unit,
     isMoreBtnVisible: Boolean = true,
     textStyle: TextStyle = Font.pretendardSemiBold16,
     post: Post? = null,
@@ -154,7 +154,7 @@ fun TopBar(
     ) {
         Image(
             modifier = Modifier.clickable {
-                navController.popBackStack()
+                close.invoke()
             },
             painter = painterResource(R.drawable.ic_back_left),
             contentDescription = "icon_back_m",

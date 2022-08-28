@@ -2,12 +2,8 @@ package com.nexters.teamvs.naenio.ui.profile
 
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
-import com.nexters.teamvs.naenio.data.network.dto.MyProfileResponse
-import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.model.Profile
-import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
-import com.nexters.teamvs.naenio.ui.home.ThemeItem
 import com.nexters.teamvs.naenio.ui.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

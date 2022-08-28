@@ -1,6 +1,5 @@
 package com.nexters.teamvs.naenio.ui.feed
 
-import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
@@ -10,7 +9,6 @@ import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
-import com.nexters.teamvs.naenio.ui.home.ThemeItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,15 +47,6 @@ class FeedViewModel @Inject constructor(
             _loadingState.value is PlaceholderState.Failure
         }
 
-    private val _themePosts = MutableStateFlow<List<Post>?>(null)
-    val themePosts = _themePosts.asStateFlow()
-
-    private val _themeItem = MutableStateFlow<ThemeItem>(ThemeItem())
-    val themeItem = _themeItem.asStateFlow()
-
-    private val _postItem = MutableStateFlow<Post?>(null)
-    val postItem = _postItem.asStateFlow()
-
     private val _feedTabItems = MutableStateFlow(feedRepository.getFeedTabItems())
     val feedTabItems = _feedTabItems.asStateFlow()
 
@@ -86,70 +75,6 @@ class FeedViewModel @Inject constructor(
                 } finally {
                     GlobalUiEvent.hideLoading()
                 }
-            }
-        }
-    }
-
-    fun setType(type: String) {
-        Log.d("#### setType", type)
-        if (type.contains("theme")) {
-            setThemeItem(type, "theme=")
-            getThemePosts(_themeItem.value.type)
-        } else if (type.contains("random")) {
-            setThemeItem(type, "feedDetail=random=")
-            getRandomPost()
-        } else if (type.contains("feedDetail")) {
-            val id = type.replace("feedDetail=", "").toInt()
-            getPostDetail(id)
-        }
-    }
-
-    private fun setThemeItem(type: String, replaceStr: String) {
-        Log.d("### setThemeItem", "${type} // ${replaceStr}")
-        _themeItem.value = ThemeItem.themeList[type.replace(replaceStr, "").toInt() - 1]
-        Log.d("### setThemeItem", _themeItem.value.type)
-    }
-
-    private fun getPostDetail(id: Int) {
-        viewModelScope.launch {
-            try {
-                GlobalUiEvent.showLoading()
-                _postItem.value = feedRepository.getPostDetail(id = id)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                GlobalUiEvent.showToast(e.errorMessage())
-            } finally {
-                GlobalUiEvent.hideLoading()
-            }
-        }
-    }
-
-    private fun getThemePosts(type: String) {
-        viewModelScope.launch {
-            try {
-                GlobalUiEvent.showLoading()
-                _themePosts.value = feedRepository.getThemePosts(
-                    theme = type
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-                GlobalUiEvent.showToast(e.errorMessage())
-            } finally {
-                GlobalUiEvent.hideLoading()
-            }
-        }
-    }
-
-    fun getRandomPost() {
-        viewModelScope.launch {
-            try {
-                GlobalUiEvent.showLoading()
-                _postItem.value = feedRepository.getRandomPosts()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                GlobalUiEvent.showToast(e.errorMessage())
-            } finally {
-                GlobalUiEvent.hideLoading()
             }
         }
     }
