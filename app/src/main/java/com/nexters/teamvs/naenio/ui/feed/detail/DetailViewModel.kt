@@ -57,8 +57,18 @@ class DetailViewModel @Inject constructor(
         voteLock = true
         viewModelScope.launch {
             try {
-                feedRepository.vote(postId, choiceId)
                 val post = postItem.value!!
+
+                /**
+                 * 같은 선택지에 또 투표를 할 경우, API 요청 막기.
+                 */
+                val choice = post.choices.find { it.id == choiceId }
+                if (post.isVotedForPost() && choice?.isVoted == true) {
+                    voteLock = false
+                    return@launch
+                }
+
+                feedRepository.vote(postId, choiceId)
                 val alreadyIsVote = post.isVotedForPost()
 
                 post.copy(

@@ -19,7 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -142,6 +144,8 @@ fun FeedDetail(
     openSheet: (BottomSheetType) -> Unit,
 ) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -194,6 +198,7 @@ fun FeedDetail(
                 post = post,
                 onVote = { postId, voteId ->
                     viewModel.vote(postId, voteId)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             )
             Spacer(modifier = Modifier.height(32.dp))
