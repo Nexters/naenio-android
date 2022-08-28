@@ -171,7 +171,7 @@ class FeedViewModel @Inject constructor(
          */
         val post = currentPosts.find { it.id == postId }
         val choice = post?.choices?.find { it.id == choiceId }
-        if (post?.isVotedForPost() == true && choice?.isVoted == true) {
+        if (post?.isAlreadyVote() == true && choice?.isVoted == true) {
             voteLock = false
             return
         }
@@ -185,7 +185,7 @@ class FeedViewModel @Inject constructor(
 
                 currentPosts.map { post ->
                     if (post.id == postId) {
-                        val isVotedForPost = post.isVotedForPost()
+                        val isVotedForPost = post.isAlreadyVote()
                         post.copy(
                             choices = post.choices.map { choice ->
                                 if (choice.id == choiceId) {

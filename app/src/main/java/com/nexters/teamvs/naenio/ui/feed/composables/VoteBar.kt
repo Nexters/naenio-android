@@ -31,7 +31,7 @@ fun VoteBar(
     onVote: (Int, Int) -> Unit,
 ) {
     /** 둘 중 하나라도 투표를 했는 지 */
-    val isVotedForPost = post.isVotedForPost()
+    val isVotedForPost = post.isAlreadyVote()
 
     Box(
         modifier = Modifier.wrapContentHeight(),

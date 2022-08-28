@@ -1,18 +1,11 @@
 package com.nexters.teamvs.naenio.ui.theme
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,7 +51,7 @@ class ThemeFeedViewModel @Inject constructor(
          */
         val post = currentPosts.find { it.id == postId }
         val choice = post?.choices?.find { it.id == choiceId }
-        if (post?.isVotedForPost() == true && choice?.isVoted == true) {
+        if (post?.isAlreadyVote() == true && choice?.isVoted == true) {
             voteLock = false
             return
         }
@@ -72,7 +65,7 @@ class ThemeFeedViewModel @Inject constructor(
 
                 currentPosts.map { post ->
                     if (post.id == postId) {
-                        val isVotedForPost = post.isVotedForPost()
+                        val isVotedForPost = post.isAlreadyVote()
                         post.copy(
                             choices = post.choices.map { choice ->
                                 if (choice.id == choiceId) {
