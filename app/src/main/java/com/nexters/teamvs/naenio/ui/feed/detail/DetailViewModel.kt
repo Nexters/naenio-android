@@ -7,6 +7,7 @@ import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -22,6 +23,8 @@ class DetailViewModel @Inject constructor(
 ) : BaseViewModel() {
     private val _postItem = MutableStateFlow<Post?>(null)
     val postItem = _postItem.asStateFlow()
+
+    val successVote = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
 
     fun getPostDetail(id: Int) {
         viewModelScope.launch {
@@ -87,6 +90,7 @@ class DetailViewModel @Inject constructor(
                     }
                 ).also {
                     _postItem.value = it
+                    successVote.emit(true)
                 }
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
