@@ -67,7 +67,7 @@ fun FeedDetailScreen(
         modifier = Modifier.background(MyColors.screenBackgroundColor)
     }
 
-    val isEmptyPost = postItem.value != null
+    val isEmptyPost = postItem.value == null
 
     BackHandler {
         if (modalBottomSheetState.isVisible) {
@@ -79,11 +79,6 @@ fun FeedDetailScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isEmptyPost) {
-            FeedDetail(postItem.value!!, modifier, navController, titleBar, textStyle,viewModel = viewModel, openSheet = openSheet)
-            LottieAnimation(
-                composition, modifier = Modifier.wrapContentSize(), iterations = Int.MAX_VALUE
-            )
-        } else {
             Column(
                 modifier = modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -92,6 +87,11 @@ fun FeedDetailScreen(
                 TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle, null)
                 FeedEmptyLayout(Color.White)
             }
+        } else {
+            FeedDetail(postItem.value!!, modifier, navController, titleBar, textStyle, openSheet)
+            LottieAnimation(
+                composition, modifier = Modifier.wrapContentSize(), iterations = Int.MAX_VALUE
+            )
         }
         if (type.contains("random")) {
             Image(painter = painterResource(id = R.drawable.ic_random),
@@ -113,7 +113,6 @@ fun FeedDetail(
     navController: NavHostController,
     titleBar: String?,
     textStyle: TextStyle,
-    viewModel: FeedViewModel,
     openSheet: (BottomSheetType) -> Unit,
 ) {
     val context = LocalContext.current

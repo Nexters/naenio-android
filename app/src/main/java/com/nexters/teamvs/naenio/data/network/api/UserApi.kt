@@ -22,10 +22,13 @@ interface UserApi {
     suspend fun getMyProfile(): MyProfileResponse
 
     @DELETE("/app/members/me")
-    suspend fun deleteProfile() : Object
+    suspend fun deleteProfile(): Object
 
     @PUT("/app/members/profile-image")
     suspend fun setProfileImage(
         @Body profileImageRequest: ProfileImageRequest
     ): ProfileImageResponse
+
+    @GET("/app/notices")
+    suspend fun getNotice(): NoticeListResponse
 }

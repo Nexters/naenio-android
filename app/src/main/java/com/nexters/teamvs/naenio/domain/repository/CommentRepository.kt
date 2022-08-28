@@ -6,8 +6,11 @@ import com.nexters.teamvs.naenio.data.network.dto.LikeCommentRequest
 import com.nexters.teamvs.naenio.data.network.dto.WriteCommentRequest
 import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toComment
 import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toComments
+import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toMyComment
 import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toReplies
 import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toReply
+import com.nexters.teamvs.naenio.domain.model.MyCommentList
+import com.nexters.teamvs.naenio.domain.model.MyComments
 import com.nexters.teamvs.naenio.ui.comment.Comment
 import com.nexters.teamvs.naenio.ui.comment.Reply
 import javax.inject.Inject
@@ -78,5 +81,9 @@ class CommentRepository @Inject constructor(
 
     suspend fun unlikeComment(id: Int) {
         commentApi.unlikeComment(id)
+    }
+
+    suspend fun getMyCommentList(size: Int): List<MyComments> {
+        return commentApi.getMyComment(size).toMyComment()
     }
 }

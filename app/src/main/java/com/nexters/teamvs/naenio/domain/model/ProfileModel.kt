@@ -6,3 +6,9 @@ data class Profile(
     val authServiceType : String,
     val profileImageIndex : Int = 0
 )
+
+data class Notice(
+    val id : Int,
+    val title : String,
+    val content : String
+)

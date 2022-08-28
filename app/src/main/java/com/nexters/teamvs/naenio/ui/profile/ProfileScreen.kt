@@ -36,6 +36,7 @@ fun ProfileScreen(
     modifier: Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    viewModel.getMyProfile()
     val myProfile = viewModel.myProfile.collectAsState()
     LazyColumn(
         modifier = modifier
@@ -170,6 +171,7 @@ fun ProfileScreen(
                     clickType = ProfileType.SIGNOUT
                 )
             }
+            Spacer(modifier = Modifier.padding(bottom = 28.dp))
         }
     }
 }
@@ -290,6 +292,22 @@ private fun setLogoutBtn() {
 
 private fun setSignoutBtn() {
     Log.d("### ProfileScreen", ProfileType.SIGNOUT)
+    GlobalUiEvent.uiEvent.tryEmit(
+        UiEvent.ShowDialog(
+            DialogModel(title = "로그아웃",
+                message = "로그아웃 하시겠습니까?",
+                button1Text = "닫기",
+                button2Text = "로그아웃",
+                button1Callback = {
+                    Log.d("####", "button1Callback()")
+                    GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+                },
+                button2Callback = {
+                    Log.d("####", "button2Callback()")
+                    GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+                })
+        )
+    )
 }
 
 object ProfileType {

@@ -5,6 +5,8 @@ import com.nexters.teamvs.naenio.base.BaseRepository
 import com.nexters.teamvs.naenio.data.network.api.UserApi
 import com.nexters.teamvs.naenio.data.network.dto.*
 import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toMyProfile
+import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toNoticeList
+import com.nexters.teamvs.naenio.domain.model.Notice
 import com.nexters.teamvs.naenio.domain.model.Profile
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import javax.inject.Inject
@@ -46,5 +48,9 @@ class UserRepository @Inject constructor(
     suspend fun setProfileImage(index: Int): Boolean {
         val response = userApi.setProfileImage(ProfileImageRequest(index))
         return index == response.profileImageIndex
+    }
+
+    suspend fun getNoticeList(): List<Notice> {
+        return userApi.getNotice().toNoticeList()
     }
 }
