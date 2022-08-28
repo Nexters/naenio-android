@@ -132,7 +132,7 @@ fun DetailScreen(
                 FeedEmptyLayout(Color.White)
             }
         }
-        if (type.contains("random")) {
+        if (type == ThemeType.RANDOM_PLAY.name) {
             Image(painter = painterResource(id = R.drawable.ic_random),
                 contentDescription = "ic_random",
                 modifier = Modifier
