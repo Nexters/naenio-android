@@ -57,9 +57,7 @@ fun ReplySheetLayout(
                 if (it.comment.isLiked) commentViewModel.unlike(id = it.comment.id)
                 else commentViewModel.like(id = it.comment.id)
             }
-            is CommentEvent.More -> {
-                if (it.isMine)
-            }
+            is CommentEvent.More -> {}
         }
     }
 

@@ -1,6 +1,5 @@
 package com.nexters.teamvs.naenio.ui.feed
 
-import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -20,7 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -38,6 +36,7 @@ import com.nexters.teamvs.naenio.ui.feed.composables.CommentLayout
 import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
 import com.nexters.teamvs.naenio.ui.feed.composables.VoteBar
 import com.nexters.teamvs.naenio.ui.feed.composables.VoteContent
+import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -77,6 +76,8 @@ fun FeedScreenContent(
     openSheet: (BottomSheetType) -> Unit,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     /**
      * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
      * 테마에서는 아래 상태들을 알 필요가 없음.
@@ -128,6 +129,9 @@ fun FeedScreenContent(
                     openSheet = openSheet,
                     onVote = { postId, choiceId ->
                         viewModel.vote(postId = postId, choiceId = choiceId)
+                    },
+                    onShare = { postId ->
+                        ShareUtils.share(postId = postId, context = context)
                     },
                     loadNextPage = viewModel::loadNextPage,
                     navController = navController
@@ -248,6 +252,7 @@ fun FeedPager(
     pagerState: PagerState,
     openSheet: (BottomSheetType) -> Unit,
     onVote: (Int, Int) -> Unit,
+    onShare: (Int) -> Unit,
     navController: NavHostController,
     loadNextPage: () -> Unit,
 ) {
@@ -276,7 +281,8 @@ fun FeedPager(
                 navController = navController,
                 onVote = onVote,
                 openSheet = openSheet,
-                onMore = {}
+                onMore = {},
+                onShare = onShare
             )
         }
     }
@@ -291,6 +297,7 @@ fun FeedItem(
     onVote: (Int, Int) -> Unit,
     openSheet: (BottomSheetType) -> Unit,
     onMore: (Boolean) -> Unit,
+    onShare: (Int) -> Unit,
 ) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
@@ -324,27 +331,8 @@ fun FeedItem(
                     .wrapContentHeight()
                     .padding(vertical = 24.dp),
                 isIconVisible = true,
-                onShare =  {
-                    //share
-                    val shareLink = "https://naenio.shop/posts/${post.id}"
-
-                    val type = "text/plain"
-                    val subject = "네니오로 오세요~~~"
-                    val extraText = shareLink
-                    val shareWith = "ShareWith"
-
-                    val intent = Intent(Intent.ACTION_SEND)
-                    intent.type = type
-                    intent.putExtra(Intent.EXTRA_SUBJECT, subject)
-                    intent.putExtra(Intent.EXTRA_TEXT, extraText)
-
-                    ContextCompat.startActivity(
-                        context,
-                        Intent.createChooser(intent, shareWith),
-                        null
-                    )
-                },
-                 onMore = {}
+                onShare = { onShare.invoke(post.id) },
+                onMore = {}
             )
             VoteContent(post, Modifier, 2)
             VoteBar(
@@ -376,7 +364,7 @@ fun FeedItem(
 }
 
 @Composable
-fun FeedEmptyLayout(color : Color =  MyColors.darkGrey_828282) {
+fun FeedEmptyLayout(color: Color = MyColors.darkGrey_828282) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,

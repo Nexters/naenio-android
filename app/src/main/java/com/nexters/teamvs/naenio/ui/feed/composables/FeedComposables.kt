@@ -90,6 +90,7 @@ fun CommentLayout(commentCount: Int = 0, modifier: Modifier) {
 fun ProfileNickName(
     modifier: Modifier,
     isIconVisible: Boolean,
+    isVisibleShareIcon: Boolean = true,
     nickName: String = "",
     profileImageIndex: Int = 0,
     onShare: () -> Unit,
@@ -110,15 +111,17 @@ fun ProfileNickName(
         Spacer(modifier = Modifier.weight(1f))
         if (isIconVisible) {
 
-            Image(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .clickable {
-                        onShare.invoke()
-                    },
-                painter = painterResource(R.drawable.ic_share),
-                contentDescription = "icon_feed_more"
-            )
+            if (isVisibleShareIcon) {
+                Image(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            onShare.invoke()
+                        },
+                    painter = painterResource(R.drawable.ic_share),
+                    contentDescription = "icon_feed_more"
+                )
+            }
 
             Image(
                 modifier = Modifier

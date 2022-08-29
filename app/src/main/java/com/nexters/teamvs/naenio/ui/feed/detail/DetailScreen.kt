@@ -39,6 +39,7 @@ import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.composables.*
 import com.nexters.teamvs.naenio.ui.theme.ThemeItem
 import com.nexters.teamvs.naenio.ui.theme.ThemeType
+import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -51,6 +52,7 @@ fun DetailScreen(
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
+    val context = LocalContext.current
     val postItem = viewModel.postItem.collectAsState()
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
     var isAnim by remember { mutableStateOf(false) }
@@ -100,7 +102,10 @@ fun DetailScreen(
                 titleBar,
                 textStyle,
                 viewModel = viewModel,
-                openSheet = openSheet
+                openSheet = openSheet,
+                onShare = {
+                    ShareUtils.share(it, context)
+                }
             )
             AnimatedVisibility(
                 visible = isAnim,
@@ -155,6 +160,7 @@ fun FeedDetail(
     textStyle: TextStyle,
     viewModel: DetailViewModel,
     openSheet: (BottomSheetType) -> Unit,
+    onShare: (Int) -> Unit,
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -184,27 +190,10 @@ fun FeedDetail(
                     .wrapContentHeight()
                     .padding(top = 32.dp),
                 profileImageIndex = post.author.profileImageIndex,
-                isIconVisible = false
-            ) {
-                //share
-                val shareLink = "https://naenio.shop/posts/${post.id}"
-
-                val type = "text/plain"
-                val subject = "네니오로 오세요~~~"
-                val extraText = shareLink
-                val shareWith = "ShareWith"
-
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.type = type
-                intent.putExtra(Intent.EXTRA_SUBJECT, subject)
-                intent.putExtra(Intent.EXTRA_TEXT, extraText)
-
-                ContextCompat.startActivity(
-                    context,
-                    Intent.createChooser(intent, shareWith),
-                    null
-                )
-            }
+                isIconVisible = false,
+                onShare = { onShare.invoke(post.id) },
+                onMore = {}
+            )
             VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
             Spacer(modifier = Modifier.fillMaxHeight(0.044f))
             VoteBar(

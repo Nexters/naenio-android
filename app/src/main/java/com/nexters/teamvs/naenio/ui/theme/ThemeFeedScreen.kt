@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -24,6 +25,7 @@ import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.FeedPager
 import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
+import com.nexters.teamvs.naenio.utils.ShareUtils
 
 /**
  * 테마 아이템 클릭 후 테마 피드 화면
@@ -86,6 +88,7 @@ fun ThemeFeedContent(
     close: () -> Unit,
     vote: (Int, Int) -> Unit,
 ) {
+    val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = 0)
 
     Column(
@@ -107,7 +110,10 @@ fun ThemeFeedContent(
             openSheet = openSheet,
             navController = navController,
             onVote = vote,
-            loadNextPage = { }
+            loadNextPage = { },
+            onShare = {
+                ShareUtils.share(it, context)
+            }
         )
     }
 }
