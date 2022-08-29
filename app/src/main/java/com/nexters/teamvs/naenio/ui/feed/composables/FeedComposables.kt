@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
@@ -93,6 +92,7 @@ fun ProfileNickName(
     isIconVisible: Boolean,
     nickName: String = "",
     profileImageIndex: Int = 0,
+    onShare: () -> Unit,
     onMore: () -> Unit,
 ) {
     Row(
@@ -109,6 +109,17 @@ fun ProfileNickName(
         )
         Spacer(modifier = Modifier.weight(1f))
         if (isIconVisible) {
+
+            Image(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .clickable {
+                        onShare.invoke()
+                    },
+                painter = painterResource(R.drawable.ic_share),
+                contentDescription = "icon_feed_more"
+            )
+
             Image(
                 modifier = Modifier
                     .wrapContentSize()

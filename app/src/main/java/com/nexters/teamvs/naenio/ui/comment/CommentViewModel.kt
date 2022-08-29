@@ -69,26 +69,6 @@ class CommentViewModel @Inject constructor(
         }
     }
 
-    fun writeReply(
-        commentId: Int,
-        content: String,
-    ) {
-        inputUiState.value = UiState.Loading
-        viewModelScope.launch {
-            try {
-                val reply = commentRepository.writeReply(
-                    commentId = commentId,
-                    content = content,
-                )
-
-                _replies.value = listOf(reply) + replies.value
-                inputUiState.value = UiState.Success
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     fun deleteComment(comment: Comment) {
         viewModelScope.launch {
             try {

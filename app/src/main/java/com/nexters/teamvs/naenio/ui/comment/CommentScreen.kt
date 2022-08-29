@@ -1,13 +1,16 @@
 package com.nexters.teamvs.naenio.ui.comment
 
-import android.util.Log
-import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -16,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -26,18 +28,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
-import com.nexters.teamvs.naenio.extensions.requireActivity
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.model.UiState
-import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
 import kotlinx.coroutines.launch
 
 sealed class CommentEvent {
@@ -48,7 +48,7 @@ sealed class CommentEvent {
     ) : CommentEvent()
 
     data class Like(val comment: BaseComment) : CommentEvent()
-    object More : CommentEvent()
+    data class More(val isMine: Boolean) : CommentEvent()
     object Close : CommentEvent()
 }
 
@@ -113,7 +113,9 @@ fun CommentScreen(
             changeMode = {
                 mode = it
             },
-            onEvent = onEvent
+            onEvent = {
+
+            }
         )
     }
 }
@@ -147,8 +149,18 @@ fun CommentSheetLayout(
                 if (it.comment.isLiked) commentViewModel.unlike(id = it.comment.id)
                 else commentViewModel.like(id = it.comment.id)
             }
-            CommentEvent.More -> {
+            is CommentEvent.More -> {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "",
+                            color = Color.White,
+                            onClick = {
 
+                            }
+                        )
+                    )
+                }
             }
         }
     }
@@ -412,7 +424,7 @@ fun CommentItem(
                 modifier = Modifier
                     .size(16.dp)
                     .clickable {
-                        onEvent.invoke(CommentEvent.More)
+                        onEvent.invoke(CommentEvent.More(true))
                     },
                 painter = painterResource(id = R.drawable.ic_more),
                 tint = Color.White,

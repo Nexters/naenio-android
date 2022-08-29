@@ -34,5 +34,6 @@ class MyColors {
         val darkGrey_424A5C = Color(0xff424A5C)
         val grey_b3b3b3 = Color(0xffb3b3b3)
         val dimColor = Color(0x99000000)
+        val red_ff1f1f = Color(0xffff1f1f)
     }
 }

@@ -14,7 +14,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -24,10 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.airbnb.lottie.LottieComposition
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.VerticalPager
@@ -38,9 +33,11 @@ import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.comment.CommentEvent
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
-import com.nexters.teamvs.naenio.ui.feed.composables.*
+import com.nexters.teamvs.naenio.ui.feed.composables.CommentLayout
+import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
+import com.nexters.teamvs.naenio.ui.feed.composables.VoteBar
+import com.nexters.teamvs.naenio.ui.feed.composables.VoteContent
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -279,6 +276,7 @@ fun FeedPager(
                 navController = navController,
                 onVote = onVote,
                 openSheet = openSheet,
+                onMore = {}
             )
         }
     }
@@ -292,6 +290,7 @@ fun FeedItem(
     navController: NavHostController,
     onVote: (Int, Int) -> Unit,
     openSheet: (BottomSheetType) -> Unit,
+    onMore: (Boolean) -> Unit,
 ) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
@@ -325,26 +324,28 @@ fun FeedItem(
                     .wrapContentHeight()
                     .padding(vertical = 24.dp),
                 isIconVisible = true,
-            ) {
-                //share
-                val shareLink = "https://naenio.shop/posts/${post.id}"
+                onShare =  {
+                    //share
+                    val shareLink = "https://naenio.shop/posts/${post.id}"
 
-                val type = "text/plain"
-                val subject = "네니오로 오세요~~~"
-                val extraText = shareLink
-                val shareWith = "ShareWith"
+                    val type = "text/plain"
+                    val subject = "네니오로 오세요~~~"
+                    val extraText = shareLink
+                    val shareWith = "ShareWith"
 
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.type = type
-                intent.putExtra(Intent.EXTRA_SUBJECT, subject)
-                intent.putExtra(Intent.EXTRA_TEXT, extraText)
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.type = type
+                    intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+                    intent.putExtra(Intent.EXTRA_TEXT, extraText)
 
-                ContextCompat.startActivity(
-                    context,
-                    Intent.createChooser(intent, shareWith),
-                    null
-                )
-            }
+                    ContextCompat.startActivity(
+                        context,
+                        Intent.createChooser(intent, shareWith),
+                        null
+                    )
+                },
+                 onMore = {}
+            )
             VoteContent(post, Modifier, 2)
             VoteBar(
                 post = post,
@@ -366,19 +367,7 @@ fun FeedItem(
                     openSheet(
                         BottomSheetType.CommentType(
                             postId = post.id,
-                            onEvent = {
-                                Log.d("### FeedScreen", "$it")
-                                when (it) {
-                                    is CommentEvent.Like -> {
-                                    }
-                                    CommentEvent.More -> {
-                                    }
-                                    is CommentEvent.Write -> {
-                                    }
-                                    CommentEvent.Close -> {
-                                    }
-                                }
-                            }
+                            onEvent = {}
                         )
                     )
                 }
