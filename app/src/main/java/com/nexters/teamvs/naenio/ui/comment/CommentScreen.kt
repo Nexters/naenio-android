@@ -65,8 +65,6 @@ fun CommentScreen(
     closeSheet: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-
     /**
      * 댓글 창을 보여줘야 하면 true. 답글 창을 보여줘야 하면 false
      */

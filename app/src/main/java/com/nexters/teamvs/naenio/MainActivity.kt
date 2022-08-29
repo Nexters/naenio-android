@@ -102,7 +102,7 @@ class MainActivity : ComponentActivity() {
                         visible = toastState.isNotEmpty()
                     )
                     MenuDialog(menuDialogState)
-                    DialogContainer(dialogModel = dialogState)
+                    DialogContainer(dialogModel = dialogState, onDismissRequest = {})
                 }
             }
         }

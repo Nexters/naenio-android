@@ -21,6 +21,7 @@ class CommentViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
 ) : BaseViewModel(), PagingSource2 {
 
+    private val commentPagingSize = 10
     val commentUiState = mutableStateOf<UiState>(UiState.Idle)
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
     val comments = _comments.asStateFlow()
@@ -43,9 +44,6 @@ class CommentViewModel @Inject constructor(
         } else {
             _loadingState.value is PlaceholderState.Failure
         }
-
-    private val _replies = MutableStateFlow<List<Reply>>(emptyList())
-    val replies = _replies.asStateFlow()
 
     val inputUiState = mutableStateOf<UiState>(UiState.Idle)
 
@@ -142,7 +140,7 @@ class CommentViewModel @Inject constructor(
                 val lastComment = currentComments.lastOrNull()
                 commentRepository.getComments(
                     postId = postId,
-                    size = 10,
+                    size = commentPagingSize,
                     lastCommentId = lastComment?.id
                 )
             }.fold(
@@ -155,7 +153,7 @@ class CommentViewModel @Inject constructor(
                     _comments.value = currentList + it
 
                     isFirstPage = false
-                    loadedAllPage = it.isEmpty()
+                    loadedAllPage = it.isEmpty() || commentPagingSize > it.size
                 },
                 onFailure = {
                     if (refresh) {
