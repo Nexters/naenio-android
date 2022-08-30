@@ -1,6 +1,5 @@
 package com.nexters.teamvs.naenio.ui.feed
 
-import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -14,51 +13,45 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.airbnb.lottie.LottieComposition
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.comment.CommentEvent
+import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
-import com.nexters.teamvs.naenio.ui.feed.composables.*
-import com.nexters.teamvs.naenio.ui.home.ThemeItem
+import com.nexters.teamvs.naenio.ui.feed.composables.CommentLayout
+import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
+import com.nexters.teamvs.naenio.ui.feed.composables.VoteBar
+import com.nexters.teamvs.naenio.ui.feed.composables.VoteContent
+import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
-    type: String = "feed",
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
-
     BackHandler {
         if (modalBottomSheetState.isVisible) {
             closeSheet.invoke()
@@ -70,95 +63,24 @@ fun FeedScreen(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        if (type == "feed") {
-            FeedScreenContent(
-                navController = navController,
-                openSheet = openSheet,
-                composition = composition,
-                viewModel = viewModel
-            )
-        } else {
-            ThemeDetailLayout(
-                type = type,
-                navController = navController,
-                openSheet = openSheet,
-                composition = composition
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-fun ThemeDetailLayout(
-    viewModel: FeedViewModel = hiltViewModel(),
-    type: String,
-    navController: NavHostController,
-    openSheet: (BottomSheetType) -> Unit,
-    composition: LottieComposition?
-) {
-    val pagerState = rememberPagerState(initialPage = 0)
-    val themeItemState = viewModel.themeItem.collectAsState()
-    val themeItem = themeItemState.value
-    LaunchedEffect(key1 = type, block = {
-        viewModel.setType(type)
-    })
-
-
-//    LaunchedEffect(key1 = themeItem.value.type, block = {
-//        viewModel.setType(themeItem.value.type)
-//    })
-
-    val posts = viewModel.themePosts.collectAsState()
-    val isEmptyTheme = posts.value != null && posts.value?.isEmpty() == true
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(themeItem.backgroundColorList)
-            )
-    ) {
-        TopBar(
-            modifier = Modifier.padding(bottom = 20.dp),
-            barTitle = themeItem.title,
+        FeedScreenContent(
             navController = navController,
-            isMoreBtnVisible = false,
-            textStyle = Font.pretendardSemiBold22
+            openSheet = openSheet,
+            viewModel = viewModel
         )
-        Box {
-            if (isEmptyTheme) {
-                FeedEmptyLayout(Color.White)
-            } else {
-                FeedPager(
-                    modifier = Modifier,
-                    posts = posts.value ?: emptyList(),
-                    pagerState = pagerState,
-                    openSheet = openSheet,
-                    navController = navController,
-                    onVote = { postId, choiceId ->
-//                    viewModel.vote(postId = postId, choiceId = choiceId)
-                    },
-                )
-                LottieAnimation(
-                    composition,
-                    modifier = Modifier.wrapContentSize(),
-                    iterations = Int.MAX_VALUE
-                )
-            }
-        }
     }
 }
+
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun FeedScreenContent(
     navController: NavHostController,
     openSheet: (BottomSheetType) -> Unit,
-    composition: LottieComposition?,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     /**
      * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
      * 테마에서는 아래 상태들을 알 필요가 없음.
@@ -211,7 +133,23 @@ fun FeedScreenContent(
                     onVote = { postId, choiceId ->
                         viewModel.vote(postId = postId, choiceId = choiceId)
                     },
-                    navController = navController
+                    onShare = { postId ->
+                        ShareUtils.share(postId = postId, context = context)
+                    },
+                    loadNextPage = viewModel::loadNextPage,
+                    navController = navController,
+                    onMore = {
+                        scope.launch {
+                            GlobalUiEvent.showMenuDialog(
+                                MenuDialogModel(
+                                    text = "삭제",
+                                    onClick = {
+                                        viewModel.deletePost(postId = it.id)
+                                    }
+                                )
+                            )
+                        }
+                    }
                 )
             }
         }
@@ -329,8 +267,14 @@ fun FeedPager(
     pagerState: PagerState,
     openSheet: (BottomSheetType) -> Unit,
     onVote: (Int, Int) -> Unit,
-    navController: NavHostController
+    onShare: (Int) -> Unit,
+    navController: NavHostController,
+    loadNextPage: () -> Unit,
+    onMore: (Post) -> Unit,
 ) {
+    val threshold = 3
+    val lastIndex = posts.lastIndex
+
     VerticalPager(
         state = pagerState,
         count = posts.size,
@@ -340,14 +284,20 @@ fun FeedPager(
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxSize(),
     ) { page ->
-        Box(
-        ) {
+        if (page + threshold >= lastIndex) {
+            SideEffect {
+                Log.d("###", "$page $lastIndex")
+                loadNextPage()
+            }
+        }
+        Box {
             FeedItem(
-                page = page,
                 post = posts[page],
                 navController = navController,
                 onVote = onVote,
                 openSheet = openSheet,
+                onMore = onMore,
+                onShare = onShare
             )
         }
     }
@@ -356,11 +306,12 @@ fun FeedPager(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedItem(
-    page: Int,
     post: Post,
     navController: NavHostController,
     onVote: (Int, Int) -> Unit,
     openSheet: (BottomSheetType) -> Unit,
+    onMore: (Post) -> Unit,
+    onShare: (Int) -> Unit,
 ) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
@@ -379,7 +330,7 @@ fun FeedItem(
         )
         .clickable {
             Log.d("####", "Feed Item Click")
-            navController.navigate("FeedDetail/feedDetail=${post.id}")
+            navController.navigate("FeedDetail/${post.id}")
         }
     ) {
         Column(
@@ -394,26 +345,9 @@ fun FeedItem(
                     .wrapContentHeight()
                     .padding(vertical = 24.dp),
                 isIconVisible = true,
-            ) {
-                //share
-                val shareLink = "https://naenio.shop/posts/${post.id}"
-
-                val type = "text/plain"
-                val subject = "네니오로 오세요~~~"
-                val extraText = shareLink
-                val shareWith = "ShareWith"
-
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.type = type
-                intent.putExtra(Intent.EXTRA_SUBJECT, subject)
-                intent.putExtra(Intent.EXTRA_TEXT, extraText)
-
-                ContextCompat.startActivity(
-                    context,
-                    Intent.createChooser(intent, shareWith),
-                    null
-                )
-            }
+                onShare = { onShare.invoke(post.id) },
+                onMore = { onMore.invoke(post) }
+            )
             VoteContent(post, Modifier, 2)
             VoteBar(
                 post = post,
@@ -435,19 +369,7 @@ fun FeedItem(
                     openSheet(
                         BottomSheetType.CommentType(
                             postId = post.id,
-                            onEvent = {
-                                Log.d("### FeedScreen", "$it")
-                                when (it) {
-                                    is CommentEvent.Like -> {
-                                    }
-                                    CommentEvent.More -> {
-                                    }
-                                    is CommentEvent.Write -> {
-                                    }
-                                    CommentEvent.Close -> {
-                                    }
-                                }
-                            }
+                            onEvent = {}
                         )
                     )
                 }
@@ -456,7 +378,7 @@ fun FeedItem(
 }
 
 @Composable
-fun FeedEmptyLayout(color : Color =  MyColors.darkGrey_828282) {
+fun FeedEmptyLayout(color: Color = MyColors.darkGrey_828282) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,

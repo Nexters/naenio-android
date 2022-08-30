@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
@@ -91,8 +90,10 @@ fun CommentLayout(commentCount: Int = 0, modifier: Modifier) {
 fun ProfileNickName(
     modifier: Modifier,
     isIconVisible: Boolean,
+    isVisibleShareIcon: Boolean = true,
     nickName: String = "",
     profileImageIndex: Int = 0,
+    onShare: () -> Unit,
     onMore: () -> Unit,
 ) {
     Row(
@@ -109,6 +110,19 @@ fun ProfileNickName(
         )
         Spacer(modifier = Modifier.weight(1f))
         if (isIconVisible) {
+
+            if (isVisibleShareIcon) {
+                Image(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            onShare.invoke()
+                        },
+                    painter = painterResource(R.drawable.ic_share),
+                    contentDescription = "icon_feed_more"
+                )
+            }
+
             Image(
                 modifier = Modifier
                     .wrapContentSize()
@@ -138,7 +152,7 @@ fun ProfileImageIcon(index: Int = 0, size: Dp, padding: Dp = 0.dp) {
 fun TopBar(
     modifier: Modifier,
     barTitle: String?,
-    navController: NavHostController,
+    close: () -> Unit,
     isMoreBtnVisible: Boolean = true,
     textStyle: TextStyle = Font.pretendardSemiBold16,
     post: Post? = null,
@@ -154,7 +168,7 @@ fun TopBar(
     ) {
         Image(
             modifier = Modifier.clickable {
-                navController.popBackStack()
+                close.invoke()
             },
             painter = painterResource(R.drawable.ic_back_left),
             contentDescription = "icon_back_m",

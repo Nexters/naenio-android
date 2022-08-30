@@ -1,15 +1,15 @@
 package com.nexters.teamvs.naenio.ui.comment
 
-import android.util.Log
-import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -29,18 +28,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
-import com.nexters.teamvs.naenio.extensions.requireActivity
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.Font.pretendardRegular14
 import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.model.UiState
-import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
 import kotlinx.coroutines.launch
 
 sealed class CommentEvent {
@@ -51,7 +48,7 @@ sealed class CommentEvent {
     ) : CommentEvent()
 
     data class Like(val comment: BaseComment) : CommentEvent()
-    object More : CommentEvent()
+    data class More(val isMine: Boolean) : CommentEvent()
     object Close : CommentEvent()
 }
 
@@ -68,8 +65,6 @@ fun CommentScreen(
     closeSheet: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-
     /**
      * 댓글 창을 보여줘야 하면 true. 답글 창을 보여줘야 하면 false
      */
@@ -110,13 +105,15 @@ fun CommentScreen(
     ) {
         ReplySheetLayout(
             modifier = modifier,
-            commentViewModel = commentViewModel,
+            commentViewModel = hiltViewModel(),
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
                 mode = it
             },
-            onEvent = onEvent
+            onEvent = {
+
+            }
         )
     }
 }
@@ -130,7 +127,7 @@ fun CommentSheetLayout(
     onClose: () -> Unit,
 ) {
     LaunchedEffect(key1 = postId, block = {
-        commentViewModel.loadFirstComments(postId)
+        commentViewModel.loadNextPage(postId)
     })
 
     val listState = rememberLazyListState()
@@ -150,8 +147,18 @@ fun CommentSheetLayout(
                 if (it.comment.isLiked) commentViewModel.unlike(id = it.comment.id)
                 else commentViewModel.like(id = it.comment.id)
             }
-            CommentEvent.More -> {
+            is CommentEvent.More -> {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "",
+                            color = Color.White,
+                            onClick = {
 
+                            }
+                        )
+                    )
+                }
             }
         }
     }
@@ -175,7 +182,7 @@ fun CommentSheetLayout(
             comments = comments.value,
             changeMode = changeMode,
             onLoadMore = {
-                commentViewModel.loadMoreComments(postId, it)
+                commentViewModel.loadNextPage(id = postId)
             },
             onEvent = eventListener
         )
@@ -325,12 +332,11 @@ fun CommentList(
     uiState: UiState,
     comments: List<BaseComment>,
     changeMode: (CommentMode) -> Unit,
-    onLoadMore: (Int) -> Unit,
+    onLoadMore: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
-    val nextKey = comments.lastOrNull()?.id
-    val requestLoadMoreKey = comments.getOrNull(comments.size - 1)?.id //TODO 사이즈 조용
-
+    val threshold = 3
+    val lastIndex = comments.lastIndex
     LazyColumn(modifier = modifier, state = listState) {
         item {
             Spacer(
@@ -341,12 +347,14 @@ fun CommentList(
                     .background(MyColors.grey3f3f3f)
             )
         }
-        items(comments) {
-            if (requestLoadMoreKey == it.id && nextKey != null) {
-                onLoadMore.invoke(nextKey)
+        itemsIndexed(comments) { index, comment ->
+            if (index + threshold >= lastIndex) {
+                SideEffect {
+                    onLoadMore()
+                }
             }
             CommentItem(
-                comment = it,
+                comment = comment,
                 mode = mode,
                 onCommentMode = changeMode,
                 onEvent = onEvent
@@ -414,7 +422,7 @@ fun CommentItem(
                 modifier = Modifier
                     .size(16.dp)
                     .clickable {
-                        onEvent.invoke(CommentEvent.More)
+                        onEvent.invoke(CommentEvent.More(true))
                     },
                 painter = painterResource(id = R.drawable.ic_more),
                 tint = Color.White,

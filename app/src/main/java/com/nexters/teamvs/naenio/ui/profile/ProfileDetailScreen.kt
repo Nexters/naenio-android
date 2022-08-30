@@ -44,7 +44,9 @@ fun ProfileDetailScreen(profileType: String = "", navController: NavHostControll
         TopBar(
             modifier = Modifier,
             barTitle = title,
-            navController = navController,
+            close = {
+                navController.popBackStack()
+            },
             isMoreBtnVisible = false
         )
         if (profileType.contains(ProfileType.NOTICE_DETAIL)) {
@@ -53,7 +55,9 @@ fun ProfileDetailScreen(profileType: String = "", navController: NavHostControll
         }
         when (profileType) {
             ProfileType.MY_COMMENT -> {
-                MyCommentLayout()
+                MyCommentLayout(
+                    onShare = {}
+                )
             }
             ProfileType.DEVELOPER -> {
                 DeveloperLayout()
@@ -147,7 +151,9 @@ fun NoticeLayout(navController: NavHostController) {
 }
 
 @Composable
-fun MyCommentLayout() {
+fun MyCommentLayout(
+    onShare: (Int) -> Unit,
+) {
     Spacer(modifier = Modifier.height(20.dp))
     if (MyCommentItem.myCommentList.isEmpty()) {
         contentEmptyLayout(R.string.my_comment_empty)
@@ -169,10 +175,11 @@ fun MyCommentLayout() {
                             .fillMaxWidth()
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp),
-                        isIconVisible = true
-                    ) {
-
-                    }
+                        isIconVisible = true,
+                        isVisibleShareIcon = false,
+                        onShare = {
+                        }, onMore = {}
+                    )
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()

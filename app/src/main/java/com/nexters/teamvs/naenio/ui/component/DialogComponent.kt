@@ -11,7 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.nexters.teamvs.naenio.extensions.noRippleClickable
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 
@@ -26,18 +27,16 @@ data class DialogModel(
 
 @Composable
 fun DialogContainer(
-    dialogModel: DialogModel?
+    dialogModel: DialogModel?,
+    onDismissRequest: () -> Unit,
+    properties: DialogProperties = DialogProperties(),
 ) {
-    if (dialogModel != null) {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(MyColors.dimColor)
-                .noRippleClickable { },
-            contentAlignment = Alignment.Center
-        ) {
-            DialogComponent(dialogModel = dialogModel)
-        }
+    if (dialogModel == null) return
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = properties
+    ) {
+        DialogComponent(dialogModel = dialogModel)
     }
 }
 

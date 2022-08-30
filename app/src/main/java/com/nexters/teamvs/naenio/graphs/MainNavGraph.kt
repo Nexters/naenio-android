@@ -13,13 +13,15 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.create.CreateScreen
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
-import com.nexters.teamvs.naenio.ui.feed.FeedDetailScreen
+import com.nexters.teamvs.naenio.ui.feed.detail.DetailScreen
 import com.nexters.teamvs.naenio.ui.feed.FeedScreen
 import com.nexters.teamvs.naenio.ui.tabs.*
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
-import com.nexters.teamvs.naenio.ui.home.ThemeScreen
+import com.nexters.teamvs.naenio.ui.theme.ThemeScreen
 import com.nexters.teamvs.naenio.ui.profile.ProfileDetailScreen
 import com.nexters.teamvs.naenio.ui.profile.ProfileScreen
+import com.nexters.teamvs.naenio.ui.theme.ThemeFeedContent
+import com.nexters.teamvs.naenio.ui.theme.ThemeFeedScreen
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -39,9 +41,6 @@ fun MainNavGraph(
             ThemeScreen(
                 navController = navController,
                 modifier = modifier,
-                modalBottomSheetState = modalBottomSheetState,
-                openSheet = openSheet,
-                closeSheet = closeSheet
             )
         }
         composable(BottomNavItem.Profile.route) {
@@ -49,7 +48,6 @@ fun MainNavGraph(
         }
         composable(BottomNavItem.Feed.route) {
             FeedScreen(
-                type = "feed",
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
                 modifier = modifier,
@@ -68,15 +66,15 @@ fun MainNavGraph(
                 navDeepLink { uriPattern = "https://{type}" }
             )
         ) {
-            FeedDetailScreen(
-                type = "feedDetail=" + it.arguments?.getString("type").orEmpty(),
+            DetailScreen(
+                type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
                 openSheet = openSheet,
                 closeSheet = closeSheet
             )
         }
-        detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
+//        detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)
         themeDetailNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         profileDetailNavGraph(navController)
@@ -95,7 +93,7 @@ fun NavGraphBuilder.detailsNavGraph(
         startDestination = "FeedDetail/{type}",
     ) {
         composable(route = "FeedDetail/{type}") {
-            FeedDetailScreen(
+            DetailScreen(
                 type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
@@ -135,15 +133,14 @@ fun NavGraphBuilder.themeDetailNavGraph(
         startDestination = "ThemeDetail/{type}"
     ) {
         composable(route = "ThemeDetail/{type}") {
-            it.arguments?.getString("type")?.let { type ->
-                FeedScreen(
-                    type = type,
-                    navController = navController,
-                    modalBottomSheetState = modalBottomSheetState,
-                    openSheet = openSheet,
-                    closeSheet = closeSheet
-                )
-            }
+            val themeType = it.arguments?.getString("type")!!
+            ThemeFeedScreen(
+                type = themeType,
+                navController = navController,
+                modalBottomSheetState = modalBottomSheetState,
+                openSheet = openSheet,
+                closeSheet = closeSheet
+            )
         }
     }
 }

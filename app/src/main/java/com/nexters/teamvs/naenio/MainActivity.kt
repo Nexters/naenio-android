@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
             var loadingState by remember { mutableStateOf(false) }
             var toastState by remember { mutableStateOf("") }
             var dialogState by remember { mutableStateOf<DialogModel?>(null) }
+            var menuDialogState by remember { mutableStateOf<MenuDialogModel?>(null) }
 
             LaunchedEffect(key1 = Unit) {
                 GlobalUiEvent.uiEvent.collect {
@@ -78,6 +79,12 @@ class MainActivity : ComponentActivity() {
                         UiEvent.HideDialog -> {
                             dialogState = null
                         }
+                        UiEvent.HideMenuDialog -> {
+                            menuDialogState = null
+                        }
+                        is UiEvent.ShowMenuDialog -> {
+                            menuDialogState = it.menuDialogModel
+                        }
                         UiEvent.None -> {
 
                         }
@@ -89,12 +96,23 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.fillMaxSize()) {
                     RootNavigationGraph(navController = rememberNavController())
                     Loading(visible = loadingState)
+                    MenuDialog(
+                        menuDialogModel = menuDialogState,
+                        onDismissRequest = {
+                            menuDialogState = null
+                        },
+                    )
+                    DialogContainer(
+                        dialogModel = dialogState,
+                        onDismissRequest = {
+                            dialogState = null
+                        }
+                    )
                     Toast(
                         modifier = Modifier.align(Alignment.TopCenter),
                         message = toastState,
                         visible = toastState.isNotEmpty()
                     )
-                    DialogContainer(dialogModel = dialogState)
                 }
             }
         }
