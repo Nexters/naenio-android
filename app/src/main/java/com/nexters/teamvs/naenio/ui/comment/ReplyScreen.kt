@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
@@ -40,6 +44,7 @@ fun ReplyScreenContent(
     val scope = rememberCoroutineScope()
     val inputUiState by remember { replyViewModel.inputUiState }
     val commentUiState by remember { replyViewModel.commentUiState }
+    val isRefreshing = replyViewModel.isRefreshing.collectAsState()
 
     BackHandler {
         if (mode is CommentMode.REPLY) {
@@ -96,6 +101,10 @@ fun ReplyScreenContent(
             changeMode = changeMode,
             onLoadMore = {
                 replyViewModel.loadNextPage(parentComment.id)
+            },
+            isRefreshing = isRefreshing.value,
+            onRefresh = {
+                replyViewModel.refresh(parentComment.id)
             },
             onEvent = eventListener
         )
@@ -171,53 +180,73 @@ fun ReplyList(
     comments: List<BaseComment>,
     onLoadMore: (Int) -> Unit,
     changeMode: (CommentMode) -> Unit,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
     val nextKey = comments.lastOrNull()?.id
     val requestLoadMoreKey = comments.getOrNull(comments.size - 1)?.id //TODO 사이즈 조용
 
-    LazyColumn(modifier = modifier, state = listState) {
-        item {
-            Spacer(
-                modifier = Modifier
-                    .padding(bottom = 19.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(MyColors.grey3f3f3f)
+    SwipeRefresh(
+        modifier = modifier,
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = onRefresh,
+        indicator = { state, trigger ->
+            SwipeRefreshIndicator(
+                // Pass the SwipeRefreshState + trigger through
+                state = state,
+                refreshTriggerDistance = trigger,
+                // Enable the scale animation
+                scale = true,
+                // Change the color and shape
+                backgroundColor = MaterialTheme.colors.primary,
+                shape = MaterialTheme.shapes.small,
             )
         }
-        item {
-            CommentItem(
-                comment = parentComment,
-                mode = mode,
-                onCommentMode = changeMode,
-                onEvent = onEvent
-            )
-        }
-        items(comments) {
-            if (requestLoadMoreKey == it.id && nextKey != null && comments.size > 10) {
-                onLoadMore.invoke(nextKey)
+    ) {
+        LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .padding(bottom = 19.dp)
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(MyColors.grey3f3f3f)
+                )
             }
-            CommentItem(
-                comment = it,
-                mode = mode,
-                onCommentMode = changeMode,
-                onEvent = onEvent
-            )
-        }
-        item {
-            when (uiState) {
-                UiState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = MyColors.grey_d9d9d9)
-                    }
+            item {
+                CommentItem(
+                    comment = parentComment,
+                    mode = mode,
+                    onCommentMode = changeMode,
+                    onEvent = onEvent
+                )
+            }
+            items(comments) {
+                if (requestLoadMoreKey == it.id && nextKey != null && comments.size > 10) {
+                    onLoadMore.invoke(nextKey)
                 }
-                else -> {}
+                CommentItem(
+                    comment = it,
+                    mode = mode,
+                    onCommentMode = changeMode,
+                    onEvent = onEvent
+                )
+            }
+            item {
+                when (uiState) {
+                    UiState.Loading -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = MyColors.grey_d9d9d9)
+                        }
+                    }
+                    else -> {}
+                }
             }
         }
     }

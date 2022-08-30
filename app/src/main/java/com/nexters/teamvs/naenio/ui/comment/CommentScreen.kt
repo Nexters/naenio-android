@@ -26,6 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
@@ -126,6 +129,7 @@ fun CommentScreenContent(
     val comments = commentViewModel.comments.collectAsState()
     val commentUiState by remember { commentViewModel.commentUiState }
     val inputUiState by remember { commentViewModel.inputUiState }
+    val isRefreshing = commentViewModel.isRefreshing.collectAsState()
 
     LaunchedEffect(key1 = postId, block = {
         commentViewModel.loadNextPage(postId)
@@ -173,6 +177,8 @@ fun CommentScreenContent(
             comments = comments.value,
             changeMode = changeMode,
             onLoadMore = { commentViewModel.loadNextPage(postId) },
+            isRefreshing = isRefreshing.value,
+            onRefresh = { commentViewModel.refresh(postId) },
             onEvent = eventListener
         )
         CommentInput(
@@ -322,46 +328,67 @@ fun CommentList(
     comments: List<BaseComment>,
     changeMode: (CommentMode) -> Unit,
     onLoadMore: () -> Unit,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
     val threshold = 3
     val lastIndex = comments.lastIndex
-    LazyColumn(modifier = modifier, state = listState) {
-        item {
-            Spacer(
-                modifier = Modifier
-                    .padding(bottom = 19.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(MyColors.grey3f3f3f)
+
+    SwipeRefresh(
+        modifier = modifier,
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = onRefresh,
+        indicator = { state, trigger ->
+            SwipeRefreshIndicator(
+                // Pass the SwipeRefreshState + trigger through
+                state = state,
+                refreshTriggerDistance = trigger,
+                // Enable the scale animation
+                scale = true,
+                // Change the color and shape
+                backgroundColor = MaterialTheme.colors.primary,
+                shape = MaterialTheme.shapes.small,
             )
         }
-        itemsIndexed(comments) { index, comment ->
-            if (index + threshold >= lastIndex) {
-                SideEffect {
-                    onLoadMore()
-                }
+    ) {
+        LazyColumn(modifier = modifier, state = listState) {
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .padding(bottom = 19.dp)
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(MyColors.grey3f3f3f)
+                )
             }
-            CommentItem(
-                comment = comment,
-                mode = mode,
-                onCommentMode = changeMode,
-                onEvent = onEvent
-            )
-        }
-        item {
-            when (uiState) {
-                UiState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = MyColors.grey4d4d4d)
+            itemsIndexed(comments) { index, comment ->
+                if (index + threshold >= lastIndex) {
+                    SideEffect {
+                        onLoadMore()
                     }
                 }
-                else -> {}
+                CommentItem(
+                    comment = comment,
+                    mode = mode,
+                    onCommentMode = changeMode,
+                    onEvent = onEvent
+                )
+            }
+            item {
+                when (uiState) {
+                    UiState.Loading -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = MyColors.grey4d4d4d)
+                        }
+                    }
+                    else -> {}
+                }
             }
         }
     }

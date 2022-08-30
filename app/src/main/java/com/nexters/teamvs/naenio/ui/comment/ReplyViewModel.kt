@@ -1,17 +1,12 @@
 package com.nexters.teamvs.naenio.ui.comment
 
-import androidx.annotation.MainThread
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
-import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource2
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.model.UiState
-import dagger.assisted.AssistedFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +21,7 @@ class ReplyViewModel @Inject constructor(
     val commentUiState = mutableStateOf<UiState>(UiState.Idle)
     private val _loadingState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
     private val _firstPageState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
-    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = MutableStateFlow(false)
     private var isFirstPage = true
     private var loadedAllPage = false
 
@@ -60,7 +55,6 @@ class ReplyViewModel @Inject constructor(
                     commentId = commentId,
                     content = content,
                 )
-
                 _replies.value = listOf(reply) + replies.value
                 inputUiState.value = UiState.Success
             } catch (e: Exception) {
@@ -113,7 +107,7 @@ class ReplyViewModel @Inject constructor(
         _replies.value = emptyList()
         _loadingState.value = PlaceholderState.Idle(true)
         _firstPageState.value = PlaceholderState.Idle(true)
-        _isRefreshing.value = false
+        isRefreshing.value = false
         isFirstPage = true
         loadedAllPage = false
     }
@@ -130,7 +124,7 @@ class ReplyViewModel @Inject constructor(
         val currentComments = replies.value
         viewModelScope.launch {
             if (refresh) {
-                _isRefreshing.value = true
+                isRefreshing.value = true
             } else {
                 updateState(PlaceholderState.Loading)
             }
@@ -138,16 +132,21 @@ class ReplyViewModel @Inject constructor(
             val currentList = if (refresh) emptyList() else replies.value
 
             runCatching {
-                val lastComment = currentComments.last()
+                val lastComment = if (refresh || isFirstPage) {
+                    null
+                } else {
+                    currentComments.lastOrNull()
+                }
                 commentRepository.getReplies(
                     commentId = id,
                     size = 10,
-                    lastCommentId = lastComment.id
+                    lastCommentId = lastComment?.id
                 )
             }.fold(
                 onSuccess = {
                     if (refresh) {
-                        _isRefreshing.value = false
+                        _replies.value = emptyList()
+                        isRefreshing.value = false
                     } else {
                         updateState(PlaceholderState.Idle(it.isEmpty()))
                     }
@@ -158,7 +157,7 @@ class ReplyViewModel @Inject constructor(
                 },
                 onFailure = {
                     if (refresh) {
-                        _isRefreshing.value = false
+                        isRefreshing.value = false
                     } else {
                         updateState(PlaceholderState.Failure(it))
                     }

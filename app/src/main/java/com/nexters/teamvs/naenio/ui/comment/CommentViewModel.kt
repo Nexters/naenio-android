@@ -1,12 +1,10 @@
 package com.nexters.teamvs.naenio.ui.comment
 
-import android.util.Log
 import androidx.annotation.MainThread
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
-import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource2
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.model.UiState
@@ -27,7 +25,7 @@ class CommentViewModel @Inject constructor(
     val comments = _comments.asStateFlow()
     private val _loadingState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
     private val _firstPageState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
-    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = MutableStateFlow(false)
     private var isFirstPage = true
     private var loadedAllPage = false
 
@@ -112,7 +110,7 @@ class CommentViewModel @Inject constructor(
 
         _loadingState.value = PlaceholderState.Idle(true)
         _firstPageState.value = PlaceholderState.Idle(true)
-        _isRefreshing.value = false
+        isRefreshing.value = false
         isFirstPage = true
         loadedAllPage = false
     }
@@ -129,7 +127,7 @@ class CommentViewModel @Inject constructor(
         val currentComments = comments.value
         viewModelScope.launch {
             if (refresh) {
-                _isRefreshing.value = true
+                isRefreshing.value = true
             } else {
                 updateState(PlaceholderState.Loading)
             }
@@ -137,7 +135,12 @@ class CommentViewModel @Inject constructor(
             val currentList = if (refresh) emptyList() else comments.value
 
             runCatching {
-                val lastComment = currentComments.lastOrNull()
+                val lastComment = if (refresh || isFirstPage) {
+                    null
+                } else {
+                    currentComments.lastOrNull()
+                }
+
                 commentRepository.getComments(
                     postId = postId,
                     size = commentPagingSize,
@@ -146,7 +149,8 @@ class CommentViewModel @Inject constructor(
             }.fold(
                 onSuccess = {
                     if (refresh) {
-                        _isRefreshing.value = false
+                        _comments.value = emptyList()
+                        isRefreshing.value = false
                     } else {
                         updateState(PlaceholderState.Idle(it.isEmpty()))
                     }
@@ -157,7 +161,7 @@ class CommentViewModel @Inject constructor(
                 },
                 onFailure = {
                     if (refresh) {
-                        _isRefreshing.value = false
+                        isRefreshing.value = false
                     } else {
                         updateState(PlaceholderState.Failure(it))
                     }
