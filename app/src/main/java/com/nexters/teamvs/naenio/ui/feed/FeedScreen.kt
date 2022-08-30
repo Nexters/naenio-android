@@ -26,11 +26,13 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.feed.composables.CommentLayout
 import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
@@ -38,6 +40,7 @@ import com.nexters.teamvs.naenio.ui.feed.composables.VoteBar
 import com.nexters.teamvs.naenio.ui.feed.composables.VoteContent
 import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -77,7 +80,7 @@ fun FeedScreenContent(
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-
+    val scope = rememberCoroutineScope()
     /**
      * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
      * 테마에서는 아래 상태들을 알 필요가 없음.
@@ -134,7 +137,19 @@ fun FeedScreenContent(
                         ShareUtils.share(postId = postId, context = context)
                     },
                     loadNextPage = viewModel::loadNextPage,
-                    navController = navController
+                    navController = navController,
+                    onMore = {
+                        scope.launch {
+                            GlobalUiEvent.showMenuDialog(
+                                MenuDialogModel(
+                                    text = "삭제",
+                                    onClick = {
+                                        viewModel.deletePost(postId = it.id)
+                                    }
+                                )
+                            )
+                        }
+                    }
                 )
             }
         }
@@ -255,6 +270,7 @@ fun FeedPager(
     onShare: (Int) -> Unit,
     navController: NavHostController,
     loadNextPage: () -> Unit,
+    onMore: (Post) -> Unit,
 ) {
     val threshold = 3
     val lastIndex = posts.lastIndex
@@ -276,12 +292,11 @@ fun FeedPager(
         }
         Box {
             FeedItem(
-                page = page,
                 post = posts[page],
                 navController = navController,
                 onVote = onVote,
                 openSheet = openSheet,
-                onMore = {},
+                onMore = onMore,
                 onShare = onShare
             )
         }
@@ -291,12 +306,11 @@ fun FeedPager(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedItem(
-    page: Int,
     post: Post,
     navController: NavHostController,
     onVote: (Int, Int) -> Unit,
     openSheet: (BottomSheetType) -> Unit,
-    onMore: (Boolean) -> Unit,
+    onMore: (Post) -> Unit,
     onShare: (Int) -> Unit,
 ) {
     var gage by remember { mutableStateOf(0f) }
@@ -332,7 +346,7 @@ fun FeedItem(
                     .padding(vertical = 24.dp),
                 isIconVisible = true,
                 onShare = { onShare.invoke(post.id) },
-                onMore = {}
+                onMore = { onMore.invoke(post) }
             )
             VoteContent(post, Modifier, 2)
             VoteBar(

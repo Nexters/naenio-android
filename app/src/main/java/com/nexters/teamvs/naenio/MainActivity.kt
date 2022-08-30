@@ -96,13 +96,23 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.fillMaxSize()) {
                     RootNavigationGraph(navController = rememberNavController())
                     Loading(visible = loadingState)
+                    MenuDialog(
+                        menuDialogModel = menuDialogState,
+                        onDismissRequest = {
+                            menuDialogState = null
+                        },
+                    )
+                    DialogContainer(
+                        dialogModel = dialogState,
+                        onDismissRequest = {
+                            dialogState = null
+                        }
+                    )
                     Toast(
                         modifier = Modifier.align(Alignment.TopCenter),
                         message = toastState,
                         visible = toastState.isNotEmpty()
                     )
-                    MenuDialog(menuDialogState)
-                    DialogContainer(dialogModel = dialogState, onDismissRequest = {})
                 }
             }
         }

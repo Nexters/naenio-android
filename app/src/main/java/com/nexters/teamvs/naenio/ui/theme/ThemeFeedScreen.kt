@@ -19,13 +19,16 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
+import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
 import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.FeedPager
 import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
 import com.nexters.teamvs.naenio.utils.ShareUtils
+import kotlinx.coroutines.launch
 
 /**
  * 테마 아이템 클릭 후 테마 피드 화면
@@ -90,6 +93,7 @@ fun ThemeFeedContent(
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = 0)
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -113,6 +117,18 @@ fun ThemeFeedContent(
             loadNextPage = { },
             onShare = {
                 ShareUtils.share(it, context)
+            },
+            onMore = {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "삭제",
+                            onClick = {
+
+                            }
+                        )
+                    )
+                }
             }
         )
     }

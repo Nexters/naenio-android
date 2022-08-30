@@ -156,6 +156,17 @@ class FeedViewModel @Inject constructor(
         }
     }
 
+    fun deletePost(postId: Int) {
+        viewModelScope.launch {
+            try {
+                feedRepository.deletePost(postId)
+                _posts.value = posts.value?.filter { it.id != postId }
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
+    }
+
     private var voteLock = false
     fun vote(
         postId: Int,

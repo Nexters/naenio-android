@@ -37,7 +37,6 @@ fun DialogContainer(
         properties = properties
     ) {
         DialogComponent(dialogModel = dialogModel)
-
     }
 }
 
