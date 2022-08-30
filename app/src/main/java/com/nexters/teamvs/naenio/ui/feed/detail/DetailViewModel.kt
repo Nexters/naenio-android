@@ -66,13 +66,13 @@ class DetailViewModel @Inject constructor(
                  * 같은 선택지에 또 투표를 할 경우, API 요청 막기.
                  */
                 val choice = post.choices.find { it.id == choiceId }
-                if (post.isAlreadyVote() && choice?.isVoted == true) {
+                if (post.isAlreadyVote && choice?.isVoted == true) {
                     voteLock = false
                     return@launch
                 }
 
                 feedRepository.vote(postId, choiceId)
-                val alreadyIsVote = post.isAlreadyVote()
+                val alreadyIsVote = post.isAlreadyVote
 
                 post.copy(
                     choices = post.choices.map {

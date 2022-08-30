@@ -31,7 +31,7 @@ fun VoteBar(
     onVote: (Int, Int) -> Unit,
 ) {
     /** 둘 중 하나라도 투표를 했는 지 */
-    val isVotedForPost = post.isAlreadyVote()
+    val isVotedForPost = post.isAlreadyVote
 
     Box(
         modifier = Modifier.wrapContentHeight(),
@@ -85,6 +85,7 @@ fun GageBar(
     var progressValue by remember { mutableStateOf(0) }
 
     LaunchedEffect(key1 = animatable, key2 = targetValue) {
+        if (!isVotedForPost) return@LaunchedEffect
         if (progressValue < targetValue) {
             while ((progressValue < targetValue) && animatable) {
                 progressValue++
@@ -118,7 +119,7 @@ fun GageBar(
                 .noRippleClickable {
                     onVote.invoke(choice.id)
                 },
-            progressValue = if (animatable) progressValue else targetValue.toInt(),
+            progressValue = if (animatable) progressValue else 0,
         )
         VoteBarContent(
             modifier = Modifier.align(Alignment.Center),

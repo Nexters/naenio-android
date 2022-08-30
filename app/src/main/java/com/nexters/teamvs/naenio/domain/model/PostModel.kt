@@ -15,11 +15,7 @@ data class Post(
     val choice2 = choices[1] 
 
     val totalVoteCount get() = choices.sumOf { it.voteCount }
-
-    fun isAlreadyVote(): Boolean {
-        val votedChoice = choices.find { it.isVoted }
-        return votedChoice != null
-    }
+    val isAlreadyVote get() = choice1.isVoted || choice2.isVoted
 }
 
 data class Choice(
