@@ -19,8 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
@@ -48,7 +45,7 @@ sealed class CommentEvent {
     ) : CommentEvent()
 
     data class Like(val comment: BaseComment) : CommentEvent()
-    data class More(val isMine: Boolean) : CommentEvent()
+    data class More(val comment: BaseComment) : CommentEvent()
     object Close : CommentEvent()
 }
 
@@ -58,12 +55,12 @@ sealed class CommentMode {
 }
 
 @Composable
-fun CommentScreen(
+fun CommentDialogScreen(
     modifier: Modifier = Modifier,
     postId: Int,
     commentViewModel: CommentViewModel = hiltViewModel(),
+    replyViewModel: ReplyViewModel = hiltViewModel(),
     closeSheet: () -> Unit,
-    onEvent: (CommentEvent) -> Unit,
 ) {
     /**
      * 댓글 창을 보여줘야 하면 true. 답글 창을 보여줘야 하면 false
@@ -76,6 +73,7 @@ fun CommentScreen(
         } else {
             closeSheet.invoke()
             commentViewModel.clear()
+            replyViewModel.clear()
         }
     }
 
@@ -84,13 +82,11 @@ fun CommentScreen(
         enter = EnterTransition.None,
         exit = ExitTransition.None
     ) {
-        CommentSheetLayout(
+        CommentScreenContent(
             modifier = modifier,
             commentViewModel = commentViewModel,
             postId = postId,
-            changeMode = {
-                mode = it
-            },
+            changeMode = { mode = it },
             onClose = {
                 commentViewModel.clear()
                 closeSheet.invoke()
@@ -103,46 +99,40 @@ fun CommentScreen(
         enter = slideInHorizontally(),
         exit = slideOutHorizontally()
     ) {
-        ReplySheetLayout(
+        ReplyScreenContent(
             modifier = modifier,
-            commentViewModel = hiltViewModel(),
+            mode = mode,
+            replyViewModel = replyViewModel,
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
                 mode = it
-            },
-            onEvent = {
-
             }
         )
     }
 }
 
 @Composable
-fun CommentSheetLayout(
+fun CommentScreenContent(
     modifier: Modifier,
     commentViewModel: CommentViewModel,
     postId: Int,
     changeMode: (CommentMode) -> Unit,
     onClose: () -> Unit,
 ) {
+
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val comments = commentViewModel.comments.collectAsState()
+    val commentUiState by remember { commentViewModel.commentUiState }
+    val inputUiState by remember { commentViewModel.inputUiState }
+
     LaunchedEffect(key1 = postId, block = {
         commentViewModel.loadNextPage(postId)
     })
 
-    val listState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
     val eventListener: (CommentEvent) -> Unit = {
         when (it) {
-            is CommentEvent.Write -> {
-                commentViewModel.writeComment(
-                    postId = it.parentId,
-                    content = it.content,
-                )
-            }
-            CommentEvent.Close -> {
-
-            }
             is CommentEvent.Like -> {
                 if (it.comment.isLiked) commentViewModel.unlike(id = it.comment.id)
                 else commentViewModel.like(id = it.comment.id)
@@ -160,12 +150,13 @@ fun CommentSheetLayout(
                     )
                 }
             }
+            is CommentEvent.Write -> {
+                commentViewModel.writeComment(it.parentId, it.content)
+            }
+            else -> {}
         }
     }
 
-    val comments = commentViewModel.comments.collectAsState()
-    val commentUiState by remember { commentViewModel.commentUiState }
-    val inputUiState by remember { commentViewModel.inputUiState }
 
     Column(
         modifier = modifier
@@ -181,9 +172,7 @@ fun CommentSheetLayout(
             uiState = commentUiState,
             comments = comments.value,
             changeMode = changeMode,
-            onLoadMore = {
-                commentViewModel.loadNextPage(id = postId)
-            },
+            onLoadMore = { commentViewModel.loadNextPage(postId) },
             onEvent = eventListener
         )
         CommentInput(
@@ -422,7 +411,7 @@ fun CommentItem(
                 modifier = Modifier
                     .size(16.dp)
                     .clickable {
-                        onEvent.invoke(CommentEvent.More(true))
+                        onEvent.invoke(CommentEvent.More(comment))
                     },
                 painter = painterResource(id = R.drawable.ic_more),
                 tint = Color.White,
@@ -522,15 +511,14 @@ fun ProfileImageIcon(
 @Preview
 @Composable
 fun CommentSheetPreview() {
-    CommentSheetLayout(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MyColors.darkGrey_313643, shape = RectangleShape)
-            .aspectRatio(0.6f),
-        postId = -1,
-        commentViewModel = viewModel(),
-        changeMode = {}
-    ) {
-
-    }
+//    CommentScreenContent(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .background(MyColors.darkGrey_313643, shape = RectangleShape)
+//            .aspectRatio(0.6f),
+//        postId = -1,
+//        changeMode = {}
+//    ) {
+//
+//    }
 }

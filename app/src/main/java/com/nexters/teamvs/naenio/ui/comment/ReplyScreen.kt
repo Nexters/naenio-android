@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.comment
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,34 +19,42 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.model.UiState
 import kotlinx.coroutines.launch
 
 @Composable
-fun ReplySheetLayout(
+fun ReplyScreenContent(
     modifier: Modifier,
-    commentViewModel: ReplyViewModel,
+    replyViewModel: ReplyViewModel,
+    mode: CommentMode,
     parentComment: Comment,
     changeMode: (CommentMode) -> Unit,
-    onEvent: (CommentEvent) -> Unit,
 ) {
-    val replies = commentViewModel.replies.collectAsState()
+    val replies = replyViewModel.replies.collectAsState()
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val inputUiState by remember { commentViewModel.inputUiState }
-    val commentUiState by remember { commentViewModel.commentUiState }
+    val inputUiState by remember { replyViewModel.inputUiState }
+    val commentUiState by remember { replyViewModel.commentUiState }
+
+    BackHandler {
+        if (mode is CommentMode.REPLY) {
+            changeMode.invoke(CommentMode.COMMENT)
+        }
+    }
 
     LaunchedEffect(key1 = parentComment.id, block = {
-        commentViewModel.loadNextPage(parentComment.id)
+        replyViewModel.loadNextPage(parentComment.id)
     })
 
     val eventListener: (CommentEvent) -> Unit = {
         when (it) {
             is CommentEvent.Write -> {
-                commentViewModel.writeReply(
+                replyViewModel.writeReply(
                     commentId = it.parentId,
                     content = it.content,
                 )
@@ -54,17 +63,29 @@ fun ReplySheetLayout(
 
             }
             is CommentEvent.Like -> {
-                if (it.comment.isLiked) commentViewModel.unlike(id = it.comment.id)
-                else commentViewModel.like(id = it.comment.id)
+                if (it.comment.isLiked) replyViewModel.unlike(id = it.comment.id)
+                else replyViewModel.like(id = it.comment.id)
             }
-            is CommentEvent.More -> {}
+            is CommentEvent.More -> {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "삭제",
+                            color = Color.Red,
+                            onClick = {
+                                replyViewModel.deleteComment(it.comment as Reply)
+                            }
+                        )
+                    )
+                }
+            }
         }
     }
 
     Column(
         modifier = modifier
     ) {
-        ReplyHeader(changeMode = changeMode, onEvent = onEvent)
+        ReplyHeader(changeMode = changeMode, onEvent = eventListener)
         ReplyList(
             modifier = Modifier.weight(1f),
             listState = listState,
@@ -74,7 +95,7 @@ fun ReplySheetLayout(
             mode = CommentMode.REPLY(parentComment),
             changeMode = changeMode,
             onLoadMore = {
-                commentViewModel.loadNextPage(parentComment.id)
+                replyViewModel.loadNextPage(parentComment.id)
             },
             onEvent = eventListener
         )
@@ -89,7 +110,7 @@ fun ReplySheetLayout(
             onEvent = {
                 when (it) {
                     is CommentEvent.Write -> {
-                        commentViewModel.writeReply(
+                        replyViewModel.writeReply(
                             commentId = it.parentId,
                             content = it.content
                         )
