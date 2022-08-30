@@ -48,6 +48,7 @@ fun ReplyScreenContent(
 
     BackHandler {
         if (mode is CommentMode.REPLY) {
+            replyViewModel.clear()
             changeMode.invoke(CommentMode.COMMENT)
         }
     }

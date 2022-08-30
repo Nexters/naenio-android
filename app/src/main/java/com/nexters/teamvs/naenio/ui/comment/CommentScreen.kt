@@ -92,6 +92,7 @@ fun CommentDialogScreen(
             changeMode = { mode = it },
             onClose = {
                 commentViewModel.clear()
+                replyViewModel.clear()
                 closeSheet.invoke()
             },
         )
@@ -109,6 +110,7 @@ fun CommentDialogScreen(
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
+                replyViewModel.clear()
                 mode = it
             }
         )
