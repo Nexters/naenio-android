@@ -5,6 +5,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -20,6 +21,8 @@ import com.nexters.teamvs.naenio.ui.model.BottomNavItem
 import com.nexters.teamvs.naenio.ui.home.ThemeScreen
 import com.nexters.teamvs.naenio.ui.profile.ProfileDetailScreen
 import com.nexters.teamvs.naenio.ui.profile.ProfileScreen
+import com.nexters.teamvs.naenio.ui.tabs.auth.LoginDetailScreen
+import com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileSettingScreen
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -80,6 +83,8 @@ fun MainNavGraph(
         authNavGraph(navController)
         themeDetailNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         profileDetailNavGraph(navController)
+        loginDetailNavGraph(navController)
+        settingProfileNavGraph(navController)
     }
 }
 
@@ -142,6 +147,48 @@ fun NavGraphBuilder.themeDetailNavGraph(
                     modalBottomSheetState = modalBottomSheetState,
                     openSheet = openSheet,
                     closeSheet = closeSheet
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+fun NavGraphBuilder.settingProfileNavGraph(
+    navController: NavHostController,
+) {
+    navigation(
+        route = AuthScreen.ProfileSetting.route,
+        startDestination = "ProfileSetting/{type}"
+    ) {
+        composable(route = "ProfileSetting/{type}") {
+            it.arguments?.getString("type")?.let { type ->
+                ProfileSettingScreen(
+                    navController = navController,
+                    viewModel = hiltViewModel(),
+                    type = type,
+                ) {
+                    navController.popBackStack()
+                    navController.navigate(Graph.MAIN)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+fun NavGraphBuilder.loginDetailNavGraph(
+    navController: NavHostController
+) {
+    navigation(
+        route = Graph.LOGIN_DETAIL,
+        startDestination = "LoginDetail/{type}"
+    ) {
+        composable(route = "LoginDetail/{type}") {
+            it.arguments?.getString("type")?.let { type ->
+                LoginDetailScreen(
+                    type = type,
+                    navController = navController
                 )
             }
         }

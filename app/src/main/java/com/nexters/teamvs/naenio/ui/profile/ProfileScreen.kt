@@ -226,9 +226,9 @@ fun ProfileButton(
                         ProfileType.VERSION -> moveProfileDetailScreen(
                             navController, ProfileType.VERSION
                         )
-                        ProfileType.LOGOUT -> setLogoutBtn(viewModel = settingViewModel)
+                        ProfileType.LOGOUT -> setLogoutBtn(viewModel = settingViewModel, navController = navController)
                         ProfileType.SIGNOUT -> {
-                            setSignoutBtn(viewModel = settingViewModel)
+                            setSignoutBtn(viewModel = settingViewModel, navController = navController)
                         }
                     }
                 }
@@ -283,6 +283,7 @@ private fun setQuestionBtn() {
 }
 
 private fun setLogoutBtn(
+    navController: NavHostController,
     viewModel: com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileViewModel
 ) {
     Log.d("### ProfileScreen", ProfileType.LOGOUT)
@@ -300,6 +301,7 @@ private fun setLogoutBtn(
                     Log.d("####", "LogoutDialog - Logout")
                     viewModel.logout()
                     GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+                    navController.navigate(AuthScreen.Login.route)
                 })
         )
     )
@@ -307,6 +309,7 @@ private fun setLogoutBtn(
 
 
 private fun setSignoutBtn(
+    navController: NavHostController,
     viewModel: com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileViewModel
 ) {
     Log.d("### ProfileScreen", ProfileType.SIGNOUT)
@@ -323,6 +326,7 @@ private fun setSignoutBtn(
                 button2Callback = {
                     Log.d("####", "SignoutDialog - Signout")
                     viewModel.signout()
+                    navController.navigate(AuthScreen.Login.route)
                 })
         )
     )

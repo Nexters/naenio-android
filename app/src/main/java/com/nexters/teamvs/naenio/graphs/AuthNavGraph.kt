@@ -16,6 +16,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
     ) {
         composable(route = AuthScreen.Login.route) {
             LoginScreen (
+                navController = navController,
                 viewModel = hiltViewModel(),
                 onNickName = {
                     navController.popBackStack()
@@ -28,7 +29,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
             )
         }
         composable(route = AuthScreen.ProfileSetting.route) {
-            ProfileSettingScreen(navController = navController, viewModel = hiltViewModel()) {
+            ProfileSettingScreen(navController = navController, viewModel = hiltViewModel(), type = "modifyProfile") {
                 navController.popBackStack()
                 navController.navigate(Graph.MAIN)
             }

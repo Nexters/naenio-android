@@ -13,17 +13,24 @@ import com.google.android.gms.tasks.Task
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.nexters.teamvs.naenio.BuildConfig
+import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.data.network.dto.AuthType
+import com.nexters.teamvs.naenio.domain.model.Profile
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.extensions.requireActivity
+import com.nexters.teamvs.naenio.theme.NaenioTypography
 import com.nexters.teamvs.naenio.ui.model.User
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import com.nexters.teamvs.naenio.utils.fromJson
 import com.nexters.teamvs.naenio.utils.loginWithKakao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,7 +44,17 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : BaseViewModel() {
 
+    private val _loginDetailText = MutableStateFlow<String?>(null)
+    val loginDetailText = _loginDetailText.asStateFlow()
+
+    private val _isLoginSuccess = MutableStateFlow<Boolean?>(null)
+    val isLoginSuccess = _isLoginSuccess.asStateFlow()
+
     val navigationEvent = MutableSharedFlow<LoginDestination>(extraBufferCapacity = 1)
+
+    init {
+        _isLoginSuccess.value = false
+    }
 
     private suspend fun login(socialLoginToken: String, authType: AuthType) {
         userRepository.login(socialLoginToken, authType)
@@ -59,6 +76,7 @@ class LoginViewModel @Inject constructor(
                     GlobalUiEvent.showToast(e.errorMessage())
                 }
             } finally {
+                _isLoginSuccess.value = true
                 GlobalUiEvent.hideLoading()
             }
         }
@@ -94,6 +112,7 @@ class LoginViewModel @Inject constructor(
                 GlobalUiEvent.showToast(e.errorMessage())
                 e.printStackTrace()
             } finally {
+                _isLoginSuccess.value = true
                 GlobalUiEvent.hideLoading()
             }
         }
@@ -103,13 +122,39 @@ class LoginViewModel @Inject constructor(
         try {
             val user = AuthDataStore.userJson.fromJson<User>()
             if (user == null || user.nickname.isNullOrEmpty()) {
+                Log.d("###checkProfileInfo", "NULL???")
                 navigationEvent.tryEmit(LoginDestination.ProfileSettings)
             } else {
+                Log.d("###checkProfileInfo", "NOT NULL???")
                 navigationEvent.tryEmit(LoginDestination.Main)
             }
         } catch (e: Exception) {
             Log.e(className, e.stackTraceToString())
             navigationEvent.tryEmit(LoginDestination.ProfileSettings)
+        }
+    }
+
+    fun setLoginDetailType(type: String) {
+        try {
+            val input: java.io.InputStream
+            if (type == LoginDetailType.SERVICE) {
+                input = NaenioApp.context.resources.openRawResource(R.raw.service)
+            } else {
+                input = NaenioApp.context.resources.openRawResource(R.raw.privacy)
+            }
+            val stream = java.io.InputStreamReader(input, "utf-8")
+            val buffer = java.io.BufferedReader(stream)
+            var sb = java.lang.StringBuilder("")
+            var read : String?
+            do {
+                read = buffer.readLine()
+                sb.append("$read\n")
+            } while (read != null)
+            input.close()
+            _loginDetailText.value = sb.toString()
+        } catch (e: Exception) {
+            Log.e(className, e.stackTraceToString())
+            _loginDetailText.value = ""
         }
     }
 }

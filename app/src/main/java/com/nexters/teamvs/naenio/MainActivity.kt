@@ -1,8 +1,11 @@
 package com.nexters.teamvs.naenio
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -10,7 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.ui.AppBarConfiguration
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
@@ -24,15 +30,33 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Timer
+import java.util.TimerTask
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val keyboardUtils = KeyboardUtils()
+    var isSplashTimeout = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val splashScreen = installSplashScreen()
+        val splashTimer = Timer()
+        splashTimer.schedule(object: TimerTask() {
+            override fun run() {
+                isSplashTimeout = true
+            }
+        },3000)
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(object: ViewTreeObserver.OnPreDrawListener{
+            override fun onPreDraw(): Boolean {
+                return if (isSplashTimeout) {
+                    content.viewTreeObserver.removeOnPreDrawListener(this)
+                    return true
+                } else false
+            }
+        })
         Firebase.dynamicLinks.getDynamicLink(intent)
             .addOnSuccessListener { pendingDynamicLinkData ->
                 var deepLink: Uri? = null

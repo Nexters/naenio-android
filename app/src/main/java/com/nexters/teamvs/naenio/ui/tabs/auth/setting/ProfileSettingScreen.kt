@@ -42,10 +42,18 @@ const val MAX_NICKNAME_LENGTH = 10
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ProfileSettingScreen(
+    type: String,
     navController: NavHostController,
     viewModel: ProfileViewModel,
     onNext: () -> Unit,
 ) {
+
+    LaunchedEffect(key1 = Unit,
+        block = {
+            viewModel.setType(type)
+        }
+    )
+
 
     LaunchedEffect(key1 = Unit, block = {
         viewModel.uiState.collect {

@@ -25,6 +25,14 @@ class ProfileViewModel @Inject constructor(
 
     val uiState = MutableSharedFlow<UiState>()
 
+    fun setType(type: String) {
+        if (type == "signin") {
+
+        } else {
+
+        }
+    }
+
     fun setProfileInfo(nickname: String, profileImageIndex: Int) {
         viewModelScope.launch {
             try {
@@ -55,7 +63,6 @@ class ProfileViewModel @Inject constructor(
         AuthDataStore.userJson = User("", 1).toJson().also {
             Log.d("### logoutUserInfo()", "userJson: \n $it")
         }
-        // TODO 화면 어디로 이동?
     }
 
     fun signout() {
@@ -71,7 +78,6 @@ class ProfileViewModel @Inject constructor(
                 GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
             }
         }
-        // TODO 화면 어디로 이동?
     }
 
 }
