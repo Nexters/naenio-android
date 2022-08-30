@@ -145,10 +145,10 @@ fun CommentScreenContent(
                 scope.launch {
                     GlobalUiEvent.showMenuDialog(
                         MenuDialogModel(
-                            text = "",
-                            color = Color.White,
+                            text = "삭제",
+                            color = Color.Red,
                             onClick = {
-
+                                commentViewModel.deleteComment(it.comment as Comment)
                             }
                         )
                     )
