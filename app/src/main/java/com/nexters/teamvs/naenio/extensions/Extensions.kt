@@ -12,6 +12,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
+import com.google.gson.Gson
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.NoRouteToHostException
@@ -47,12 +48,31 @@ fun Throwable.isNetworkException(): Boolean {
     }
 }
 
+
+data class ErrorResponse(
+    val message: String,
+    val code: String,
+)
+
+fun HttpException.getErrorMessage(): String {
+    val errorString = this.response()?.errorBody()?.string()
+    val errorDto: ErrorResponse? = Gson().fromJson<ErrorResponse>(
+        errorString, ErrorResponse::class.java
+    )
+    val errorMessage = errorDto?.message
+    return if (errorMessage.isNullOrEmpty()) {
+        "일시적 오류가 발생했습니다. 잠시 후 재시도 해주세요."
+    } else errorMessage
+}
+
 fun Exception.errorMessage(): String {
     Log.e("### error", "${this.printStackTrace()}")
     return if (isNetworkException()) {
-        "네트워크 연결 상태를 확인해주세요."
+        if (this is HttpException) {
+            this.getErrorMessage()
+        } else "네트워크 연결 상태를 확인해주세요."
     } else {
-        "일시적 오류가 발생했습니다. 재시도 해주세요."
+        "일시적 오류가 발생했습니다. 잠시 후 재시도 해주세요."
     }
 }
 
