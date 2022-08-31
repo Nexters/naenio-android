@@ -12,7 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -43,7 +45,7 @@ fun ThemeFeedScreen(
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
-
+    val haptic = LocalHapticFeedback.current
     val posts = viewModel.posts.collectAsState()
     val currentTheme by remember { // TODO ViewModel Runtime Injection 방식으로 변경
         mutableStateOf((ThemeItem.themeList.find { it.type.name == type }!!))
@@ -74,6 +76,7 @@ fun ThemeFeedScreen(
             },
             vote = { postId, choiceId ->
                 viewModel.vote(postId = postId, choiceId = choiceId)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             },
             navController = navController,
             openSheet = openSheet,
