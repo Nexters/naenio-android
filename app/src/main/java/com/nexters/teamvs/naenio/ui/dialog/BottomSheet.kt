@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.sp
 import com.nexters.teamvs.naenio.utils.KeyboardUtils
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.comment.CommentEvent
-import com.nexters.teamvs.naenio.ui.comment.CommentScreen
+import com.nexters.teamvs.naenio.ui.comment.CommentDialogScreen
 
 sealed class BottomSheetType {
     data class CommentType(
@@ -37,7 +37,7 @@ fun SheetLayout(
     BottomSheetContainer(onCloseBottomSheet) {
         when (currentScreen) {
             is BottomSheetType.CommentType -> {
-                CommentScreen(
+                CommentDialogScreen(
                     modifier = if (keyboardHeight.value <= 0) {
                         Modifier
                             .padding(bottom = 0.dp)
@@ -51,7 +51,6 @@ fun SheetLayout(
                     },
                     closeSheet = onCloseBottomSheet,
                     postId = currentScreen.postId,
-                    onEvent = currentScreen.onEvent
                 )
             }
             BottomSheetType.Menu -> MenuSheetLayout()

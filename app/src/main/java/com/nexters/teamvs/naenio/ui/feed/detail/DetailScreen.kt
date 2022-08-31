@@ -1,8 +1,11 @@
-package com.nexters.teamvs.naenio.ui.feed
+package com.nexters.teamvs.naenio.ui.feed.detail
 
 import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,59 +13,72 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.composables.*
+import com.nexters.teamvs.naenio.ui.theme.ThemeItem
+import com.nexters.teamvs.naenio.ui.theme.ThemeType
+import com.nexters.teamvs.naenio.utils.ShareUtils
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun FeedDetailScreen(
-    type: String = "feedDetail",
+fun DetailScreen(
+    type: String,
     navController: NavHostController,
-    viewModel: FeedViewModel = hiltViewModel(),
+    viewModel: DetailViewModel = hiltViewModel(),
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
-    LaunchedEffect(key1 = Unit, block = {
-        viewModel.setType(type)
-    })
+    val context = LocalContext.current
     val postItem = viewModel.postItem.collectAsState()
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
-    val themeItem = viewModel.themeItem.collectAsState()
-
-    var modifier: Modifier
-    var titleBar: String = ""
+    var isAnim by remember { mutableStateOf(false) }
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.successVote.collect {
+            isAnim = true
+            delay(1000L)
+            isAnim = false
+        }
+    })
+    val modifier: Modifier
+    var titleBar = ""
     var textStyle: TextStyle = Font.pretendardSemiBold16
-    if (type.contains("random")) {
+    if (type == ThemeType.RANDOM_PLAY.name) {
         Log.d("### FeedDetailScreen", "Random")
-        titleBar = themeItem.value.title
+        LaunchedEffect(key1 = Unit, block = {
+            viewModel.getRandomPost()
+        })
+        titleBar = ThemeItem.themeList[2].title
         textStyle = Font.pretendardSemiBold22
-        modifier = Modifier.background(Brush.verticalGradient(themeItem.value.backgroundColorList))
+        modifier =
+            Modifier.background(Brush.verticalGradient(ThemeItem.themeList[2].backgroundColorList))
     } else {
+        LaunchedEffect(key1 = Unit, block = {
+            viewModel.getPostDetail(type.toInt())
+        })
         Log.d("### FeedDetailScreen", "FeedDetail")
         modifier = Modifier.background(MyColors.screenBackgroundColor)
     }
@@ -79,21 +95,50 @@ fun FeedDetailScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isEmptyPost) {
+            FeedDetail(
+                postItem.value!!,
+                modifier,
+                navController,
+                titleBar,
+                textStyle,
+                viewModel = viewModel,
+                openSheet = openSheet,
+                onShare = {
+                    ShareUtils.share(it, context)
+                }
+            )
+            AnimatedVisibility(
+                visible = isAnim,
+                enter = EnterTransition.None,
+                exit = fadeOut()
+            ) {
+                LottieAnimation(
+                    composition = composition,
+                    modifier = Modifier.wrapContentSize(),
+                    iterations = LottieConstants.IterateForever
+                )
+            }
+        } else {
             Column(
                 modifier = modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle, null)
+                TopBar(
+                    modifier = Modifier.wrapContentHeight(),
+                    barTitle = titleBar,
+                    close = {
+                        navController.popBackStack()
+                    },
+                    isMoreBtnVisible = true,
+                    textStyle = textStyle,
+                    post = null
+                )
                 FeedEmptyLayout(Color.White)
             }
-        } else {
-            FeedDetail(postItem.value!!, modifier, navController, titleBar, textStyle, openSheet)
-            LottieAnimation(
-                composition, modifier = Modifier.wrapContentSize(), iterations = Int.MAX_VALUE
-            )
         }
-        if (type.contains("random")) {
+
+        if (type == ThemeType.RANDOM_PLAY.name) {
             Image(painter = painterResource(id = R.drawable.ic_random),
                 contentDescription = "ic_random",
                 modifier = Modifier
@@ -101,7 +146,8 @@ fun FeedDetailScreen(
                     .padding(bottom = 32.dp, end = 28.dp)
                     .clickable {
                         viewModel.getRandomPost()
-                    })
+                    }
+            )
         }
     }
 }
@@ -113,13 +159,26 @@ fun FeedDetail(
     navController: NavHostController,
     titleBar: String?,
     textStyle: TextStyle,
+    viewModel: DetailViewModel,
     openSheet: (BottomSheetType) -> Unit,
+    onShare: (Int) -> Unit,
 ) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        TopBar(Modifier.wrapContentHeight(), titleBar, navController, true, textStyle, post)
+        TopBar(
+            modifier = Modifier.wrapContentHeight(),
+            barTitle = titleBar,
+            close = {
+                navController.popBackStack()
+            },
+            isMoreBtnVisible = true,
+            textStyle = textStyle,
+            post = post
+        )
         Column(
             modifier = Modifier
                 .padding(horizontal = 40.dp)
@@ -132,33 +191,17 @@ fun FeedDetail(
                     .wrapContentHeight()
                     .padding(top = 32.dp),
                 profileImageIndex = post.author.profileImageIndex,
-                isIconVisible = false
-            ) {
-                //share
-                val shareLink = "https://naenio.shop/posts/${post.id}"
-
-                val type = "text/plain"
-                val subject = "네니오로 오세요~~~"
-                val extraText = shareLink
-                val shareWith = "ShareWith"
-
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.type = type
-                intent.putExtra(Intent.EXTRA_SUBJECT, subject)
-                intent.putExtra(Intent.EXTRA_TEXT, extraText)
-
-                ContextCompat.startActivity(
-                    context,
-                    Intent.createChooser(intent, shareWith),
-                    null
-                )
-            }
+                isIconVisible = false,
+                onShare = { onShare.invoke(post.id) },
+                onMore = {}
+            )
             VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
             Spacer(modifier = Modifier.fillMaxHeight(0.044f))
             VoteBar(
                 post = post,
                 onVote = { postId, voteId ->
-
+                    viewModel.vote(postId, voteId)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             )
             Spacer(modifier = Modifier.height(32.dp))

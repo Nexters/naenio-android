@@ -59,7 +59,9 @@ fun ProfileDetailScreen(
         TopBar(
             modifier = Modifier,
             barTitle = title,
-            navController = navController,
+            close = {
+                navController.popBackStack()
+            },
             isMoreBtnVisible = false
         )
         if (profileType.contains(ProfileType.NOTICE_DETAIL)) {
@@ -67,7 +69,7 @@ fun ProfileDetailScreen(
         }
         when (profileType) {
             ProfileType.MY_COMMENT -> {
-                MyCommentLayout(viewModel = viewModel)
+                MyCommentLayout(viewModel = viewModel, onShare = {})
             }
             ProfileType.DEVELOPER -> {
                 DeveloperLayout()
@@ -174,6 +176,7 @@ fun NoticeLayout(
 
 @Composable
 fun MyCommentLayout(
+    onShare: (Int) -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val myCommentListState = viewModel.myCommentList.collectAsState()
@@ -204,6 +207,9 @@ fun MyCommentLayout(
                         isIconVisible = true,
                         onMore = {
                             viewModel.deleteMyComment(it.id)
+                        },
+                        isVisibleShareIcon = false,
+                        onShare = {
                         }
                     )
                     Text(

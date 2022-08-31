@@ -10,6 +10,11 @@ interface FeedApi {
         @Body createRequest: CreateRequest
     ): CreateResponse
 
+    @DELETE("/app/posts/{id}")
+    suspend fun deletePost(
+        @Path("id") postId: Int
+    )
+
     @GET("/app/feed")
     suspend fun getFeedPosts(
         @Query("size") size: Int,

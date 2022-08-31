@@ -54,7 +54,7 @@ class CommentRepository @Inject constructor(
             size = size,
             lastCommentId = lastCommentId,
         )
-        return response.toReplies()
+        return response.toReplies(commentId)
     }
 
     suspend fun writeReply(

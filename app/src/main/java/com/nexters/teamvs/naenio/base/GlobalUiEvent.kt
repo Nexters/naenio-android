@@ -1,6 +1,7 @@
 package com.nexters.teamvs.naenio.base
 
 import com.nexters.teamvs.naenio.ui.component.DialogModel
+import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
@@ -28,8 +29,16 @@ object GlobalUiEvent {
         uiEvent.emit(UiEvent.ShowDialog(dialogModel))
     }
 
-    fun hideDialog() {
-        uiEvent.tryEmit(UiEvent.HideDialog)
+    suspend fun hideDialog() {
+        uiEvent.emit(UiEvent.HideDialog)
+    }
+
+    suspend fun showMenuDialog(menuDialogModel: MenuDialogModel) {
+        uiEvent.emit(UiEvent.ShowMenuDialog(menuDialogModel))
+    }
+
+    suspend fun hideMenuDialog() {
+        uiEvent.emit(UiEvent.HideMenuDialog)
     }
 }
 
@@ -40,4 +49,6 @@ sealed class UiEvent {
     data class ShowToast(val message: String) : UiEvent()
     data class ShowDialog(val dialogModel: DialogModel) : UiEvent()
     object HideDialog : UiEvent()
+    data class ShowMenuDialog(val menuDialogModel: MenuDialogModel) : UiEvent()
+    object HideMenuDialog : UiEvent()
 }

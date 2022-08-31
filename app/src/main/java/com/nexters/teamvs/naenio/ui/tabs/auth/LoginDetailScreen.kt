@@ -77,8 +77,10 @@ fun LoginDetailScreen(
             TopBar(
                 modifier = Modifier,
                 barTitle = title,
-                navController = navController,
-                isMoreBtnVisible = false
+                isMoreBtnVisible = false,
+                close = {
+                    navController.popBackStack()
+                }
             )
         }
         item {

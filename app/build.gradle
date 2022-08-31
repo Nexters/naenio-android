@@ -17,6 +17,7 @@ android {
         applicationId "com.nexters.teamvs.naenio"
         minSdk 23
         targetSdk 32
+        compileSdk 33
         versionCode 1
         versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -105,7 +106,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
     implementation "com.airbnb.android:lottie-compose:5.2.0"
-
     implementation 'androidx.core:core-splashscreen:1.0.0-alpha02' // splash screen
-
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.26.1-alpha"
 }

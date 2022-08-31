@@ -5,7 +5,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.nexters.teamvs.naenio.ui.tabs.DetailScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.LoginScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileSettingScreen
 
@@ -33,9 +32,6 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                 navController.popBackStack()
                 navController.navigate(Graph.MAIN)
             }
-        }
-        composable(route = AuthScreen.Forgot.route) {
-            DetailScreen(name = AuthScreen.Forgot.route) {}
         }
     }
 }

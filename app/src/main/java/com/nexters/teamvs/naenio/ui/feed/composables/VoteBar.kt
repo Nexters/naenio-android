@@ -1,24 +1,19 @@
 package com.nexters.teamvs.naenio.ui.feed.composables
 
-import android.util.Log
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Choice
@@ -27,6 +22,7 @@ import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.NaenioTypography
+import com.nexters.teamvs.naenio.ui.component.ProgressBar
 import kotlinx.coroutines.delay
 
 @Composable
@@ -35,7 +31,7 @@ fun VoteBar(
     onVote: (Int, Int) -> Unit,
 ) {
     /** 둘 중 하나라도 투표를 했는 지 */
-    val isVotedForPost = post.isVotedForPost()
+    val isVotedForPost = post.isAlreadyVote
 
     Box(
         modifier = Modifier.wrapContentHeight(),
@@ -72,148 +68,123 @@ fun VoteBar(
 
 @Composable
 fun GageBar(
-//    modifier: Modifier,
     choice: Choice,
     indexText: String,
-//    fillGageBarWidth: Dp,
     totalVoteCount: Int,
-//    gageModifier: Modifier,
-//    foregroundColor: Brush,
     isVotedForPost: Boolean,
     onVote: (Int) -> Unit
 ) {
     val isMyChoice = choice.isVoted
 
-    val modifier = Modifier
-        .fillMaxWidth()
-        .height(72.dp)
-
     val gradientColors = listOf(
         MyColors.purple_d669ff, MyColors.blue_5862ff, MyColors.blue_0bb9ff
     )
 
-    //java.lang.IllegalArgumentException: Cannot round NaN value.
-    val percent = ((choice.voteCount.toFloat() / totalVoteCount.toFloat()))
-//    val precent = ((choice.voteCount.toFloat() / totalVoteCount.toFloat())) + 0.0f
-    var progress by remember { mutableStateOf(0.0f) }
-    progress = percent
+    val animatable = isVotedForPost
+    val targetValue = (choice.voteCount.toFloat() / totalVoteCount.toFloat()) * 100
+    var progressValue by remember { mutableStateOf(0) }
 
-    fun Float.isNon(double: Float):Boolean {
-        return double != double
+    LaunchedEffect(key1 = animatable, key2 = targetValue) {
+        if (!isVotedForPost) return@LaunchedEffect
+        if (progressValue < targetValue) {
+            while ((progressValue < targetValue) && animatable) {
+                progressValue++
+                delay(1)
+            }
+        } else {
+            while ((progressValue > targetValue) && animatable) {
+                progressValue--
+                delay(1)
+            }
+        }
+        progressValue = targetValue.toInt()
     }
-//    LaunchedEffect(isVotedForPost) {
-//        while ((progress <= percent)) {
-//            progress += 0.05f
-//            delay(10)
-//        }
-//    }
 
-    Box(
-        modifier = if (isMyChoice) {
-            modifier
-                .background(color = Color.Black, shape = RoundedCornerShape(16.dp))
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(72.dp)
+    ) {
+        ProgressBar(
+            modifier = Modifier
+                .fillMaxSize()
                 .border(
-                    border = BorderStroke(
+                    border = if (isMyChoice) BorderStroke(
                         width = 1.dp,
                         brush = Brush.horizontalGradient(
                             gradientColors
                         ),
-                    ),
+                    ) else BorderStroke(0.dp, Color.Transparent),
                     shape = RoundedCornerShape(16.dp)
                 )
                 .noRippleClickable {
                     onVote.invoke(choice.id)
-                }
-        } else {
-            modifier
-                .background(
-                    color = Color.Black,
-                    shape = RoundedCornerShape(16.dp)
-                )
-                .noRippleClickable {
-                    onVote.invoke(choice.id)
-                }
-        }
-    ) {
-//        LinearProgressIndicator(
-//            progress = animatedProgress,
-//            color = Color.Yellow,
-//            backgroundColor = Color.Transparent,
-//            modifier = modifier
-//                .background(
-//                    brush = Brush.horizontalGradient(gradientColors),
-//                    shape = RoundedCornerShape(16.dp)
-//                )
-//        )
-
-//        var fillGageBarWidth = 0.dp
-//        val density = LocalDensity.current
-        Log.d("### $percent", "$choice")
-        Box(
-            modifier = Modifier.fillMaxWidth(
-                if (!progress.isNon(progress)) {
-                    progress
-                } else 0.0f
-            ).height(72.dp)
-                .background(
-                    brush = Brush.horizontalGradient(gradientColors),
-                    shape = if (progress < 1.0) {
-                        RoundedCornerShape(
-                            topStart = 16.dp, bottomStart = 16.dp
-                        )
-                    } else {
-                        RoundedCornerShape(16.dp)
-                    }
-                )
-//                .onGloballyPositioned { layoutCoordinates ->
-//                    fillGageBarWidth = with(density) { layoutCoordinates.size.width.toDp() }
-//                }
-//                .width(width = fillGageBarWidth * percent)
+                },
+            progressValue = if (animatable) progressValue else 0,
         )
-        Row(
-            modifier = Modifier
-                .wrapContentSize()
-                .align(Alignment.Center)
-                .padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = indexText,
-                color = Color.White,
-                style = NaenioTypography.h4
-            )
-            Text(
-                modifier = Modifier
-                    .padding(start = 6.dp, end = 8.dp)
-                    .weight(1f),
-                text = choice.name,
-                color = Color.White,
-                style = Font.pretendardSemiBold14,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.width(8.dp))
+        VoteBarContent(
+            modifier = Modifier.align(Alignment.Center),
+            indexText = indexText,
+            choice = choice,
+            isVotedForPost = isVotedForPost,
+            percentageValue = progressValue
+        )
+    }
+}
 
-            /**
-             * 투표 비율 및 인원
-             */
-            if (isVotedForPost) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        modifier = Modifier.padding(bottom = 4.dp),
-                        text = if (totalVoteCount > 0) {
-                            "${(progress * 100).toInt()}%"
-                        } else "0%",
-                        color = Color.White, style = Font.montserratSemiBold14
-                    )
-                    Text(
-                        text = "${choice.voteCount} 명",
-                        color = MyColors.grey979797,
-                        style = Font.montserratSemiBold12
-                    )
-                }
+@Composable
+fun VoteBarContent(
+    modifier: Modifier,
+    indexText: String,
+    choice: Choice,
+    isVotedForPost: Boolean,
+    percentageValue: Int,
+) {
+    Row(
+        modifier = modifier
+            .wrapContentSize()
+            .padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = indexText,
+            color = Color.White,
+            style = NaenioTypography.h4
+        )
+        Text(
+            modifier = Modifier
+                .padding(start = 6.dp, end = 8.dp)
+                .weight(1f),
+            text = choice.name,
+            color = Color.White,
+            style = Font.pretendardSemiBold14,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+
+        /**
+         * 투표 비율 및 인원
+         */
+        if (isVotedForPost) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier.padding(bottom = 4.dp),
+                    text = "${percentageValue}%",
+                    color = Color.White, style = Font.montserratSemiBold14
+                )
+                Text(
+                    text = "${choice.voteCount} 명",
+                    color = MyColors.grey979797,
+                    style = Font.montserratSemiBold12
+                )
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun GageBarPreview() {
+
 }

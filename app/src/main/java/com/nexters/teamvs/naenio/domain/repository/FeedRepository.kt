@@ -56,6 +56,10 @@ class FeedRepository @Inject constructor(
         return response.toPost()
     }
 
+    suspend fun deletePost(postId: Int) {
+        feedApi.deletePost(postId)
+    }
+
     suspend fun vote(
         postId: Int,
         choiceId: Int,

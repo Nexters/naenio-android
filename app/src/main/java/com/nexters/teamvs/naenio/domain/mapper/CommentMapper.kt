@@ -36,10 +36,11 @@ object CommentMapper {
         )
     }
 
-    fun ReplyResponse.toReplies(): List<Reply> {
+    fun ReplyResponse.toReplies(commentId: Int): List<Reply> {
         return commentReplies.map {
             Reply(
                 id = it.id,
+                parentId = commentId,
                 writer = it.author.toAuthor(),
                 content = it.content,
                 isLiked = it.isLiked,
