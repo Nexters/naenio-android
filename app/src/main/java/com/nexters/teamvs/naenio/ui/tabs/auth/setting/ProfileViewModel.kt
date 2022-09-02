@@ -8,22 +8,28 @@ import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.ui.model.UiState
-import com.nexters.teamvs.naenio.ui.model.User
-import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
-import com.nexters.teamvs.naenio.utils.toJson
+import com.nexters.teamvs.naenio.utils.datastore.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : BaseViewModel() {
 
     val uiState = MutableSharedFlow<UiState>()
+    private val userState = userPreferencesRepository.userPrefFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = null
+    )
 
     fun setType(type: String) {
         if (type == "signin") {
@@ -52,26 +58,34 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private fun saveUserInfo(nickname: String, profileImageIndex: Int) {
-        AuthDataStore.userJson = User(nickname, profileImageIndex).toJson().also {
-            Log.d("### saveUserInfo()", "userJson: \n $it")
-        }
+    private suspend fun saveUserInfo(nickname: String, profileImageIndex: Int) {
+        userPreferencesRepository.updateUserPreferences(
+            userState.value!!.copy(
+                nickname = nickname,
+                profileImageIndex = profileImageIndex
+            )
+        )
     }
 
     fun logout() {
-        AuthDataStore.authToken = ""
-        AuthDataStore.userJson = User("", 1).toJson().also {
-            Log.d("### logoutUserInfo()", "userJson: \n $it")
-        }
-    }
-
-    fun signout() {
         viewModelScope.launch {
             try {
                 GlobalUiEvent.showLoading()
-                userRepository.deleteProfile()
+                userRepository.logOut()
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                GlobalUiEvent.hideLoading()
+            }
+        }
+    }
+
+    fun signOut() {
+        viewModelScope.launch {
+            try {
+                GlobalUiEvent.showLoading()
+                userRepository.signOut()
+            } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {
                 GlobalUiEvent.hideLoading()

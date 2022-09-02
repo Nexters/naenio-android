@@ -62,4 +62,10 @@ class UserPreferencesRepository @Inject constructor(
             preferences[PreferencesKeys.KEY_AUTH_SERVICE_TYPE] = user.authServiceType
         }
     }
+
+    suspend fun clear() {
+        context.userDataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
 }

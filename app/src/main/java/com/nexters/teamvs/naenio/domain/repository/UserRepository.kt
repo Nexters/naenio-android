@@ -58,8 +58,18 @@ class UserRepository @Inject constructor(
         }
     }
 
-    suspend fun deleteProfile() {
+    private suspend fun clearUserCache() {
+        userPreferencesRepository.clear()
+        authDataStore.authToken = ""
+    }
+
+    suspend fun logOut() {
+        clearUserCache()
+    }
+
+    suspend fun signOut() {
         userApi.deleteProfile()
+        clearUserCache()
     }
 
     suspend fun setProfileImage(index: Int): Boolean {

@@ -325,7 +325,7 @@ private fun setSignoutBtn(
                 },
                 button2Callback = {
                     Log.d("####", "SignoutDialog - Signout")
-                    viewModel.signout()
+                    viewModel.signOut()
                     navController.navigate(AuthScreen.Login.route)
                 })
         )
