@@ -4,11 +4,21 @@ import com.nexters.teamvs.naenio.data.network.dto.MyProfileResponse
 import com.nexters.teamvs.naenio.data.network.dto.NoticeListResponse
 import com.nexters.teamvs.naenio.domain.model.Notice
 import com.nexters.teamvs.naenio.domain.model.Profile
+import com.nexters.teamvs.naenio.utils.datastore.UserPref
 
 object ProfileMapper {
 
-    fun MyProfileResponse.toMyProfile(): Profile {
+    fun UserPref.toProfile(): Profile {
         return Profile(
+            id = id,
+            nickname = nickname,
+            authServiceType = authServiceType,
+            profileImageIndex = profileImageIndex,
+        )
+    }
+
+    fun MyProfileResponse.toUserPref(): UserPref {
+        return UserPref(
             id = id,
             nickname = nickname,
             authServiceType = authServiceType,

@@ -3,17 +3,23 @@ package com.nexters.teamvs.naenio.domain.repository
 import android.util.Log
 import com.nexters.teamvs.naenio.base.BaseRepository
 import com.nexters.teamvs.naenio.data.network.api.UserApi
-import com.nexters.teamvs.naenio.data.network.dto.*
-import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toMyProfile
+import com.nexters.teamvs.naenio.data.network.dto.AuthType
+import com.nexters.teamvs.naenio.data.network.dto.LoginRequest
+import com.nexters.teamvs.naenio.data.network.dto.NicknameRequest
+import com.nexters.teamvs.naenio.data.network.dto.ProfileImageRequest
 import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toNoticeList
+import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toProfile
+import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toUserPref
 import com.nexters.teamvs.naenio.domain.model.Notice
 import com.nexters.teamvs.naenio.domain.model.Profile
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
+import com.nexters.teamvs.naenio.utils.datastore.UserPreferencesRepository
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
     private val userApi: UserApi,
-    private val authDataStore: AuthDataStore = AuthDataStore
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val authDataStore: AuthDataStore = AuthDataStore,
 ) : BaseRepository() {
 
     suspend fun login(oAuthToken: String, authType: AuthType): String {
@@ -38,7 +44,13 @@ class UserRepository @Inject constructor(
     }
 
     suspend fun getMyProfile(): Profile {
-        return userApi.getMyProfile().toMyProfile()
+        val profileResponse = userApi.getMyProfile()
+        val userPref = profileResponse.toUserPref()
+        val profile = userPref.toProfile()
+        userPreferencesRepository.updateUserPreferences(
+            userPref
+        )
+        return profile
     }
 
     suspend fun deleteProfile() {

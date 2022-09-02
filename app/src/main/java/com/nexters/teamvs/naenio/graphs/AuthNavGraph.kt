@@ -39,5 +39,4 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
 sealed class AuthScreen(val route: String) {
     object Login : AuthScreen(route = "LOGIN")
     object ProfileSetting : AuthScreen(route = "ProfileSetting")
-    object Forgot : AuthScreen(route = "FORGOT")
 }
