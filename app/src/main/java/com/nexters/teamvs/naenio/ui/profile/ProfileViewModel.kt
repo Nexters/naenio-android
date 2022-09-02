@@ -87,7 +87,7 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 GlobalUiEvent.showLoading()
-                _myProfile.value = userRepository.getMyProfile()
+                _myProfile.value = userRepository.getMyProfile(viewModelScope)
             } catch (e: Exception) {
                 e.printStackTrace()
                 GlobalUiEvent.showToast(e.errorMessage())
