@@ -118,21 +118,21 @@ class LoginViewModel @Inject constructor(
 
     fun setLoginDetailType(type: String) {
         try {
-            val input: java.io.InputStream
-            if (type == LoginDetailType.SERVICE) {
-                input = NaenioApp.context.resources.openRawResource(R.raw.service)
+            val input: java.io.InputStream = if (type == LoginDetailType.SERVICE) {
+                NaenioApp.context.resources.openRawResource(R.raw.service)
             } else {
-                input = NaenioApp.context.resources.openRawResource(R.raw.privacy)
+                NaenioApp.context.resources.openRawResource(R.raw.privacy)
             }
             val stream = java.io.InputStreamReader(input, "utf-8")
             val buffer = java.io.BufferedReader(stream)
-            var sb = java.lang.StringBuilder("")
+            val sb = java.lang.StringBuilder("")
             var read : String?
-            do {
-                read = buffer.readLine()
-                sb.append("$read\n")
-            } while (read != null)
-            input.close()
+            input.use {
+                do {
+                    read = buffer.readLine()
+                    sb.append("$read\n")
+                } while (read != null)
+            }
             _loginDetailText.value = sb.toString()
         } catch (e: Exception) {
             Log.e(className, e.stackTraceToString())
