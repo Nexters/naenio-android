@@ -18,14 +18,8 @@ import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.data.network.dto.AuthType
-import com.nexters.teamvs.naenio.domain.model.Profile
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
-import com.nexters.teamvs.naenio.extensions.requireActivity
-import com.nexters.teamvs.naenio.theme.NaenioTypography
-import com.nexters.teamvs.naenio.ui.model.User
-import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
-import com.nexters.teamvs.naenio.utils.fromJson
 import com.nexters.teamvs.naenio.utils.loginWithKakao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,28 +41,20 @@ class LoginViewModel @Inject constructor(
     private val _loginDetailText = MutableStateFlow<String?>(null)
     val loginDetailText = _loginDetailText.asStateFlow()
 
-    private val _isLoginSuccess = MutableStateFlow<Boolean?>(null)
-    val isLoginSuccess = _isLoginSuccess.asStateFlow()
-
     val navigationEvent = MutableSharedFlow<LoginDestination>(extraBufferCapacity = 1)
-
-    init {
-        _isLoginSuccess.value = false
-    }
 
     private suspend fun login(socialLoginToken: String, authType: AuthType) {
         userRepository.login(socialLoginToken, authType)
+        startOnBoarding()
     }
 
     fun loginKakao(context: Context) {
         viewModelScope.launch {
             try {
-//                GlobalUiEvent.showLoading() TODO 로고랑 로딩바랑 아이콘이 동일해서 어색해보이는 이슈
+                GlobalUiEvent.showLoading()
                 val token = loginWithKakao(context)
                 Log.d(className, "$token")
                 login(token.accessToken, AuthType.KAKAO)
-//                checkProfileInfo()
-                navigationEvent.tryEmit(LoginDestination.ProfileSettings)
             } catch (e: Exception) {
                 if (e is ClientError && e.reason == ClientErrorCause.Cancelled) {
                     Log.d(className, "사용자가 명시적으로 취소")
@@ -76,7 +62,6 @@ class LoginViewModel @Inject constructor(
                     GlobalUiEvent.showToast(e.errorMessage())
                 }
             } finally {
-                _isLoginSuccess.value = true
                 GlobalUiEvent.hideLoading()
             }
         }
@@ -101,7 +86,6 @@ class LoginViewModel @Inject constructor(
                     "[HandleGoogleSignInResult] success id_token :: ${account.idToken}"
                 )
                 login(account.idToken!!, AuthType.GOOGLE)
-                checkProfileInfo()
             } catch (e: ApiException) {
                 GlobalUiEvent.showToast(e.errorMessage())
                 Log.e(
@@ -112,25 +96,23 @@ class LoginViewModel @Inject constructor(
                 GlobalUiEvent.showToast(e.errorMessage())
                 e.printStackTrace()
             } finally {
-                _isLoginSuccess.value = true
                 GlobalUiEvent.hideLoading()
             }
         }
     }
 
-    private fun checkProfileInfo() {
-        try {
-            val user = AuthDataStore.userJson.fromJson<User>()
-            if (user == null || user.nickname.isNullOrEmpty()) {
-                Log.d("###checkProfileInfo", "NULL???")
-                navigationEvent.tryEmit(LoginDestination.ProfileSettings)
-            } else {
-                Log.d("###checkProfileInfo", "NOT NULL???")
-                navigationEvent.tryEmit(LoginDestination.Main)
+    private fun startOnBoarding() {
+        viewModelScope.launch {
+            try {
+                val user = userRepository.getMyProfile(viewModelScope)
+                if (user.nickname.isNullOrEmpty()) {
+                    navigationEvent.emit(LoginDestination.ProfileSettings)
+                } else {
+                    navigationEvent.emit(LoginDestination.Main)
+                }
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
             }
-        } catch (e: Exception) {
-            Log.e(className, e.stackTraceToString())
-            navigationEvent.tryEmit(LoginDestination.ProfileSettings)
         }
     }
 

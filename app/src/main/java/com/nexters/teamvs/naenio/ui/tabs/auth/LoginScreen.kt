@@ -69,13 +69,6 @@ fun LoginScreen(
         }
     })
 
-    val isLoginSuccessState = viewModel.isLoginSuccess.collectAsState()
-    val isLoginSuccess = isLoginSuccessState.value
-
-    if (isLoginSuccess == true) {
-        navController.navigate("ProfileSetting/signin")
-    }
-
     val startForResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
