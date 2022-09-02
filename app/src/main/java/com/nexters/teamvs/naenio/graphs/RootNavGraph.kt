@@ -1,28 +1,45 @@
 package com.nexters.teamvs.naenio.graphs
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navDeepLink
-import com.google.android.gms.auth.api.Auth
 import com.nexters.teamvs.naenio.ui.tabs.MainScreen
-import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
+import com.nexters.teamvs.naenio.ui.tabs.auth.LoginScreen
+import com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileSettingScreen
 
 @Composable
-fun RootNavigationGraph(navController: NavHostController) {
-    var route : String
-    if (AuthDataStore.userJson.isNullOrEmpty() || AuthDataStore.authToken.isNullOrEmpty()) {
-        route = Graph.AUTHENTICATION
-    } else {
-        route = Graph.MAIN
-    }
+fun RootNavigationGraph(navController: NavHostController, startDestination: String) {
     NavHost(
         navController = navController,
         route = Graph.ROOT,
-        startDestination = route
+        startDestination = startDestination
     ) {
-        authNavGraph(navController = navController)
+        composable(route = AuthScreen.Login.route) {
+            LoginScreen(
+                navController = navController,
+                viewModel = hiltViewModel(),
+                onNickName = {
+                    navController.popBackStack()
+                    navController.navigate(AuthScreen.ProfileSetting.route)
+                },
+                onNext = {
+                    navController.popBackStack()
+                    navController.navigate(Graph.MAIN)
+                }
+            )
+        }
+        composable(route = AuthScreen.ProfileSetting.route) {
+            ProfileSettingScreen(
+                navController = navController,
+                viewModel = hiltViewModel(),
+                type = "modifyProfile"
+            ) {
+                navController.popBackStack()
+                navController.navigate(Graph.MAIN)
+            }
+        }
         composable(
             route = Graph.MAIN
         ) { MainScreen() }
