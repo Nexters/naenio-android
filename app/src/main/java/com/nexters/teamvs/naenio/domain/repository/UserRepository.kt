@@ -14,6 +14,8 @@ import com.nexters.teamvs.naenio.domain.model.Notice
 import com.nexters.teamvs.naenio.domain.model.Profile
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import com.nexters.teamvs.naenio.utils.datastore.UserPreferencesRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
@@ -43,14 +45,17 @@ class UserRepository @Inject constructor(
         return response.nickname == nickname
     }
 
-    suspend fun getMyProfile(): Profile {
-        val profileResponse = userApi.getMyProfile()
-        val userPref = profileResponse.toUserPref()
-        val profile = userPref.toProfile()
-        userPreferencesRepository.updateUserPreferences(
-            userPref
-        )
-        return profile
+    suspend fun getMyProfile(externalScope: CoroutineScope): Profile {
+        val userPrefValue = userPreferencesRepository.userPrefFlow.stateIn(externalScope).value
+        return if (userPrefValue == null) {
+            val profileResponse = userApi.getMyProfile()
+            profileResponse.toUserPref().let {
+                userPreferencesRepository.updateUserPreferences(it)
+                it.toProfile()
+            }
+        } else {
+            userPrefValue.toProfile()
+        }
     }
 
     suspend fun deleteProfile() {
