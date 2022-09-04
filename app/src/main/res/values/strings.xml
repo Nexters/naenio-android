@@ -66,6 +66,7 @@
     <string name="profile_signout">회원 탈퇴</string>
     <string name="my_comment_empty">아직 작성한 댓글이 없어요!</string>
     <string name="notice_empty">아직 공지사항이 없어요!</string>
+    <string name="question_url">https://docs.google.com/forms/d/e/1FAIpQLScdfCW8YM2VTpP-GyI3xnbOCCGAJqenea-9HdxCEP1_sTGi2g/viewform</string>
 
     <!--Feed-->
     <string name="feed_all_vote">전체</string>

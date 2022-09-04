@@ -1,6 +1,9 @@
 package com.nexters.teamvs.naenio.ui.profile
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import android.webkit.WebView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.theme.Font
@@ -224,9 +228,15 @@ fun ProfileButton(
                         ProfileType.VERSION -> moveProfileDetailScreen(
                             navController, ProfileType.VERSION
                         )
-                        ProfileType.LOGOUT -> setLogoutBtn(viewModel = profileViewModel, navController = navController)
+                        ProfileType.LOGOUT -> setLogoutBtn(
+                            viewModel = profileViewModel,
+                            navController = navController
+                        )
                         ProfileType.SIGNOUT -> {
-                            setSignOutBtn(viewModel = profileViewModel, navController = navController)
+                            setSignOutBtn(
+                                viewModel = profileViewModel,
+                                navController = navController
+                            )
                         }
                     }
                 }
@@ -277,7 +287,9 @@ fun moveProfileDetailScreen(navController: NavHostController, type: String) {
 
 private fun setQuestionBtn() {
     Log.d("### ProfileScreen", ProfileType.QUESTION)
-
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(NaenioApp.context.getString(R.string.question_url)))
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    NaenioApp.context.startActivity(intent)
 }
 
 private fun setLogoutBtn(
