@@ -80,7 +80,6 @@ fun MainNavGraph(
         authNavGraph(navController)
         themeDetailNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         profileDetailNavGraph(navController)
-        loginDetailNavGraph(navController)
         settingProfileNavGraph(navController)
     }
 }

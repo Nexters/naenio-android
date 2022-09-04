@@ -60,12 +60,16 @@ class ProfileViewModel @Inject constructor(
     }
 
     private suspend fun saveUserInfo(nickname: String, profileImageIndex: Int) {
-        userPreferencesRepository.updateUserPreferences(
-            userState.value!!.copy(
+        userState.value?.let {
+            it.copy(
                 nickname = nickname,
                 profileImageIndex = profileImageIndex
             )
-        )
+        }?.let {
+            userPreferencesRepository.updateUserPreferences(
+                it
+            )
+        }
     }
 
     fun logout() {

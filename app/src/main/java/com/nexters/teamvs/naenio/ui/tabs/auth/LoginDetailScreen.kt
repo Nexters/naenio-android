@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -75,7 +76,7 @@ fun LoginDetailScreen(
     ) {
         item {
             TopBar(
-                modifier = Modifier,
+                modifier = Modifier.padding(bottom = 24.dp),
                 barTitle = title,
                 isMoreBtnVisible = false,
                 close = {
@@ -86,6 +87,7 @@ fun LoginDetailScreen(
         item {
             Text(
                 text = content.orEmpty(),
+                modifier = Modifier.padding(horizontal = 20.dp),
                 color = Color(0xff6d6d6d),
                 style = Font.pretendardRegular14
             )

@@ -43,6 +43,7 @@ fun RootNavigationGraph(navController: NavHostController, startDestination: Stri
         composable(
             route = Graph.MAIN
         ) { MainScreen() }
+        loginDetailNavGraph(navController)
     }
 }
 
