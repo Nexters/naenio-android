@@ -93,29 +93,18 @@ fun LoginScreen(
         }
     )
 
-    Column(modifier = Modifier.background(Color.LightGray)) {
-        Button(
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Yellow),
-            onClick = { viewModel.loginKakao(context) }
-        ) {
-            Text(
-                text = "카카오"
-            )
-        }
-
-//        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan), onClick = {
-//            val dynamicLink = Firebase.dynamicLinks.dynamicLink {
-//                link = Uri.parse("https://naenioapp.page.link/")
-//                domainUriPrefix = "https://naenioapp.page.link"
-//                androidParameters("com.nexters.teamversus.naenio") {
-//                    fallbackUrl = Uri.parse("https://naver.com")
-//                }
+//    Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan), onClick = {
+//        val dynamicLink = Firebase.dynamicLinks.dynamicLink {
+//            link = Uri.parse("https://naenioapp.page.link/")
+//            domainUriPrefix = "https://naenioapp.page.link"
+//            androidParameters("com.nexters.teamversus.naenio") {
+//                fallbackUrl = Uri.parse("https://naver.com")
 //            }
-//            Log.d("###", "dynamicLink 생성 테스트:: ${dynamicLink.uri.toString()}")
-//        }) {
-//            Text(text = "다이나믹 링크 생성 테스트")
 //        }
-    }
+//        Log.d("###", "dynamicLink 생성 테스트:: ${dynamicLink.uri.toString()}")
+//    }) {
+//        Text(text = "다이나믹 링크 생성 테스트")
+//    }
 }
 
 @Composable
