@@ -162,7 +162,10 @@ fun NavGraphBuilder.settingProfileNavGraph(
                 ProfileSettingScreen(
                     navController = navController,
                     viewModel = hiltViewModel(),
-                    type = type,
+                    onClose = {
+                        navController.popBackStack()
+                        navController.navigate(Graph.MAIN)
+                    }
                 ) {
                     navController.popBackStack()
                     navController.navigate(Graph.MAIN)
