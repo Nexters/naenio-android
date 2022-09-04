@@ -3,6 +3,7 @@ package com.nexters.teamvs.naenio.ui.profile
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.domain.model.*
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
@@ -34,6 +35,7 @@ class ProfileViewModel @Inject constructor(
 
 
     init {
+        getMyProfile()
     }
 
     fun setType(profileType: String) {
@@ -107,6 +109,33 @@ class ProfileViewModel @Inject constructor(
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {
                 getMyCommentList()
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                GlobalUiEvent.showLoading()
+                userRepository.logOut()
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                GlobalUiEvent.hideLoading()
+            }
+        }
+    }
+
+    fun signOut() {
+        viewModelScope.launch {
+            try {
+                GlobalUiEvent.showLoading()
+                userRepository.signOut()
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                GlobalUiEvent.hideLoading()
+                GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
             }
         }
     }

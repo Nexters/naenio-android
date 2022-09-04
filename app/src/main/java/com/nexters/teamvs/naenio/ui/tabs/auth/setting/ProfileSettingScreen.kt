@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.tabs.auth.setting
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -10,7 +11,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
@@ -27,9 +30,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
+import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.MyShape
@@ -42,19 +47,11 @@ const val MAX_NICKNAME_LENGTH = 10
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ProfileSettingScreen(
-    type: String,
     navController: NavHostController,
-    viewModel: ProfileViewModel,
+    viewModel: ProfileSettingViewModel,
+    onClose: () -> Unit,
     onNext: () -> Unit,
 ) {
-
-    LaunchedEffect(key1 = Unit,
-        block = {
-            viewModel.setType(type)
-        }
-    )
-
-
     LaunchedEffect(key1 = Unit, block = {
         viewModel.uiState.collect {
             when (it) {
@@ -84,6 +81,7 @@ fun ProfileSettingScreen(
     ProfileSettingScreenContent(
         navController = navController,
         viewModel = viewModel,
+        onClose = onClose
     )
 
 }
@@ -93,20 +91,33 @@ fun ProfileSettingScreen(
 fun ProfileSettingScreenContent(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    viewModel: ProfileViewModel,
+    viewModel: ProfileSettingViewModel,
+    onClose: () -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    var inputText by remember { mutableStateOf("") }
+    val user = viewModel.user.collectAsState()
+    var inputText by remember { mutableStateOf(user.value?.nickname ?: "") }
     var isVisibleDialog by remember { mutableStateOf<Boolean>(false) }
     var isSavable by remember { mutableStateOf(false) }
-    var selectedProfileImage by remember { mutableStateOf(Profile.images[0]) }
+    var selectedProfileImage by remember {
+        mutableStateOf<Int>(
+            user.value?.profileImageIndex ?: (0 until Profile.images.size).random()
+        )
+    }
 
     BackHandler {
         if (isVisibleDialog) {
             isVisibleDialog = false
         } else {
+            Log.d(
+                "###",
+                "navController.previousBackStackEntry: ${navController.previousBackStackEntry}"
+            )
             navController.popBackStack()
+            if (navController.previousBackStackEntry == null) {
+                navController.navigate(AuthScreen.Login.route)
+            }
         }
     }
 
@@ -121,8 +132,9 @@ fun ProfileSettingScreenContent(
             ProfileSettingTopBar(
                 isEnabled = isSavable,
                 onSave = {
-                    viewModel.setProfileInfo(inputText, selectedProfileImage.id)
-                }
+                    viewModel.setProfileInfo(inputText, selectedProfileImage)
+                },
+                onClose = onClose
             )
             Spacer(modifier = Modifier.height(54.dp))
 
@@ -163,6 +175,7 @@ fun ProfileSettingScreenContent(
 @Composable
 fun ProfileSettingTopBar(
     isEnabled: Boolean,
+    onClose: () -> Unit,
     onSave: () -> Unit,
 ) {
     Row(
@@ -172,6 +185,13 @@ fun ProfileSettingTopBar(
             .fillMaxWidth()
             .wrapContentHeight(),
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_close),
+            modifier = Modifier.clickable {
+                onClose.invoke()
+            },
+            contentDescription = ""
+        )
         Text(
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Center,
@@ -195,7 +215,7 @@ fun ProfileSettingTopBar(
 @Composable
 fun ProfileImage(
     modifier: Modifier,
-    profileImage: ProfileImageModel,
+    profileImage: Int,
     onEditProfileImage: () -> Unit,
 ) {
     Box(
@@ -206,7 +226,7 @@ fun ProfileImage(
     ) {
         Image(
             modifier = Modifier.align(Alignment.Center),
-            painter = painterResource(id = profileImage.image),
+            painter = painterResource(id = Profile.images[profileImage].image),
             contentDescription = ""
         )
         Image(
@@ -265,7 +285,7 @@ fun InputNickname(
 @Composable
 fun SelectImageBottomDialog(
     onClose: () -> Unit,
-    onSelect: (ProfileImageModel) -> Unit,
+    onSelect: (Int) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -314,7 +334,7 @@ fun SelectImageBottomDialog(
                 content = {
                     items(Profile.images) {
                         ProfileImageItem(it) { model ->
-                            onSelect.invoke(model)
+                            onSelect.invoke(model.id)
                         }
                     }
                 }
@@ -342,6 +362,7 @@ fun ProfileImageItem(
 fun ProfileImagePreview() {
     ProfileSettingScreenContent(
         navController = NavHostController(LocalContext.current),
-        viewModel = viewModel()
+        viewModel = viewModel(),
+        onClose = {}
     )
 }

@@ -15,7 +15,7 @@ import com.nexters.teamvs.naenio.domain.model.Profile
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import com.nexters.teamvs.naenio.utils.datastore.UserPreferencesRepository
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
@@ -40,9 +40,11 @@ class UserRepository @Inject constructor(
         return userApi.isExistNickname(nickname).exist
     }
 
-    suspend fun setNickname(nickname: String): Boolean {
-        val response = userApi.setNickname(NicknameRequest(nickname))
-        return response.nickname == nickname
+    //TODO 같은 값이면 요청 막기
+    suspend fun setNickname(nickname: String) {
+        userApi.setNickname(NicknameRequest(nickname)).also {
+            userPreferencesRepository.saveNickname(it.nickname)
+        }
     }
 
     suspend fun getMyProfile(externalScope: CoroutineScope): Profile {
@@ -56,6 +58,10 @@ class UserRepository @Inject constructor(
         } else {
             userPrefValue.toProfile()
         }
+    }
+
+    fun getUserFlow(): Flow<Profile> {
+        return userPreferencesRepository.userPrefFlow.mapNotNull { it?.toProfile() }
     }
 
     private suspend fun clearUserCache() {
@@ -72,9 +78,11 @@ class UserRepository @Inject constructor(
         clearUserCache()
     }
 
-    suspend fun setProfileImage(index: Int): Boolean {
-        val response = userApi.setProfileImage(ProfileImageRequest(index))
-        return index == response.profileImageIndex
+    //TODO 같은 값이면 요청 막기
+    suspend fun setProfileImage(index: Int) {
+        userApi.setProfileImage(ProfileImageRequest(index)).also {
+            userPreferencesRepository.saveProfileImage(it.profileImageIndex)
+        }
     }
 
     suspend fun getNoticeList(): List<Notice> {
