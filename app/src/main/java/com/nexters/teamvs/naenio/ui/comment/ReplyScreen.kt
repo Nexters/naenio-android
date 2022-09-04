@@ -79,7 +79,9 @@ fun ReplyScreenContent(
                             text = "삭제",
                             color = Color.Red,
                             onClick = {
-                                replyViewModel.deleteComment(it.comment as Reply)
+                                if (it.comment is Reply) {
+                                    replyViewModel.delete(it.comment)
+                                }
                             }
                         )
                     )

@@ -63,7 +63,7 @@ class ReplyViewModel @Inject constructor(
         }
     }
 
-    fun deleteComment(reply: Reply) {
+    fun delete(reply: Reply) {
         viewModelScope.launch {
             try {
                 commentRepository.deleteComment(reply.id)

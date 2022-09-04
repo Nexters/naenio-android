@@ -14,7 +14,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -91,6 +93,7 @@ fun FeedScreenContent(
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     /**
      * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
@@ -143,6 +146,7 @@ fun FeedScreenContent(
                     openSheet = openSheet,
                     onVote = { postId, choiceId ->
                         viewModel.vote(postId = postId, choiceId = choiceId)
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     },
                     onShare = { postId ->
                         ShareUtils.share(postId = postId, context = context)
