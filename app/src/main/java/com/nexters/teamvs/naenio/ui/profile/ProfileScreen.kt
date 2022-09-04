@@ -309,8 +309,8 @@ private fun setLogoutBtn(
                 },
                 button2Callback = {
                     Log.d("####", "LogoutDialog - Logout")
-                    viewModel.logout()
                     GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+                    viewModel.logout()
                     navController.navigate(AuthScreen.Login.route)
                 })
         )
@@ -335,6 +335,7 @@ private fun setSignOutBtn(
                 },
                 button2Callback = {
                     Log.d("####", "SignoutDialog - Signout")
+                    GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
                     viewModel.signOut()
                     navController.navigate(AuthScreen.Login.route)
                 })
