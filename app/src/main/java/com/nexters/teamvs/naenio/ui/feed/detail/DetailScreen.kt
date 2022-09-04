@@ -94,7 +94,7 @@ fun DetailScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (isEmptyPost) {
+        if (!isEmptyPost) {
             FeedDetail(
                 postItem.value!!,
                 modifier,
