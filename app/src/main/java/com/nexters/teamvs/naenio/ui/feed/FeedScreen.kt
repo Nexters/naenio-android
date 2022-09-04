@@ -379,7 +379,8 @@ fun FeedItem(
                     .padding(vertical = 24.dp),
                 isIconVisible = true,
                 onShare = { onShare.invoke(post.id) },
-                onMore = { onMore.invoke(post) }
+                onMore = { onMore.invoke(post) },
+                profileImageIndex = post.author.profileImageIndex
             )
             VoteContent(post, Modifier, 2)
             VoteBar(

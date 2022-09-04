@@ -3,13 +3,13 @@ package com.nexters.teamvs.naenio.domain.mapper
 import com.nexters.teamvs.naenio.data.network.dto.MyProfileResponse
 import com.nexters.teamvs.naenio.data.network.dto.NoticeListResponse
 import com.nexters.teamvs.naenio.domain.model.Notice
-import com.nexters.teamvs.naenio.domain.model.Profile
+import com.nexters.teamvs.naenio.domain.model.User
 import com.nexters.teamvs.naenio.utils.datastore.UserPref
 
 object ProfileMapper {
 
-    fun UserPref.toProfile(): Profile {
-        return Profile(
+    fun UserPref.toUser(): User {
+        return User(
             id = id,
             nickname = nickname,
             authServiceType = authServiceType,

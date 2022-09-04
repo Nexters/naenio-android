@@ -8,10 +8,10 @@ import com.nexters.teamvs.naenio.data.network.dto.LoginRequest
 import com.nexters.teamvs.naenio.data.network.dto.NicknameRequest
 import com.nexters.teamvs.naenio.data.network.dto.ProfileImageRequest
 import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toNoticeList
-import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toProfile
+import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toUser
 import com.nexters.teamvs.naenio.domain.mapper.ProfileMapper.toUserPref
 import com.nexters.teamvs.naenio.domain.model.Notice
-import com.nexters.teamvs.naenio.domain.model.Profile
+import com.nexters.teamvs.naenio.domain.model.User
 import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import com.nexters.teamvs.naenio.utils.datastore.UserPreferencesRepository
 import kotlinx.coroutines.CoroutineScope
@@ -47,21 +47,21 @@ class UserRepository @Inject constructor(
         }
     }
 
-    suspend fun getMyProfile(externalScope: CoroutineScope): Profile {
+    suspend fun getMyProfile(externalScope: CoroutineScope): User {
         val userPrefValue = userPreferencesRepository.userPrefFlow.stateIn(externalScope).value
         return if (userPrefValue == null) {
             val profileResponse = userApi.getMyProfile()
             profileResponse.toUserPref().let {
                 userPreferencesRepository.updateUserPreferences(it)
-                it.toProfile()
+                it.toUser()
             }
         } else {
-            userPrefValue.toProfile()
+            userPrefValue.toUser()
         }
     }
 
-    fun getUserFlow(): Flow<Profile> {
-        return userPreferencesRepository.userPrefFlow.mapNotNull { it?.toProfile() }
+    fun getUserFlow(): Flow<User> {
+        return userPreferencesRepository.userPrefFlow.mapNotNull { it?.toUser() }
     }
 
     private suspend fun clearUserCache() {

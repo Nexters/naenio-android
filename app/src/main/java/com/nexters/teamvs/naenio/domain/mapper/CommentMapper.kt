@@ -23,11 +23,11 @@ object CommentMapper {
         }
     }
 
-    fun WriteCommentResponse.toComment(): Comment {
+    fun WriteCommentResponse.toComment(writer: Author): Comment {
         return Comment(
             id = id,
             postId = parentId,
-            writer = Author.mock, //TODO 클라에서 캐싱한 데이터를 넣어주기.
+            writer = writer,
             replyCount = 0,
             content = content,
             isLiked = false,
@@ -50,11 +50,11 @@ object CommentMapper {
         }
     }
 
-    fun WriteCommentResponse.toReply(): Reply {
+    fun WriteCommentResponse.toReply(writer: Author): Reply {
         return Reply(
             id = id,
             parentId = parentId,
-            writer = Author.mock, //TODO 클라에서 캐싱한 데이터를 넣어주기.
+            writer = writer,
             content = content,
             isLiked = false,
             likeCount = 0,

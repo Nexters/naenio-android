@@ -210,7 +210,8 @@ fun MyCommentLayout(
                         },
                         isVisibleShareIcon = false,
                         onShare = {
-                        }
+                        },
+                        profileImageIndex = it.post.author.profileImageIndex
                     )
                     Text(
                         modifier = Modifier

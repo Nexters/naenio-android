@@ -38,6 +38,7 @@ import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.model.UiState
+import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
 import kotlinx.coroutines.launch
 
 sealed class CommentEvent {
@@ -206,6 +207,7 @@ fun CommentScreenContent(
             },
             uiState = inputUiState,
             postId = postId,
+            profileImageIndex = user.value?.profileImageIndex ?: 0,
             onEvent = eventListener
         )
     }
@@ -216,11 +218,13 @@ fun CommentInput(
     scrollToTop: () -> Unit,
     uiState: UiState,
     postId: Int,
+    profileImageIndex: Int,
     onEvent: (CommentEvent) -> Unit
 ) {
     CommentEditText(
         scrollToTop = scrollToTop,
-        uiState = uiState
+        uiState = uiState,
+        profileImageIndex = profileImageIndex,
     ) {
         onEvent.invoke(
             CommentEvent.Write(
@@ -237,6 +241,7 @@ fun CommentInput(
 fun CommentEditText(
     scrollToTop: () -> Unit,
     uiState: UiState,
+    profileImageIndex: Int,
     onWrite: (String) -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
@@ -255,7 +260,10 @@ fun CommentEditText(
             .padding(horizontal = 16.dp)
             .wrapContentHeight()
     ) {
-        ProfileImageIcon(Modifier.padding(top = 16.dp))
+        ProfileImageIcon(
+            modifier = Modifier.padding(top = 16.dp),
+            profileImageRes = Profile.images[profileImageIndex].image
+        )
 
         TextField(
             modifier = Modifier

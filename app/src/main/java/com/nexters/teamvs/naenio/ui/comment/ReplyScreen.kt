@@ -143,7 +143,8 @@ fun ReplyScreenContent(
 
                     }
                 }
-            }
+            },
+            profileImageIndex = user.value?.profileImageIndex ?: 0
         )
     }
 }
@@ -272,11 +273,13 @@ fun ReplyInput(
     scrollToTop: () -> Unit,
     uiState: UiState,
     commentId: Int,
+    profileImageIndex: Int,
     onEvent: (CommentEvent) -> Unit
 ) {
     CommentEditText(
         scrollToTop = scrollToTop,
-        uiState = uiState
+        uiState = uiState,
+        profileImageIndex = profileImageIndex,
     ) {
         onEvent.invoke(
             CommentEvent.Write(

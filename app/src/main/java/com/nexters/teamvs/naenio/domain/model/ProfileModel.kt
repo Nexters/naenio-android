@@ -1,6 +1,6 @@
 package com.nexters.teamvs.naenio.domain.model
 
-data class Profile(
+data class User(
     val id : Int,
     val nickname: String? = null,
     val authServiceType : String,

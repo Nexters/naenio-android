@@ -39,7 +39,12 @@ object RepositoryModule {
     fun provideCommentRepository(
         commentApi: CommentApi,
         feedApi: FeedApi,
+        userPreferencesRepository: UserPreferencesRepository
     ): CommentRepository {
-        return CommentRepository(commentApi, feedApi = feedApi)
+        return CommentRepository(
+            commentApi = commentApi,
+            feedApi = feedApi,
+            userPreferencesRepository = userPreferencesRepository
+        )
     }
 }
