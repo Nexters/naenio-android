@@ -40,9 +40,10 @@ class UserRepository @Inject constructor(
         return userApi.isExistNickname(nickname).exist
     }
 
-    suspend fun setNickname(nickname: String): Boolean {
-        val response = userApi.setNickname(NicknameRequest(nickname))
-        return response.nickname == nickname
+    suspend fun setNickname(nickname: String) {
+        userApi.setNickname(NicknameRequest(nickname)).also {
+            userPreferencesRepository.saveNickname(it.nickname)
+        }
     }
 
     suspend fun getMyProfile(externalScope: CoroutineScope): Profile {
@@ -72,9 +73,10 @@ class UserRepository @Inject constructor(
         clearUserCache()
     }
 
-    suspend fun setProfileImage(index: Int): Boolean {
-        val response = userApi.setProfileImage(ProfileImageRequest(index))
-        return index == response.profileImageIndex
+    suspend fun setProfileImage(index: Int) {
+        userApi.setProfileImage(ProfileImageRequest(index)).also {
+            userPreferencesRepository.saveProfileImage(it.profileImageIndex)
+        }
     }
 
     suspend fun getNoticeList(): List<Notice> {

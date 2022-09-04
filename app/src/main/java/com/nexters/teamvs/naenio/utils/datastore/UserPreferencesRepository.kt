@@ -63,6 +63,18 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun saveNickname(nickname: String) {
+        context.userDataStore.edit { preferences ->
+            preferences[PreferencesKeys.KEY_NICKNAME] = nickname
+        }
+    }
+
+    suspend fun saveProfileImage(profileImageIndex: Int) {
+        context.userDataStore.edit { preferences ->
+            preferences[PreferencesKeys.KEY_PROFILE_IMAGE_INDEX] = profileImageIndex
+        }
+    }
+
     suspend fun clear() {
         context.userDataStore.edit { preferences ->
             preferences.clear()

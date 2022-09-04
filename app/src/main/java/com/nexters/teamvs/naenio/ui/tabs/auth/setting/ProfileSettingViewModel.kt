@@ -21,15 +21,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileSettingViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val userPreferencesRepository: UserPreferencesRepository
 ) : BaseViewModel() {
 
     val uiState = MutableSharedFlow<UiState>()
-    private val userState = userPreferencesRepository.userPrefFlow.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = null
-    )
 
     fun setProfileInfo(nickname: String, profileImageIndex: Int) {
         viewModelScope.launch {
@@ -41,22 +35,12 @@ class ProfileSettingViewModel @Inject constructor(
                 val nicknameDef = async { userRepository.setNickname(nickname) }
                 val profileImageDef = async { userRepository.setProfileImage(profileImageIndex) }
                 awaitAll(nicknameDef, profileImageDef)
-                saveUserInfo(nickname, profileImageIndex)
                 uiState.emit(UiState.Success)
             } catch (e: Exception) {
                 Log.e(className, e.stackTraceToString())
                 uiState.emit(UiState.Error(e))
             }
         }
-    }
-
-    private suspend fun saveUserInfo(nickname: String, profileImageIndex: Int) {
-        userPreferencesRepository.updateUserPreferences(
-            userState.value!!.copy(
-                nickname = nickname,
-                profileImageIndex = profileImageIndex
-            )
-        )
     }
 
 }

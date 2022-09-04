@@ -34,6 +34,7 @@ import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
+import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.MyShape
@@ -109,6 +110,9 @@ fun ProfileSettingScreenContent(
                 "navController.previousBackStackEntry: ${navController.previousBackStackEntry}"
             )
             navController.popBackStack()
+            if (navController.previousBackStackEntry == null) {
+                navController.navigate(AuthScreen.Login.route)
+            }
         }
     }
 
