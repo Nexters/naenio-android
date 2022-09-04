@@ -36,7 +36,6 @@ fun ProfileScreen(
     modifier: Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    viewModel.getMyProfile()
     val myProfile = viewModel.myProfile.collectAsState()
     LazyColumn(
         modifier = modifier
@@ -80,7 +79,7 @@ fun ProfileScreen(
         item {
             Spacer(modifier = Modifier.padding(top = 30.dp))
             ProfileButton(
-                viewModel = viewModel,
+                profileViewModel = viewModel,
                 navController = navController,
                 modifier = Modifier.background(
                     color = MyColors.darkGrey_313643, shape = RoundedCornerShape(10.dp)
@@ -94,7 +93,7 @@ fun ProfileScreen(
         item {
             Spacer(modifier = Modifier.padding(top = 20.dp))
             ProfileButton(
-                viewModel = viewModel,
+                profileViewModel = viewModel,
                 navController = navController,
                 modifier = Modifier
                     .padding()
@@ -118,7 +117,7 @@ fun ProfileScreen(
                     )
             ) {
                 ProfileButton(
-                    viewModel = viewModel,
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_notice),
                     image = painterResource(id = R.drawable.icon_speaker),
@@ -126,7 +125,7 @@ fun ProfileScreen(
                 )
                 ProfileButtonLine()
                 ProfileButton(
-                    viewModel = viewModel,
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_question),
                     image = painterResource(id = R.drawable.icon_question),
@@ -134,7 +133,7 @@ fun ProfileScreen(
                 )
                 ProfileButtonLine()
                 ProfileButton(
-                    viewModel = viewModel,
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_developer),
                     image = painterResource(id = R.drawable.icon_person),
@@ -142,7 +141,7 @@ fun ProfileScreen(
                 )
                 ProfileButtonLine()
                 ProfileButton(
-                    viewModel = viewModel,
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_version),
                     image = painterResource(id = R.drawable.icon_phone),
@@ -163,7 +162,7 @@ fun ProfileScreen(
                     .background(MyColors.darkGrey_313643, shape = RoundedCornerShape(10.dp))
             ) {
                 ProfileButton(
-                    viewModel = viewModel,
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.logout),
                     image = painterResource(id = R.drawable.icon_logout),
@@ -172,7 +171,7 @@ fun ProfileScreen(
                 )
                 ProfileButtonLine()
                 ProfileButton(
-                    viewModel = viewModel,
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_signout),
                     image = painterResource(id = R.drawable.icon_signout),
@@ -197,8 +196,7 @@ fun ProfileButtonLine() {
 
 @Composable
 fun ProfileButton(
-    viewModel: ProfileViewModel = hiltViewModel(),
-    settingViewModel : com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
     title: String,
@@ -226,9 +224,9 @@ fun ProfileButton(
                         ProfileType.VERSION -> moveProfileDetailScreen(
                             navController, ProfileType.VERSION
                         )
-                        ProfileType.LOGOUT -> setLogoutBtn(viewModel = settingViewModel, navController = navController)
+                        ProfileType.LOGOUT -> setLogoutBtn(viewModel = profileViewModel, navController = navController)
                         ProfileType.SIGNOUT -> {
-                            setSignoutBtn(viewModel = settingViewModel, navController = navController)
+                            setSignOutBtn(viewModel = profileViewModel, navController = navController)
                         }
                     }
                 }
@@ -284,7 +282,7 @@ private fun setQuestionBtn() {
 
 private fun setLogoutBtn(
     navController: NavHostController,
-    viewModel: com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileViewModel
+    viewModel: ProfileViewModel
 ) {
     Log.d("### ProfileScreen", ProfileType.LOGOUT)
     GlobalUiEvent.uiEvent.tryEmit(
@@ -308,9 +306,9 @@ private fun setLogoutBtn(
 }
 
 
-private fun setSignoutBtn(
+private fun setSignOutBtn(
     navController: NavHostController,
-    viewModel: com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileViewModel
+    viewModel: ProfileViewModel,
 ) {
     Log.d("### ProfileScreen", ProfileType.SIGNOUT)
     GlobalUiEvent.uiEvent.tryEmit(

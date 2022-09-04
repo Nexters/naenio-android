@@ -81,7 +81,7 @@ fun MainNavGraph(
         themeDetailNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         profileDetailNavGraph(navController)
         loginDetailNavGraph(navController)
-        settingProfileNavGraph(navController)
+//        settingProfileNavGraph(navController)
     }
 }
 
@@ -145,32 +145,6 @@ fun NavGraphBuilder.themeDetailNavGraph(
                 openSheet = openSheet,
                 closeSheet = closeSheet
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-fun NavGraphBuilder.settingProfileNavGraph(
-    navController: NavHostController,
-) {
-    navigation(
-        route = AuthScreen.ProfileSetting.route,
-        startDestination = "ProfileSetting/{type}"
-    ) {
-        composable(route = "ProfileSetting/{type}") {
-            it.arguments?.getString("type")?.let { type ->
-                ProfileSettingScreen(
-                    navController = navController,
-                    viewModel = hiltViewModel(),
-                    onClose = {
-                        navController.popBackStack()
-                        navController.navigate(Graph.MAIN)
-                    }
-                ) {
-                    navController.popBackStack()
-                    navController.navigate(Graph.MAIN)
-                }
-            }
         }
     }
 }

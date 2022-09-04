@@ -47,7 +47,7 @@ const val MAX_NICKNAME_LENGTH = 10
 @Composable
 fun ProfileSettingScreen(
     navController: NavHostController,
-    viewModel: ProfileViewModel,
+    viewModel: ProfileSettingViewModel,
     onClose: () -> Unit,
     onNext: () -> Unit,
 ) {
@@ -90,7 +90,7 @@ fun ProfileSettingScreen(
 fun ProfileSettingScreenContent(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    viewModel: ProfileViewModel,
+    viewModel: ProfileSettingViewModel,
     onClose: () -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current

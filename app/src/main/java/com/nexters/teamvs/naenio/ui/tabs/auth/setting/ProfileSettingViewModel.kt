@@ -18,9 +18,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//TODO ProfileViewModel이 2개임,,?
 @HiltViewModel
-class ProfileViewModel @Inject constructor(
+class ProfileSettingViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : BaseViewModel() {
@@ -58,33 +57,6 @@ class ProfileViewModel @Inject constructor(
                 profileImageIndex = profileImageIndex
             )
         )
-    }
-
-    fun logout() {
-        viewModelScope.launch {
-            try {
-                GlobalUiEvent.showLoading()
-                userRepository.logOut()
-            } catch (e: Exception) {
-                GlobalUiEvent.showToast(e.errorMessage())
-            } finally {
-                GlobalUiEvent.hideLoading()
-            }
-        }
-    }
-
-    fun signOut() {
-        viewModelScope.launch {
-            try {
-                GlobalUiEvent.showLoading()
-                userRepository.signOut()
-            } catch (e: Exception) {
-                GlobalUiEvent.showToast(e.errorMessage())
-            } finally {
-                GlobalUiEvent.hideLoading()
-                GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
-            }
-        }
     }
 
 }
