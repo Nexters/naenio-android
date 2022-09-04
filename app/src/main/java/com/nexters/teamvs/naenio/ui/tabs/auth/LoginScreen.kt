@@ -103,18 +103,18 @@ fun LoginScreen(
             )
         }
 
-        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan), onClick = {
-            val dynamicLink = Firebase.dynamicLinks.dynamicLink {
-                link = Uri.parse("https://naenioapp.page.link/")
-                domainUriPrefix = "https://naenioapp.page.link"
-                androidParameters("com.nexters.teamversus.naenio") {
-                    fallbackUrl = Uri.parse("https://naver.com")
-                }
-            }
-            Log.d("###", "dynamicLink 생성 테스트:: ${dynamicLink.uri.toString()}")
-        }) {
-            Text(text = "다이나믹 링크 생성 테스트")
-        }
+//        Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan), onClick = {
+//            val dynamicLink = Firebase.dynamicLinks.dynamicLink {
+//                link = Uri.parse("https://naenioapp.page.link/")
+//                domainUriPrefix = "https://naenioapp.page.link"
+//                androidParameters("com.nexters.teamversus.naenio") {
+//                    fallbackUrl = Uri.parse("https://naver.com")
+//                }
+//            }
+//            Log.d("###", "dynamicLink 생성 테스트:: ${dynamicLink.uri.toString()}")
+//        }) {
+//            Text(text = "다이나믹 링크 생성 테스트")
+//        }
     }
 }
 
