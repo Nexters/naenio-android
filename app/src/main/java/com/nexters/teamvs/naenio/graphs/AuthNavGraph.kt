@@ -33,7 +33,6 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                 viewModel = hiltViewModel(),
                 onClose = {
                     navController.popBackStack()
-                    navController.navigate(Graph.MAIN)
                 }
             ) {
                 navController.popBackStack()

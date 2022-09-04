@@ -22,7 +22,6 @@ import com.nexters.teamvs.naenio.ui.theme.ThemeScreen
 import com.nexters.teamvs.naenio.ui.profile.ProfileDetailScreen
 import com.nexters.teamvs.naenio.ui.profile.ProfileScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.LoginDetailScreen
-import com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileSettingScreen
 import com.nexters.teamvs.naenio.ui.theme.ThemeFeedScreen
 
 @OptIn(ExperimentalMaterialApi::class)
