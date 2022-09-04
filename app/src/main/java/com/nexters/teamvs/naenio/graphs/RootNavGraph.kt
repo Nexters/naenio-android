@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.graphs
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -16,6 +17,9 @@ fun RootNavigationGraph(navController: NavHostController, startDestination: Stri
         route = Graph.ROOT,
         startDestination = startDestination
     ) {
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            Log.d("### destination" , "$destination $arguments")
+        }
         composable(route = AuthScreen.Login.route) {
             LoginScreen(
                 navController = navController,
@@ -34,7 +38,10 @@ fun RootNavigationGraph(navController: NavHostController, startDestination: Stri
             ProfileSettingScreen(
                 navController = navController,
                 viewModel = hiltViewModel(),
-                type = "modifyProfile"
+                onClose = {
+                    navController.popBackStack()
+                    navController.navigate(AuthScreen.Login.route)
+                }
             ) {
                 navController.popBackStack()
                 navController.navigate(Graph.MAIN)

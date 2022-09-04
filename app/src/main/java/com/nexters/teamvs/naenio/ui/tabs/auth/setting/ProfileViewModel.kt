@@ -32,14 +32,6 @@ class ProfileViewModel @Inject constructor(
         initialValue = null
     )
 
-    fun setType(type: String) {
-        if (type == "signin") {
-
-        } else {
-
-        }
-    }
-
     fun setProfileInfo(nickname: String, profileImageIndex: Int) {
         viewModelScope.launch {
             try {
