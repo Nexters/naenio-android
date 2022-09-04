@@ -38,7 +38,8 @@ object RepositoryModule {
     @ViewModelScoped
     fun provideCommentRepository(
         commentApi: CommentApi,
+        feedApi: FeedApi,
     ): CommentRepository {
-        return CommentRepository(commentApi)
+        return CommentRepository(commentApi, feedApi = feedApi)
     }
 }

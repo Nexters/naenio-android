@@ -5,6 +5,7 @@ import com.nexters.teamvs.naenio.base.BaseRepository
 import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.data.network.api.FeedApi
 import com.nexters.teamvs.naenio.data.network.dto.CreateRequest
+import com.nexters.teamvs.naenio.data.network.dto.ReportRequest
 import com.nexters.teamvs.naenio.data.network.dto.VoteRequest
 import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toPost
 import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toPostList
@@ -91,5 +92,9 @@ class FeedRepository @Inject constructor(
         id: Int
     ): Post {
         return feedApi.getPostDetail(id).toPost()
+    }
+
+    suspend fun report(reportRequest: ReportRequest) {
+        feedApi.report(reportRequest)
     }
 }

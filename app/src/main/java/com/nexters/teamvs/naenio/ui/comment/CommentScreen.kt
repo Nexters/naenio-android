@@ -132,6 +132,7 @@ fun CommentScreenContent(
     val commentUiState by remember { commentViewModel.commentUiState }
     val inputUiState by remember { commentViewModel.inputUiState }
     val isRefreshing = commentViewModel.isRefreshing.collectAsState()
+    val user = commentViewModel.user.collectAsState(initial = null)
 
     LaunchedEffect(key1 = postId, block = {
         commentViewModel.loadNextPage(postId)
@@ -144,16 +145,30 @@ fun CommentScreenContent(
                 else commentViewModel.like(id = it.comment.id)
             }
             is CommentEvent.More -> {
-                scope.launch {
-                    GlobalUiEvent.showMenuDialog(
-                        MenuDialogModel(
-                            text = "삭제",
-                            color = Color.Red,
-                            onClick = {
-                                commentViewModel.deleteComment(it.comment as Comment)
-                            }
+                if (user.value?.id == it.comment.writer.id){
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "삭제",
+                                color = Color.Red,
+                                onClick = {
+                                    commentViewModel.deleteComment(it.comment as Comment)
+                                }
+                            )
                         )
-                    )
+                    }
+                } else {
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "신고",
+                                color = Color.Red,
+                                onClick = {
+                                    commentViewModel.report(it.comment.writer.id)
+                                }
+                            )
+                        )
+                    }
                 }
             }
             is CommentEvent.Write -> {

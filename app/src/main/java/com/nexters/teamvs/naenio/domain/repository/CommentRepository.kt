@@ -1,8 +1,10 @@
 package com.nexters.teamvs.naenio.domain.repository
 
 import com.nexters.teamvs.naenio.data.network.api.CommentApi
+import com.nexters.teamvs.naenio.data.network.api.FeedApi
 import com.nexters.teamvs.naenio.data.network.dto.CommentParentType
 import com.nexters.teamvs.naenio.data.network.dto.LikeCommentRequest
+import com.nexters.teamvs.naenio.data.network.dto.ReportRequest
 import com.nexters.teamvs.naenio.data.network.dto.WriteCommentRequest
 import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toComment
 import com.nexters.teamvs.naenio.domain.mapper.CommentMapper.toComments
@@ -17,6 +19,7 @@ import javax.inject.Inject
 
 class CommentRepository @Inject constructor(
     private val commentApi: CommentApi,
+    private val feedApi: FeedApi,
 ) {
     suspend fun getComments(
         postId: Int,
@@ -85,5 +88,9 @@ class CommentRepository @Inject constructor(
 
     suspend fun getMyCommentList(size: Int): List<MyComments> {
         return commentApi.getMyComment(size).toMyComment()
+    }
+
+    suspend fun report(reportRequest: ReportRequest) {
+        feedApi.report(reportRequest)
     }
 }

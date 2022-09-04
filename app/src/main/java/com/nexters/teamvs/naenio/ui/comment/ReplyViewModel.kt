@@ -3,7 +3,12 @@ package com.nexters.teamvs.naenio.ui.comment
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.data.network.dto.ReportRequest
+import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
+import com.nexters.teamvs.naenio.domain.repository.UserRepository
+import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource2
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.model.UiState
@@ -16,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ReplyViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
+    private val userRepository: UserRepository,
 ) : BaseViewModel(), PagingSource2 {
 
     val commentUiState = mutableStateOf<UiState>(UiState.Idle)
@@ -43,6 +49,8 @@ class ReplyViewModel @Inject constructor(
         } else {
             _loadingState.value is PlaceholderState.Failure
         }
+
+    val user = userRepository.getUserFlow()
 
     fun writeReply(
         commentId: Int,
@@ -180,5 +188,21 @@ class ReplyViewModel @Inject constructor(
 
     override fun refresh(id: Int) {
         loadPageInternal(refresh = true, id)
+    }
+
+    fun report(targetMemberId: Int, resourceType: ReportType = ReportType.COMMENT) {
+        viewModelScope.launch {
+            try {
+                commentRepository.report(
+                    ReportRequest(
+                        targetMemberId = targetMemberId,
+                        resource = resourceType,
+                    )
+                )
+                GlobalUiEvent.showToast("신고 되었습니다.")
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
     }
 }

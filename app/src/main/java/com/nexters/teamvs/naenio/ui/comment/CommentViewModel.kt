@@ -4,7 +4,12 @@ import androidx.annotation.MainThread
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.data.network.dto.ReportRequest
+import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
+import com.nexters.teamvs.naenio.domain.repository.UserRepository
+import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource2
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.model.UiState
@@ -17,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CommentViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
+    private val userRepository: UserRepository,
 ) : BaseViewModel(), PagingSource2 {
 
     private val commentPagingSize = 10
@@ -44,6 +50,7 @@ class CommentViewModel @Inject constructor(
         }
 
     val inputUiState = mutableStateOf<UiState>(UiState.Idle)
+    val user = userRepository.getUserFlow()
 
     fun writeComment(
         postId: Int,
@@ -187,5 +194,21 @@ class CommentViewModel @Inject constructor(
     @MainThread
     override fun refresh(id: Int) {
         loadPageInternal(refresh = true, postId = id)
+    }
+
+    fun report(targetMemberId: Int, resourceType: ReportType = ReportType.COMMENT) {
+        viewModelScope.launch {
+            try {
+                commentRepository.report(
+                    ReportRequest(
+                        targetMemberId = targetMemberId,
+                        resource = resourceType,
+                    )
+                )
+                GlobalUiEvent.showToast("신고 되었습니다.")
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
     }
 }
