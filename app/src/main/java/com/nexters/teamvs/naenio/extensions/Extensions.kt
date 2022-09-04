@@ -48,7 +48,7 @@ fun Throwable.isNetworkException(): Boolean {
 }
 
 fun Exception.errorMessage(): String {
-    Log.e("### error", "${this.printStackTrace()}")
+    printStackTrace()
     return if (isNetworkException()) {
         "네트워크 연결 상태를 확인해주세요."
     } else {
