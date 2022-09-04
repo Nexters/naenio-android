@@ -31,6 +31,7 @@ import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
+import com.nexters.teamvs.naenio.extensions.requireActivity
 import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
@@ -54,11 +55,21 @@ fun FeedScreen(
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
 ) {
+    val context = LocalContext.current
     BackHandler {
         if (modalBottomSheetState.isVisible) {
             closeSheet.invoke()
         } else {
-            navController.popBackStack()
+            /**
+             * 백스택이 비어있는 상태에서 popBackStack() 호출 시, 흰색 스크린만 보이는 상태가 되는 이슈가 있어서,
+             * 액티비티를 finish 시킴.
+             * TODO 처리 방법 추가 검토 필요
+             */
+            if (navController.previousBackStackEntry == null) {
+                context.requireActivity().finish()
+            } else {
+                navController.popBackStack()
+            }
         }
     }
 

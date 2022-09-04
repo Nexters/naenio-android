@@ -79,6 +79,7 @@ fun ProfileScreen(
         item {
             Spacer(modifier = Modifier.padding(top = 30.dp))
             ProfileButton(
+                profileViewModel = viewModel,
                 navController = navController,
                 modifier = Modifier.background(
                     color = MyColors.darkGrey_313643, shape = RoundedCornerShape(10.dp)
@@ -92,6 +93,7 @@ fun ProfileScreen(
         item {
             Spacer(modifier = Modifier.padding(top = 20.dp))
             ProfileButton(
+                profileViewModel = viewModel,
                 navController = navController,
                 modifier = Modifier
                     .padding()
@@ -115,6 +117,7 @@ fun ProfileScreen(
                     )
             ) {
                 ProfileButton(
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_notice),
                     image = painterResource(id = R.drawable.icon_speaker),
@@ -122,6 +125,7 @@ fun ProfileScreen(
                 )
                 ProfileButtonLine()
                 ProfileButton(
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_question),
                     image = painterResource(id = R.drawable.icon_question),
@@ -129,6 +133,7 @@ fun ProfileScreen(
                 )
                 ProfileButtonLine()
                 ProfileButton(
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_developer),
                     image = painterResource(id = R.drawable.icon_person),
@@ -136,6 +141,7 @@ fun ProfileScreen(
                 )
                 ProfileButtonLine()
                 ProfileButton(
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_version),
                     image = painterResource(id = R.drawable.icon_phone),
@@ -156,6 +162,7 @@ fun ProfileScreen(
                     .background(MyColors.darkGrey_313643, shape = RoundedCornerShape(10.dp))
             ) {
                 ProfileButton(
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.logout),
                     image = painterResource(id = R.drawable.icon_logout),
@@ -164,12 +171,14 @@ fun ProfileScreen(
                 )
                 ProfileButtonLine()
                 ProfileButton(
+                    profileViewModel = viewModel,
                     navController = navController,
                     title = stringResource(id = R.string.profile_signout),
                     image = painterResource(id = R.drawable.icon_signout),
                     clickType = ProfileType.SIGNOUT
                 )
             }
+            Spacer(modifier = Modifier.padding(bottom = 28.dp))
         }
     }
 }
@@ -187,6 +196,7 @@ fun ProfileButtonLine() {
 
 @Composable
 fun ProfileButton(
+    profileViewModel: ProfileViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
     title: String,
@@ -214,8 +224,10 @@ fun ProfileButton(
                         ProfileType.VERSION -> moveProfileDetailScreen(
                             navController, ProfileType.VERSION
                         )
-                        ProfileType.LOGOUT -> setLogoutBtn()
-                        ProfileType.SIGNOUT -> setSignoutBtn()
+                        ProfileType.LOGOUT -> setLogoutBtn(viewModel = profileViewModel, navController = navController)
+                        ProfileType.SIGNOUT -> {
+                            setSignOutBtn(viewModel = profileViewModel, navController = navController)
+                        }
                     }
                 }
             }, verticalAlignment = Alignment.CenterVertically
@@ -268,7 +280,10 @@ private fun setQuestionBtn() {
 
 }
 
-private fun setLogoutBtn() {
+private fun setLogoutBtn(
+    navController: NavHostController,
+    viewModel: ProfileViewModel
+) {
     Log.d("### ProfileScreen", ProfileType.LOGOUT)
     GlobalUiEvent.uiEvent.tryEmit(
         UiEvent.ShowDialog(
@@ -277,19 +292,42 @@ private fun setLogoutBtn() {
                 button1Text = "닫기",
                 button2Text = "로그아웃",
                 button1Callback = {
-                    Log.d("####", "button1Callback()")
+                    Log.d("####", "LogoutDialog - Exit")
                     GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
                 },
                 button2Callback = {
-                    Log.d("####", "button2Callback()")
+                    Log.d("####", "LogoutDialog - Logout")
+                    viewModel.logout()
                     GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+                    navController.navigate(AuthScreen.Login.route)
                 })
         )
     )
 }
 
-private fun setSignoutBtn() {
+
+private fun setSignOutBtn(
+    navController: NavHostController,
+    viewModel: ProfileViewModel,
+) {
     Log.d("### ProfileScreen", ProfileType.SIGNOUT)
+    GlobalUiEvent.uiEvent.tryEmit(
+        UiEvent.ShowDialog(
+            DialogModel(title = "회원탈퇴",
+                message = "정말 탈퇴 하시겠어요?",
+                button1Text = "닫기",
+                button2Text = "탈퇴하기",
+                button1Callback = {
+                    Log.d("####", "SignoutDialog - Exit")
+                    GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+                },
+                button2Callback = {
+                    Log.d("####", "SignoutDialog - Signout")
+                    viewModel.signOut()
+                    navController.navigate(AuthScreen.Login.route)
+                })
+        )
+    )
 }
 
 object ProfileType {

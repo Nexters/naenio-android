@@ -1,54 +1,45 @@
 package com.nexters.teamvs.naenio
 
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.dynamiclinks.ktx.dynamicLinks
-import com.google.firebase.ktx.Firebase
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.RootNavigationGraph
 import com.nexters.teamvs.naenio.theme.NaenioTheme
 import com.nexters.teamvs.naenio.ui.component.*
+import com.nexters.teamvs.naenio.utils.DeepLinkUtils
 import com.nexters.teamvs.naenio.utils.KeyboardUtils
-import com.nexters.teamvs.naenio.utils.datastore.AuthDataStore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val keyboardUtils = KeyboardUtils()
+    private val keyboardUtils by lazy { KeyboardUtils() }
+
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DeepLinkUtils.setDeepLinkListener(intent = intent)
 
-        Firebase.dynamicLinks.getDynamicLink(intent)
-            .addOnSuccessListener { pendingDynamicLinkData ->
-                var deepLink: Uri? = null
-                if (pendingDynamicLinkData != null) {
-                    deepLink = pendingDynamicLinkData.link
-                    deepLink?.let {
-                        Log.d("### dynamic link", "dynamicLink 수신 테스트 :: ${it.toString()}")
-                        Log.d("### dynamic link", "dynamicLink 수신 테스트 :: ${it.host}")
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("### dynamic link", "dynamicLink 수신 에러 :: $e")
-            }
+        installSplashScreen()
+            .setKeepOnScreenCondition { !mainViewModel.isReady }
 
         setContent {
+            val startDestination = mainViewModel.startDestination.collectAsState()
             val scope = rememberCoroutineScope()
             var job: Job? = null
             var loadingState by remember { mutableStateOf(false) }
@@ -94,7 +85,10 @@ class MainActivity : ComponentActivity() {
 
             NaenioTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    RootNavigationGraph(navController = rememberNavController())
+                    RootNavigationGraph(
+                        navController = rememberNavController(),
+                        startDestination = startDestination.value
+                    )
                     Loading(visible = loadingState)
                     MenuDialog(
                         menuDialogModel = menuDialogState,
@@ -118,7 +112,5 @@ class MainActivity : ComponentActivity() {
         }
 
         keyboardUtils.setKeyboardListener(window.decorView)
-
-        Log.d("### user token ", AuthDataStore.authToken)
     }
 }

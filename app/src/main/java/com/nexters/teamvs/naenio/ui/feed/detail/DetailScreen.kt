@@ -83,7 +83,7 @@ fun DetailScreen(
         modifier = Modifier.background(MyColors.screenBackgroundColor)
     }
 
-    val isEmptyPost = postItem.value != null
+    val isEmptyPost = postItem.value == null
 
     BackHandler {
         if (modalBottomSheetState.isVisible) {
@@ -94,7 +94,7 @@ fun DetailScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (isEmptyPost) {
+        if (!isEmptyPost) {
             FeedDetail(
                 postItem.value!!,
                 modifier,
@@ -137,6 +137,7 @@ fun DetailScreen(
                 FeedEmptyLayout(Color.White)
             }
         }
+
         if (type == ThemeType.RANDOM_PLAY.name) {
             Image(painter = painterResource(id = R.drawable.ic_random),
                 contentDescription = "ic_random",

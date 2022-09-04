@@ -16,6 +16,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +27,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -39,13 +42,15 @@ import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.extensions.requireActivity
+import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.theme.Font
 
 //TODO 의식의 흐름으로 개발해서 리팩토링 필요
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel,
+    navController: NavHostController,
+    viewModel: LoginViewModel = hiltViewModel(),
     onNickName: () -> Unit,
     onNext: () -> Unit
 ) {
@@ -79,6 +84,7 @@ fun LoginScreen(
         }
 
     LoginScreenContent(
+        navController = navController,
         onGoogleLogin = {
             startForResult.launch(viewModel.getGoogleLoginAuth(context.requireActivity()).signInIntent)
         },
@@ -114,6 +120,7 @@ fun LoginScreen(
 
 @Composable
 fun LoginScreenContent(
+    navController: NavHostController,
     onGoogleLogin: () -> Unit,
     onKakaoLogin: () -> Unit
 ) {
@@ -173,12 +180,45 @@ fun LoginScreenContent(
 
             Text(
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(vertical = 21.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 21.dp)
+                    .fillMaxWidth(),
                 style = Font.montserratMedium12,
                 color = Color(0xff6d6d6d),
-                text = "가입 시, 네니오의 다음 사항에 동의하는 것으로 간주합니다.\n 서비스 이용 약관 및 개인 정보 정책"
+                text = "가입 시, 네니오의 다음 사항에 동의하는 것으로 간주합니다."
             )
 
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(bottom = 21.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    modifier = Modifier.clickable {
+                        // ERROR
+                        navController.navigate("loginDetail/${LoginDetailType.SERVICE}")
+                    },
+                    text = "서비스 이용약관",
+                    color = Color.White,
+                    style = Font.montserratMedium12
+                )
+                Text(
+                    modifier = Modifier.padding(horizontal = 3.dp),
+                    text = "및",
+                    color = Color(0xff6d6d6d),
+                    style = Font.montserratMedium12
+                )
+                Text(
+                    modifier = Modifier.clickable {
+                        // ERROR
+                        navController.navigate("loginDetail/${LoginDetailType.PRIVACY}")
+                    },
+                    text = "개인 정보 정책",
+                    color = Color.White,
+                    style = Font.montserratMedium12
+                )
+
+            }
         }
 
     }
@@ -206,7 +246,9 @@ fun GoogleLoginButton(
             contentDescription = ""
         )
         Text(
-            modifier = Modifier.weight(1f).padding(end = 20.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 20.dp),
             textAlign = TextAlign.Center,
             text = "구글 로그인",
             style = Font.pretendardMedium16,
@@ -239,7 +281,9 @@ fun KakaoLoginButton(
             contentDescription = ""
         )
         Text(
-            modifier = Modifier.padding(end = 20.dp).weight(1f),
+            modifier = Modifier
+                .padding(end = 20.dp)
+                .weight(1f),
             textAlign = TextAlign.Center,
             text = "카카오 로그인",
             style = Font.pretendardMedium16,
@@ -248,10 +292,13 @@ fun KakaoLoginButton(
     }
 }
 
+object LoginDetailType {
+    const val PRIVACY = "privacy"
+    const val SERVICE = "service"
+}
+
 @Preview
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen(viewModel = viewModel(), {}) {
 
-    }
 }

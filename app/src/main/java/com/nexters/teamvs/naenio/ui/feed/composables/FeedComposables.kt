@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font

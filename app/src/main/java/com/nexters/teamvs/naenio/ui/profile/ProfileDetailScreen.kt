@@ -9,6 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,9 +21,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.BuildConfig
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.domain.model.Notice
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
@@ -28,7 +33,17 @@ import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
 import com.nexters.teamvs.naenio.ui.feed.composables.contentEmptyLayout
 
 @Composable
-fun ProfileDetailScreen(profileType: String = "", navController: NavHostController) {
+fun ProfileDetailScreen(
+    profileType: String = "",
+    navController: NavHostController,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+
+    LaunchedEffect(key1 = Unit,
+        block = {
+            viewModel.setType(profileType)
+        })
+
     var title = ""
     when (profileType) {
         ProfileType.MY_COMMENT -> title = "작성한 댓글"
@@ -50,14 +65,11 @@ fun ProfileDetailScreen(profileType: String = "", navController: NavHostControll
             isMoreBtnVisible = false
         )
         if (profileType.contains(ProfileType.NOTICE_DETAIL)) {
-            val noticeId = profileType.replace(ProfileType.NOTICE_DETAIL + "=", "").toInt()
-            NoticeDetailLayout(noticeId = noticeId)
+            NoticeDetailLayout(viewModel = viewModel)
         }
         when (profileType) {
             ProfileType.MY_COMMENT -> {
-                MyCommentLayout(
-                    onShare = {}
-                )
+                MyCommentLayout(viewModel = viewModel, onShare = {})
             }
             ProfileType.DEVELOPER -> {
                 DeveloperLayout()
@@ -66,15 +78,21 @@ fun ProfileDetailScreen(profileType: String = "", navController: NavHostControll
                 VersionLayout()
             }
             ProfileType.NOTICE -> {
-                NoticeLayout(navController)
+                NoticeLayout(
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
         }
     }
 }
 
 @Composable
-fun NoticeDetailLayout(noticeId: Int) {
-    val item = NoticeItem.noticeList[noticeId - 1]
+fun NoticeDetailLayout(
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+    val noticeState = viewModel.notice.collectAsState()
+    val notice = noticeState.value
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -84,7 +102,7 @@ fun NoticeDetailLayout(noticeId: Int) {
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 modifier = Modifier.padding(vertical = 4.dp),
-                text = item.title,
+                text = notice?.title.orEmpty(),
                 style = Font.pretendardMedium20,
                 color = Color.White,
                 lineHeight = 24.sp
@@ -94,7 +112,7 @@ fun NoticeDetailLayout(noticeId: Int) {
         item {
             Text(
                 modifier = Modifier.padding(vertical = 4.dp),
-                text = item.content,
+                text = notice?.content.orEmpty(),
                 style = Font.pretendardMedium16,
                 color = MyColors.grey_b3b3b3,
                 lineHeight = 28.sp
@@ -105,16 +123,22 @@ fun NoticeDetailLayout(noticeId: Int) {
 }
 
 @Composable
-fun NoticeLayout(navController: NavHostController) {
+fun NoticeLayout(
+    navController: NavHostController,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+    val noticeListState = viewModel.noticeList.collectAsState()
+    val noticeList = noticeListState.value
+    val isNoticeListEmpty = noticeList == null || noticeList.isEmpty()
     Spacer(modifier = Modifier.height(20.dp))
-    if (NoticeItem.noticeList.isEmpty()) {
+    if (isNoticeListEmpty) {
         contentEmptyLayout(stringId = R.string.notice_empty)
     } else {
         LazyColumn(
             modifier = Modifier.padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(NoticeItem.noticeList) { item ->
+            items(noticeList!!) { item ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -153,15 +177,20 @@ fun NoticeLayout(navController: NavHostController) {
 @Composable
 fun MyCommentLayout(
     onShare: (Int) -> Unit,
+    viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val myCommentListState = viewModel.myCommentList.collectAsState()
+    val myCommentList = myCommentListState.value
+    val isMyCommentEmpty = myCommentList == null || myCommentList.isEmpty()
+
     Spacer(modifier = Modifier.height(20.dp))
-    if (MyCommentItem.myCommentList.isEmpty()) {
+    if (isMyCommentEmpty) {
         contentEmptyLayout(R.string.my_comment_empty)
     } else {
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            items(MyCommentItem.myCommentList) { item ->
+            items(myCommentList!!) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -170,22 +199,25 @@ fun MyCommentLayout(
                         .background(MyColors.postBackgroundColor, shape = RoundedCornerShape(16.dp))
                 ) {
                     ProfileNickName(
-                        nickName = "닉네임",
+                        nickName = it.post.author.nickname,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp),
                         isIconVisible = true,
+                        onMore = {
+                            viewModel.deleteMyComment(it.id)
+                        },
                         isVisibleShareIcon = false,
                         onShare = {
-                        }, onMore = {}
+                        }
                     )
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 10.dp, bottom = 14.dp)
                             .padding(horizontal = 20.dp),
-                        text = item.feedTitle,
+                        text = it.post.title,
                         style = Font.pretendardMedium16,
                         color = Color.White,
                         lineHeight = 24.sp,
@@ -200,7 +232,7 @@ fun MyCommentLayout(
                                 shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
                             )
                             .padding(horizontal = 20.dp, vertical = 20.dp),
-                        text = item.myComment,
+                        text = it.content,
                         color = Color.White,
                         style = Font.pretendardMedium16,
                         maxLines = 1,
@@ -209,6 +241,7 @@ fun MyCommentLayout(
                 }
             }
         }
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
