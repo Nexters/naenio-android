@@ -40,6 +40,10 @@ object GlobalUiEvent {
     suspend fun hideMenuDialog() {
         uiEvent.emit(UiEvent.HideMenuDialog)
     }
+
+    fun forceLogout() {
+        uiEvent.tryEmit(UiEvent.ForceLogout)
+    }
 }
 
 sealed class UiEvent {
@@ -51,4 +55,5 @@ sealed class UiEvent {
     object HideDialog : UiEvent()
     data class ShowMenuDialog(val menuDialogModel: MenuDialogModel) : UiEvent()
     object HideMenuDialog : UiEvent()
+    object ForceLogout : UiEvent()
 }

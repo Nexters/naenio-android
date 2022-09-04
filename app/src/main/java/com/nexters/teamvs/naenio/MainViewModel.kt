@@ -51,4 +51,17 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                GlobalUiEvent.showLoading()
+                userRepository.logOut()
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                GlobalUiEvent.hideLoading()
+            }
+        }
+    }
 }
