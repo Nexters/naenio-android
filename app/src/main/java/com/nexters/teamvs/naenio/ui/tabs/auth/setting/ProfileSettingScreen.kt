@@ -96,10 +96,15 @@ fun ProfileSettingScreenContent(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    var inputText by remember { mutableStateOf("") }
+    val user = viewModel.user.collectAsState()
+    var inputText by remember { mutableStateOf(user.value?.nickname ?: "") }
     var isVisibleDialog by remember { mutableStateOf<Boolean>(false) }
     var isSavable by remember { mutableStateOf(false) }
-    var selectedProfileImage by remember { mutableStateOf(Profile.images[0]) }
+    var selectedProfileImage by remember {
+        mutableStateOf<Int>(
+            user.value?.profileImageIndex ?: (0 until Profile.images.size).random()
+        )
+    }
 
     BackHandler {
         if (isVisibleDialog) {
@@ -127,7 +132,7 @@ fun ProfileSettingScreenContent(
             ProfileSettingTopBar(
                 isEnabled = isSavable,
                 onSave = {
-                    viewModel.setProfileInfo(inputText, selectedProfileImage.id)
+                    viewModel.setProfileInfo(inputText, selectedProfileImage)
                 },
                 onClose = onClose
             )
@@ -210,7 +215,7 @@ fun ProfileSettingTopBar(
 @Composable
 fun ProfileImage(
     modifier: Modifier,
-    profileImage: ProfileImageModel,
+    profileImage: Int,
     onEditProfileImage: () -> Unit,
 ) {
     Box(
@@ -221,7 +226,7 @@ fun ProfileImage(
     ) {
         Image(
             modifier = Modifier.align(Alignment.Center),
-            painter = painterResource(id = profileImage.image),
+            painter = painterResource(id = Profile.images[profileImage].image),
             contentDescription = ""
         )
         Image(
@@ -280,7 +285,7 @@ fun InputNickname(
 @Composable
 fun SelectImageBottomDialog(
     onClose: () -> Unit,
-    onSelect: (ProfileImageModel) -> Unit,
+    onSelect: (Int) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -329,7 +334,7 @@ fun SelectImageBottomDialog(
                 content = {
                     items(Profile.images) {
                         ProfileImageItem(it) { model ->
-                            onSelect.invoke(model)
+                            onSelect.invoke(model.id)
                         }
                     }
                 }
