@@ -27,6 +27,7 @@ import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.AuthScreen
+import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.component.DialogModel
@@ -314,7 +315,10 @@ private fun setLogoutBtn(
                     scope.launch {
                         Log.d("####", "LogoutDialog - Logout")
                         viewModel.logout()
-                        navController.navigate(AuthScreen.Login.route)
+                        navController.popBackStack()
+                        navController.navigate(AuthScreen.Login.route) {
+                            popUpTo(Graph.MAIN)
+                        }
                     }
                 }
             )
@@ -341,7 +345,10 @@ private fun setSignOutBtn(
                     scope.launch {
                         Log.d("####", "LogoutDialog - signOut")
                         viewModel.signOut()
-                        navController.navigate(AuthScreen.Login.route)
+                        navController.clearBackStack(Graph.MAIN)
+                        navController.navigate(AuthScreen.Login.route) {
+                            popUpTo(Graph.MAIN)
+                        }
                     }
                 }
             )
