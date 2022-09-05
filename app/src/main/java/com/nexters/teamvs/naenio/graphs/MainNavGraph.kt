@@ -5,7 +5,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -76,11 +75,10 @@ fun MainNavGraph(
                 closeSheet = closeSheet
             )
         }
-//        detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
+        detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)
         themeDetailNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         profileDetailNavGraph(navController)
-//        settingProfileNavGraph(navController)
     }
 }
 
@@ -93,15 +91,16 @@ fun NavGraphBuilder.detailsNavGraph(
 ) {
     navigation(
         route = Graph.DETAILS,
-        startDestination = "FeedDetail/{type}",
+        startDestination = "FeedCommentDetail/{type}",
     ) {
-        composable(route = "FeedDetail/{type}") {
+        composable(route = "FeedCommentDetail/{type}") {
             DetailScreen(
                 type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
                 openSheet = openSheet,
-                closeSheet = closeSheet
+                closeSheet = closeSheet,
+                isInvokeOpenSheet = true
             )
         }
     }
@@ -118,7 +117,7 @@ fun NavGraphBuilder.profileDetailNavGraph(
         composable(route = "ProfileDetail/{profileType}") {
             ProfileDetailScreen(
                 profileType = it.arguments?.getString("profileType").orEmpty(),
-                navController = navController
+                navController = navController,
             )
         }
     }

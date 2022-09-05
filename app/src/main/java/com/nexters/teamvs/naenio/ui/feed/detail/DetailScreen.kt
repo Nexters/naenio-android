@@ -51,6 +51,7 @@ fun DetailScreen(
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (BottomSheetType) -> Unit,
     closeSheet: () -> Unit,
+    isInvokeOpenSheet: Boolean = false
 ) {
     val context = LocalContext.current
     val postItem = viewModel.postItem.collectAsState()
@@ -78,6 +79,13 @@ fun DetailScreen(
     } else {
         LaunchedEffect(key1 = Unit, block = {
             viewModel.getPostDetail(type.toInt())
+            if (isInvokeOpenSheet) {
+                openSheet.invoke(
+                    BottomSheetType.CommentType(
+                        postId = type.toInt(),
+                        onEvent = {})
+                )
+            }
         })
         Log.d("### FeedDetailScreen", "FeedDetail")
         modifier = Modifier.background(MyColors.screenBackgroundColor)
