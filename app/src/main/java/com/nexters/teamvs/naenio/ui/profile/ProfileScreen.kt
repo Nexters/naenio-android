@@ -344,6 +344,7 @@ private fun setSignOutBtn(
             DialogModel(title = "회원탈퇴",
                 message = "정말 탈퇴 하시겠어요?",
                 button1Text = "닫기",
+                button2Text = "탈퇴하기",
                 button1Callback = {
                     Log.d("####", "LogoutDialog - Exit")
                 },

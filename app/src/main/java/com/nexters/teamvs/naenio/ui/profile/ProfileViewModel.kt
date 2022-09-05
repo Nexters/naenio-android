@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.profile
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
@@ -41,7 +42,7 @@ class ProfileViewModel @Inject constructor(
     fun setType(profileType: String) {
         if (profileType.contains(ProfileType.NOTICE_DETAIL)) {
             val noticeId = profileType.replace(ProfileType.NOTICE_DETAIL + "=", "").toInt()
-            getNotice(noticeId)
+            getNoticeList(noticeId)
         }
         when (profileType) {
             ProfileType.MY_COMMENT -> {
@@ -53,15 +54,13 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private fun getNotice(noticeId: Int) {
-        _notice.value = _noticeList.value?.filter { it.id == noticeId }?.getOrNull(0)
-    }
-
-    private fun getNoticeList() {
+    private fun getNoticeList(noticeId: Int? = null) {
         viewModelScope.launch {
             try {
                 GlobalUiEvent.showLoading()
                 _noticeList.value = userRepository.getNoticeList()
+                _notice.value = _noticeList.value?.filter { it.id == noticeId }?.getOrNull(0)
+                Log.d("###getNoticeList", _notice.toString())
             } catch (e: Exception) {
                 e.printStackTrace()
                 GlobalUiEvent.showToast(e.errorMessage())
