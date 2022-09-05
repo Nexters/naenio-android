@@ -45,6 +45,7 @@ import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold18
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.UiEvent
+import kotlinx.coroutines.launch
 
 /**
  * uiState 별 대응
@@ -58,7 +59,9 @@ fun CreateScreen(
     context: Context = LocalContext.current
 ) {
 
-    context.requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+    LaunchedEffect(key1 = lifecycleOwner, block = {
+        context.requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+    })
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -75,6 +78,7 @@ fun CreateScreen(
         }
     }
 
+    val scope = rememberCoroutineScope()
     var title by remember { mutableStateOf("") }
     var voteOption1 by remember { mutableStateOf("") }
     var voteOption2 by remember { mutableStateOf("") }
@@ -107,9 +111,13 @@ fun CreateScreen(
     ) {
         LazyColumn {
             item {
-                CreateTopBar(enabled = enabled, upload = {
+                CreateTopBar(
+                    enabled = enabled,
+                    upload = {
                     if (!enabled) {
-                        Log.d("###", "필수 항목들을 모두 입력해주세요!") //TODO Toast
+                        scope.launch {
+                            GlobalUiEvent.showToast("필수 항목을 모두 입력해주세요!")
+                        }
                         return@CreateTopBar
                     }
                     viewModel.createPost(
@@ -117,6 +125,8 @@ fun CreateScreen(
                         choices = arrayOf(voteOption1, voteOption2),
                         content = content,
                     )
+                }, close = {
+                    navController.popBackStack()
                 })
                 Spacer(modifier = Modifier.height(28.dp))
             }
@@ -155,6 +165,7 @@ fun CreateScreen(
 fun CreateTopBar(
     enabled: Boolean,
     upload: () -> Unit,
+    close: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -163,7 +174,11 @@ fun CreateTopBar(
             .wrapContentHeight(),
     ) {
         Image(
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier
+                .size(24.dp)
+                .clickable {
+                    close.invoke()
+                },
             painter = painterResource(id = R.drawable.ic_close),
             contentDescription = "close"
         )
