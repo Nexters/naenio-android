@@ -11,11 +11,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import javax.inject.Inject
-
-enum class DetailType {
-    Default, Random,
-}
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
@@ -45,6 +42,9 @@ class DetailViewModel @Inject constructor(
             try {
                 GlobalUiEvent.showLoading()
                 _postItem.value = feedRepository.getRandomPosts()
+            } catch (e: SerializationException) {
+                e.printStackTrace()
+                GlobalUiEvent.showToast("랜덤 컨텐츠가 없습니다 ㅜㅜ. 재시도 해주세요!")
             } catch (e: Exception) {
                 e.printStackTrace()
                 GlobalUiEvent.showToast(e.errorMessage())
