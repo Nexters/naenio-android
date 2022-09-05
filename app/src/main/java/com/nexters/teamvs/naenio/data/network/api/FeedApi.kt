@@ -1,6 +1,10 @@
 package com.nexters.teamvs.naenio.data.network.api
 
+import com.google.gson.JsonElement
 import com.nexters.teamvs.naenio.data.network.dto.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import retrofit2.Response
 import retrofit2.http.*
 
 interface FeedApi {
@@ -37,4 +41,9 @@ interface FeedApi {
 
     @POST("/app/votes")
     suspend fun vote(@Body voteRequest: VoteRequest): VoteResponse
+
+    @POST("/app/reports")
+    suspend fun report(
+        @Body reportRequest: ReportRequest
+    ): Response<Unit>
 }

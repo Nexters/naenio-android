@@ -38,6 +38,7 @@ import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold14
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.model.UiState
+import com.nexters.teamvs.naenio.ui.tabs.auth.model.Profile
 import kotlinx.coroutines.launch
 
 sealed class CommentEvent {
@@ -132,6 +133,7 @@ fun CommentScreenContent(
     val commentUiState by remember { commentViewModel.commentUiState }
     val inputUiState by remember { commentViewModel.inputUiState }
     val isRefreshing = commentViewModel.isRefreshing.collectAsState()
+    val user = commentViewModel.user.collectAsState(initial = null)
 
     LaunchedEffect(key1 = postId, block = {
         commentViewModel.loadNextPage(postId)
@@ -144,16 +146,30 @@ fun CommentScreenContent(
                 else commentViewModel.like(id = it.comment.id)
             }
             is CommentEvent.More -> {
-                scope.launch {
-                    GlobalUiEvent.showMenuDialog(
-                        MenuDialogModel(
-                            text = "삭제",
-                            color = Color.Red,
-                            onClick = {
-                                commentViewModel.deleteComment(it.comment as Comment)
-                            }
+                if (user.value?.id == it.comment.writer.id){
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "삭제",
+                                color = Color.Red,
+                                onClick = {
+                                    commentViewModel.deleteComment(it.comment as Comment)
+                                }
+                            )
                         )
-                    )
+                    }
+                } else {
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "신고",
+                                color = Color.Red,
+                                onClick = {
+                                    commentViewModel.report(it.comment.writer.id)
+                                }
+                            )
+                        )
+                    }
                 }
             }
             is CommentEvent.Write -> {
@@ -191,6 +207,7 @@ fun CommentScreenContent(
             },
             uiState = inputUiState,
             postId = postId,
+            profileImageIndex = user.value?.profileImageIndex ?: 0,
             onEvent = eventListener
         )
     }
@@ -201,11 +218,13 @@ fun CommentInput(
     scrollToTop: () -> Unit,
     uiState: UiState,
     postId: Int,
+    profileImageIndex: Int,
     onEvent: (CommentEvent) -> Unit
 ) {
     CommentEditText(
         scrollToTop = scrollToTop,
-        uiState = uiState
+        uiState = uiState,
+        profileImageIndex = profileImageIndex,
     ) {
         onEvent.invoke(
             CommentEvent.Write(
@@ -222,6 +241,7 @@ fun CommentInput(
 fun CommentEditText(
     scrollToTop: () -> Unit,
     uiState: UiState,
+    profileImageIndex: Int,
     onWrite: (String) -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
@@ -240,7 +260,10 @@ fun CommentEditText(
             .padding(horizontal = 16.dp)
             .wrapContentHeight()
     ) {
-        ProfileImageIcon(Modifier.padding(top = 16.dp))
+        ProfileImageIcon(
+            modifier = Modifier.padding(top = 16.dp),
+            profileImageRes = Profile.images[profileImageIndex].image
+        )
 
         TextField(
             modifier = Modifier

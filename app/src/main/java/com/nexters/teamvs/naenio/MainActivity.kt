@@ -13,6 +13,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.UiEvent
+import com.nexters.teamvs.naenio.graphs.AuthScreen
+import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.graphs.RootNavigationGraph
 import com.nexters.teamvs.naenio.theme.NaenioTheme
 import com.nexters.teamvs.naenio.ui.component.*
@@ -39,6 +41,7 @@ class MainActivity : ComponentActivity() {
             .setKeepOnScreenCondition { !mainViewModel.isReady }
 
         setContent {
+            val navController = rememberNavController()
             val startDestination = mainViewModel.startDestination.collectAsState()
             val scope = rememberCoroutineScope()
             var job: Job? = null
@@ -79,6 +82,11 @@ class MainActivity : ComponentActivity() {
                         UiEvent.None -> {
 
                         }
+                        UiEvent.ForceLogout -> {
+                            mainViewModel.logout()
+                            navController.clearBackStack(Graph.MAIN)
+                            navController.navigate(AuthScreen.Login.route)
+                        }
                     }
                 }
             }
@@ -86,7 +94,7 @@ class MainActivity : ComponentActivity() {
             NaenioTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
                     RootNavigationGraph(
-                        navController = rememberNavController(),
+                        navController = navController,
                         startDestination = startDestination.value
                     )
                     Loading(visible = loadingState)

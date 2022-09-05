@@ -94,7 +94,6 @@ fun CreateScreen(
                 }
                 is CreateEvent.Success -> {
                     navController.popBackStack()
-                    navController.navigate(Graph.MAIN) //TODO 피드에 게시한 포스트 추가(?)
                 }
             }
         }

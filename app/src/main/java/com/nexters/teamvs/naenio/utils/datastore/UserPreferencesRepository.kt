@@ -1,14 +1,10 @@
 package com.nexters.teamvs.naenio.utils.datastore
 
 import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 import javax.inject.Inject
 
@@ -51,6 +47,26 @@ class UserPreferencesRepository @Inject constructor(
                 authServiceType = authServiceType ?: return@map null
             )
         }
+
+    fun getSyncUserPref(): UserPref {
+        var userPref: UserPref? = null
+        runBlocking {
+            context.userDataStore.data.first { preferences ->
+                val userId = preferences[PreferencesKeys.KEY_USER_ID]
+                val nickname = preferences[PreferencesKeys.KEY_NICKNAME]
+                val profileImageIndex = preferences[PreferencesKeys.KEY_PROFILE_IMAGE_INDEX]
+                val authServiceType = preferences[PreferencesKeys.KEY_AUTH_SERVICE_TYPE]
+                userPref = UserPref(
+                    id = userId!!,
+                    profileImageIndex = profileImageIndex ?: 0,
+                    nickname = nickname,
+                    authServiceType = authServiceType!!
+                )
+                true
+            }
+        }
+        return userPref!!
+    }
 
     suspend fun updateUserPreferences(user: UserPref) {
         context.userDataStore.edit { preferences ->

@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,16 +24,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.AuthScreen
+import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.component.DialogModel
 import com.nexters.teamvs.naenio.ui.feed.composables.ProfileImageIcon
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
@@ -209,6 +214,7 @@ fun ProfileButton(
     loginType: String = "",
     clickType: String = ""
 ) {
+    val scope = rememberCoroutineScope()
     Row(
         modifier = modifier
             .height(60.dp)
@@ -228,14 +234,18 @@ fun ProfileButton(
                         ProfileType.VERSION -> moveProfileDetailScreen(
                             navController, ProfileType.VERSION
                         )
-                        ProfileType.LOGOUT -> setLogoutBtn(
-                            viewModel = profileViewModel,
-                            navController = navController
-                        )
+                        ProfileType.LOGOUT -> {
+                            setLogoutBtn(
+                                viewModel = profileViewModel,
+                                navController = navController,
+                                scope = scope,
+                            )
+                        }
                         ProfileType.SIGNOUT -> {
                             setSignOutBtn(
                                 viewModel = profileViewModel,
-                                navController = navController
+                                navController = navController,
+                                scope = scope,
                             )
                         }
                     }
@@ -294,53 +304,62 @@ private fun setQuestionBtn() {
 
 private fun setLogoutBtn(
     navController: NavHostController,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    scope: CoroutineScope,
 ) {
     Log.d("### ProfileScreen", ProfileType.LOGOUT)
-    GlobalUiEvent.uiEvent.tryEmit(
-        UiEvent.ShowDialog(
+    scope.launch {
+        GlobalUiEvent.showDialog(
             DialogModel(title = "로그아웃",
                 message = "로그아웃 하시겠습니까?",
                 button1Text = "닫기",
                 button2Text = "로그아웃",
                 button1Callback = {
                     Log.d("####", "LogoutDialog - Exit")
-                    GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
                 },
                 button2Callback = {
-                    Log.d("####", "LogoutDialog - Logout")
-                    GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
-                    viewModel.logout()
-                    navController.navigate(AuthScreen.Login.route)
-                })
+                    scope.launch {
+                        Log.d("####", "LogoutDialog - Logout")
+                        viewModel.logout()
+                        navController.popBackStack()
+                        navController.navigate(AuthScreen.Login.route) {
+                            popUpTo(Graph.MAIN)
+                        }
+                    }
+                }
+            )
         )
-    )
+    }
 }
 
 
 private fun setSignOutBtn(
     navController: NavHostController,
     viewModel: ProfileViewModel,
+    scope: CoroutineScope,
 ) {
     Log.d("### ProfileScreen", ProfileType.SIGNOUT)
-    GlobalUiEvent.uiEvent.tryEmit(
-        UiEvent.ShowDialog(
+    scope.launch {
+        GlobalUiEvent.showDialog(
             DialogModel(title = "회원탈퇴",
                 message = "정말 탈퇴 하시겠어요?",
                 button1Text = "닫기",
-                button2Text = "탈퇴하기",
                 button1Callback = {
-                    Log.d("####", "SignoutDialog - Exit")
-                    GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
+                    Log.d("####", "LogoutDialog - Exit")
                 },
                 button2Callback = {
-                    Log.d("####", "SignoutDialog - Signout")
-                    GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
-                    viewModel.signOut()
-                    navController.navigate(AuthScreen.Login.route)
-                })
+                    scope.launch {
+                        Log.d("####", "LogoutDialog - signOut")
+                        viewModel.signOut()
+                        navController.clearBackStack(Graph.MAIN)
+                        navController.navigate(AuthScreen.Login.route) {
+                            popUpTo(Graph.MAIN)
+                        }
+                    }
+                }
+            )
         )
-    )
+    }
 }
 
 object ProfileType {

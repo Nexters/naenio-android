@@ -92,15 +92,18 @@ fun ProfileNickName(
     modifier: Modifier,
     isIconVisible: Boolean,
     isVisibleShareIcon: Boolean = true,
-    nickName: String = "",
-    profileImageIndex: Int = 0,
+    nickName: String,
+    profileImageIndex: Int,
     onShare: () -> Unit,
     onMore: () -> Unit,
 ) {
     Row(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
-        ProfileImageIcon(index = profileImageIndex, size = 24.dp)
+        ProfileImageIcon(
+            index = profileImageIndex,
+            size = 24.dp
+        )
         Text(
             text = nickName,
             color = Color.White,

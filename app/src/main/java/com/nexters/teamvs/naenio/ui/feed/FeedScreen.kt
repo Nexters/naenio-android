@@ -29,6 +29,7 @@ import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
 import com.nexters.teamvs.naenio.extensions.requireActivity
@@ -102,6 +103,7 @@ fun FeedScreenContent(
     val feedTabItems = viewModel.feedTabItems.collectAsState()
     val selectedTab = viewModel.selectedTab.collectAsState()
     val posts = viewModel.posts.collectAsState()
+    val user = viewModel.user.collectAsState(null)
     val isEmptyFeed = posts.value != null && posts.value?.isEmpty() == true
 
     val pagerState = rememberPagerState(initialPage = 0)
@@ -154,15 +156,31 @@ fun FeedScreenContent(
                     loadNextPage = viewModel::loadNextPage,
                     navController = navController,
                     onMore = {
-                        scope.launch {
-                            GlobalUiEvent.showMenuDialog(
-                                MenuDialogModel(
-                                    text = "삭제",
-                                    onClick = {
-                                        viewModel.deletePost(postId = it.id)
-                                    }
+                        if (it.author.id == user.value?.id) {
+                            scope.launch {
+                                GlobalUiEvent.showMenuDialog(
+                                    MenuDialogModel(
+                                        text = "삭제",
+                                        onClick = {
+                                            viewModel.deletePost(postId = it.id)
+                                        }
+                                    )
                                 )
-                            )
+                            }
+                        } else {
+                            scope.launch {
+                                GlobalUiEvent.showMenuDialog(
+                                    MenuDialogModel(
+                                        text = "신고",
+                                        onClick = {
+                                            viewModel.report(
+                                                targetMemberId = it.author.id,
+                                                resourceType = ReportType.POST
+                                            )
+                                        }
+                                    )
+                                )
+                            }
                         }
                     }
                 )
@@ -361,7 +379,8 @@ fun FeedItem(
                     .padding(vertical = 24.dp),
                 isIconVisible = true,
                 onShare = { onShare.invoke(post.id) },
-                onMore = { onMore.invoke(post) }
+                onMore = { onMore.invoke(post) },
+                profileImageIndex = post.author.profileImageIndex
             )
             VoteContent(post, Modifier, 2)
             VoteBar(

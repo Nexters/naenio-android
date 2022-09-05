@@ -45,7 +45,7 @@ fun ReplyScreenContent(
     val inputUiState by remember { replyViewModel.inputUiState }
     val commentUiState by remember { replyViewModel.commentUiState }
     val isRefreshing = replyViewModel.isRefreshing.collectAsState()
-
+    val user = replyViewModel.user.collectAsState(initial = null)
     BackHandler {
         if (mode is CommentMode.REPLY) {
             replyViewModel.clear()
@@ -73,18 +73,30 @@ fun ReplyScreenContent(
                 else replyViewModel.like(id = it.comment.id)
             }
             is CommentEvent.More -> {
-                scope.launch {
-                    GlobalUiEvent.showMenuDialog(
-                        MenuDialogModel(
-                            text = "삭제",
-                            color = Color.Red,
-                            onClick = {
-                                if (it.comment is Reply) {
-                                    replyViewModel.delete(it.comment)
+                if (user.value?.id == it.comment.writer.id){
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "삭제",
+                                color = Color.Red,
+                                onClick = {
+                                    replyViewModel.delete(it.comment as Reply)
                                 }
-                            }
+                            )
                         )
-                    )
+                    }
+                } else {
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "신고",
+                                color = Color.Red,
+                                onClick = {
+                                    replyViewModel.report(it.comment.writer.id)
+                                }
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -131,7 +143,8 @@ fun ReplyScreenContent(
 
                     }
                 }
-            }
+            },
+            profileImageIndex = user.value?.profileImageIndex ?: 0
         )
     }
 }
@@ -260,11 +273,13 @@ fun ReplyInput(
     scrollToTop: () -> Unit,
     uiState: UiState,
     commentId: Int,
+    profileImageIndex: Int,
     onEvent: (CommentEvent) -> Unit
 ) {
     CommentEditText(
         scrollToTop = scrollToTop,
-        uiState = uiState
+        uiState = uiState,
+        profileImageIndex = profileImageIndex,
     ) {
         onEvent.invoke(
             CommentEvent.Write(

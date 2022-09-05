@@ -227,31 +227,30 @@ fun MyCommentLayout(
                             }
                         },
                         isVisibleShareIcon = false,
-                        onShare = {}
-                        )
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 10.dp, bottom = 14.dp)
-                                .padding(horizontal = 20.dp),
-                            text = it.post.title,
-                            style = Font.pretendardMedium16,
-                            color = Color.White,
-                            lineHeight = 24.sp,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                                Text (
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        color = MyColors.darkGrey_1e222c,
-                                        shape = RoundedCornerShape(
-                                            bottomStart = 16.dp,
-                                            bottomEnd = 16.dp
-                                        )
-                                    )
-                                    .padding(horizontal = 20.dp, vertical = 20.dp),
+                        onShare = {
+                        },
+                        profileImageIndex = it.post.author.profileImageIndex
+                    )
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, bottom = 14.dp)
+                            .padding(horizontal = 20.dp),
+                        text = it.post.title,
+                        style = Font.pretendardMedium16,
+                        color = Color.White,
+                        lineHeight = 24.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = MyColors.darkGrey_1e222c,
+                                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                            )
+                            .padding(horizontal = 20.dp, vertical = 20.dp),
                         text = it.content,
                         color = Color.White,
                         style = Font.pretendardMedium16,

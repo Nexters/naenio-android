@@ -13,6 +13,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.NoRouteToHostException
@@ -55,11 +57,19 @@ data class ErrorResponse(
 )
 
 fun HttpException.getErrorMessage(): String {
-    val errorString = this.response()?.errorBody()?.string()
+    val errorString = this.response()?.errorBody()?.string().also {
+        Log.d("### errorString", "$it")
+    }
     val errorDto: ErrorResponse? = Gson().fromJson<ErrorResponse>(
         errorString, ErrorResponse::class.java
     )
     val errorMessage = errorDto?.message
+    val errorCode = errorDto?.code
+
+    //TODO 서버에서 401을 내려주기로 한 것 아닌가?
+    if (errorCode == "FAIL" && errorMessage?.contains("Authorization") == true) {
+        GlobalUiEvent.forceLogout()
+    }
     return if (errorMessage.isNullOrEmpty()) {
         "일시적 오류가 발생했습니다. 잠시 후 재시도 해주세요."
     } else errorMessage

@@ -4,15 +4,16 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.data.network.dto.ReportRequest
+import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
+import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,10 +24,12 @@ sealed class FeedEvent {
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     private val feedRepository: FeedRepository,
+    private val userRepository: UserRepository,
 ) : BaseViewModel(), PagingSource {
 
     private val _posts = MutableStateFlow<List<Post>?>(null)
     val posts = _posts.asStateFlow()
+
     private val _loadingState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
     private val _firstPageState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
     private val _isRefreshing = MutableStateFlow(false)
@@ -46,6 +49,8 @@ class FeedViewModel @Inject constructor(
         } else {
             _loadingState.value is PlaceholderState.Failure
         }
+
+    val user = userRepository.getUserFlow()
 
     private val _feedTabItems = MutableStateFlow(feedRepository.getFeedTabItems())
     val feedTabItems = _feedTabItems.asStateFlow()
@@ -161,6 +166,20 @@ class FeedViewModel @Inject constructor(
             try {
                 feedRepository.deletePost(postId)
                 _posts.value = posts.value?.filter { it.id != postId }
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
+    }
+
+    fun report(targetMemberId: Int, resourceType: ReportType) {
+        viewModelScope.launch {
+            try {
+                feedRepository.report(ReportRequest(
+                    targetMemberId = targetMemberId,
+                    resource = resourceType,
+                ))
+                GlobalUiEvent.showToast("신고 되었습니다.")
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             }

@@ -30,15 +30,17 @@ class ProfileSettingViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 uiState.emit(UiState.Loading)
-                val isExist = userRepository.isExistNickname(nickname)
-                if (isExist) throw AlreadyIsExistNickNameException()
+                val user = userRepository.getMyProfile(viewModelScope)
+                Log.d("### user" , "$user")
 
-                Log.d("### user" , "${user.value}")
-
-                val nicknameDef = async { userRepository.setNickname(nickname) }
-                val profileImageDef = async { userRepository.setProfileImage(profileImageIndex) }
-
-                awaitAll(nicknameDef, profileImageDef)
+                if (nickname != user.nickname) {
+                    val isExist = userRepository.isExistNickname(nickname)
+                    if (isExist) throw AlreadyIsExistNickNameException()
+                    userRepository.setNickname(nickname)
+                }
+                if (profileImageIndex != user.profileImageIndex) {
+                    userRepository.setProfileImage(profileImageIndex)
+                }
                 uiState.emit(UiState.Success)
             } catch (e: Exception) {
                 Log.e(className, e.stackTraceToString())

@@ -8,7 +8,7 @@ import com.nexters.teamvs.naenio.domain.model.*
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
-import com.nexters.teamvs.naenio.domain.model.Profile
+import com.nexters.teamvs.naenio.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +21,7 @@ class ProfileViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
 ) : BaseViewModel() {
 
-    private val _myProfile = MutableStateFlow<Profile?>(null)
+    private val _myProfile = MutableStateFlow<User?>(null)
     val myProfile = _myProfile.asStateFlow()
 
     private val _myCommentList = MutableStateFlow<List<MyComments>?>(null)

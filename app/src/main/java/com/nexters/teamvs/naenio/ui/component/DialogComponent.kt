@@ -36,13 +36,14 @@ fun DialogContainer(
         onDismissRequest = onDismissRequest,
         properties = properties
     ) {
-        DialogComponent(dialogModel = dialogModel)
+        DialogComponent(dialogModel = dialogModel, onDismissRequest = onDismissRequest )
     }
 }
 
 @Composable
 fun DialogComponent(
-    dialogModel: DialogModel
+    dialogModel: DialogModel,
+    onDismissRequest: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -76,6 +77,7 @@ fun DialogComponent(
                         .weight(1f)
                         .clickable {
                             dialogModel.button1Callback?.invoke()
+                            onDismissRequest.invoke()
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -98,6 +100,7 @@ fun DialogComponent(
                         .weight(1f)
                         .clickable {
                             dialogModel.button2Callback?.invoke()
+                            onDismissRequest.invoke()
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -124,5 +127,7 @@ fun DialogComponentPreview() {
             button1Text = "확인",
             button2Text = "취소"
         )
-    )
+    ){
+
+    }
 }
