@@ -98,6 +98,9 @@ fun CreateScreen(
                 }
                 is CreateEvent.Success -> {
                     navController.popBackStack()
+                    navController.navigate(Graph.MAIN) {
+                        popUpTo(Graph.MAIN)
+                    }
                 }
             }
         }
