@@ -259,7 +259,7 @@ fun CreateTextField(
                 selection = TextRange(text.length)
             ),
             onValueChange = {
-                if (inputLength >= maxLength) return@TextField
+                if (it.text.length > maxLength) return@TextField
                 onValueChange.invoke(it.text.replace("\n", ""))
             }
         )
@@ -314,7 +314,7 @@ fun VoteOptionsInput(
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 70.dp),
-                maxLength = 32,
+                maxLength = 5,
                 text = voteOption1,
                 hint = stringResource(id = R.string.vote_options_a_hint),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
