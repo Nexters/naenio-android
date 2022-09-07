@@ -1,6 +1,5 @@
 package com.nexters.teamvs.naenio.ui.feed.detail
 
-import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -25,7 +24,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.*
@@ -34,7 +32,7 @@ import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
-import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.composables.*
 import com.nexters.teamvs.naenio.ui.theme.ThemeItem
@@ -49,7 +47,7 @@ fun DetailScreen(
     navController: NavHostController,
     viewModel: DetailViewModel = hiltViewModel(),
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -160,7 +158,7 @@ fun FeedDetail(
     titleBar: String?,
     textStyle: TextStyle,
     viewModel: DetailViewModel,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     onShare: (Int) -> Unit,
 ) {
     val context = LocalContext.current
@@ -221,9 +219,10 @@ fun FeedDetail(
                     )
                     .clickable {
                         openSheet.invoke(
-                            BottomSheetType.CommentType(
+                            CommentDialogModel(
                                 postId = post.id,
-                                onEvent = {})
+                                totalCommentCount = post.commentCount
+                            )
                         )
                     }
             )

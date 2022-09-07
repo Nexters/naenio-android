@@ -10,6 +10,7 @@ import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.ui.comment.CommentViewModel.Companion.dismissCommentDialog
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -80,6 +81,14 @@ class FeedViewModel @Inject constructor(
                 } finally {
                     GlobalUiEvent.hideLoading()
                 }
+            }
+        }
+
+        viewModelScope.launch {
+            dismissCommentDialog.collect { data ->
+                val result =
+                    posts.value?.map { if (it.id == data.postId) it.copy(commentCount = data.commentCount) else it }
+                _posts.value = result
             }
         }
     }
@@ -175,10 +184,12 @@ class FeedViewModel @Inject constructor(
     fun report(targetMemberId: Int, resourceType: ReportType) {
         viewModelScope.launch {
             try {
-                feedRepository.report(ReportRequest(
-                    targetMemberId = targetMemberId,
-                    resource = resourceType,
-                ))
+                feedRepository.report(
+                    ReportRequest(
+                        targetMemberId = targetMemberId,
+                        resource = resourceType,
+                    )
+                )
                 GlobalUiEvent.showToast("신고 되었습니다.")
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())

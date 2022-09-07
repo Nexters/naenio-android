@@ -62,6 +62,7 @@ sealed class CommentMode {
 fun CommentDialogScreen(
     modifier: Modifier = Modifier,
     postId: Int,
+    totalCommentCount: Int,
     commentViewModel: CommentViewModel = hiltViewModel(),
     replyViewModel: ReplyViewModel = hiltViewModel(),
     closeSheet: () -> Unit,
@@ -91,6 +92,7 @@ fun CommentDialogScreen(
             commentViewModel = commentViewModel,
             postId = postId,
             changeMode = { mode = it },
+            totalCommentCount = totalCommentCount,
             onClose = {
                 commentViewModel.clear()
                 replyViewModel.clear()
@@ -123,6 +125,7 @@ fun CommentScreenContent(
     modifier: Modifier,
     commentViewModel: CommentViewModel,
     postId: Int,
+    totalCommentCount: Int,
     changeMode: (CommentMode) -> Unit,
     onClose: () -> Unit,
 ) {
@@ -134,9 +137,11 @@ fun CommentScreenContent(
     val inputUiState by remember { commentViewModel.inputUiState }
     val isRefreshing = commentViewModel.isRefreshing.collectAsState()
     val user = commentViewModel.user.collectAsState(initial = null)
+    val commentCount = commentViewModel.totalCommentCount.collectAsState()
 
     LaunchedEffect(key1 = postId, block = {
         commentViewModel.loadNextPage(postId)
+        commentViewModel.setTotalCommentCount(totalCommentCount, postId)
     })
 
     val eventListener: (CommentEvent) -> Unit = {
@@ -146,7 +151,7 @@ fun CommentScreenContent(
                 else commentViewModel.like(id = it.comment.id)
             }
             is CommentEvent.More -> {
-                if (user.value?.id == it.comment.writer.id){
+                if (user.value?.id == it.comment.writer.id) {
                     scope.launch {
                         GlobalUiEvent.showMenuDialog(
                             MenuDialogModel(
@@ -179,12 +184,11 @@ fun CommentScreenContent(
         }
     }
 
-
     Column(
         modifier = modifier
     ) {
         CommentHeader(
-            commentCount = comments.value.size,
+            commentCount = commentCount.value,
             onClose = onClose
         )
         CommentList(

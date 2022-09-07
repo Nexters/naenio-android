@@ -2,7 +2,6 @@ package com.nexters.teamvs.naenio.ui.theme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,7 +16,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
@@ -25,7 +23,7 @@ import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
-import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.FeedPager
 import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
@@ -42,7 +40,7 @@ fun ThemeFeedScreen(
     type: String,
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
@@ -90,7 +88,7 @@ fun ThemeFeedContent(
     posts: List<Post>,
     theme: ThemeItem,
     navController: NavHostController,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     close: () -> Unit,
     vote: (Int, Int) -> Unit,
 ) {

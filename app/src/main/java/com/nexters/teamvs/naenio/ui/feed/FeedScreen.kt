@@ -37,7 +37,7 @@ import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
-import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.composables.CommentLayout
 import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
 import com.nexters.teamvs.naenio.ui.feed.composables.VoteBar
@@ -53,7 +53,7 @@ fun FeedScreen(
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -90,12 +90,13 @@ fun FeedScreen(
 @Composable
 fun FeedScreenContent(
     navController: NavHostController,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
+
     /**
      * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
      * 테마에서는 아래 상태들을 알 필요가 없음.
@@ -298,7 +299,7 @@ fun FeedPager(
     modifier: Modifier,
     posts: List<Post>,
     pagerState: PagerState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     onVote: (Int, Int) -> Unit,
     onShare: (Int) -> Unit,
     navController: NavHostController,
@@ -342,7 +343,7 @@ fun FeedItem(
     post: Post,
     navController: NavHostController,
     onVote: (Int, Int) -> Unit,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     onMore: (Post) -> Unit,
     onShare: (Int) -> Unit,
 ) {
@@ -400,12 +401,7 @@ fun FeedItem(
                 )
                 .padding(horizontal = 20.dp)
                 .clickable {
-                    openSheet(
-                        BottomSheetType.CommentType(
-                            postId = post.id,
-                            onEvent = {}
-                        )
-                    )
+                    openSheet(CommentDialogModel(post.id, totalCommentCount = post.commentCount))
                 }
         )
     }

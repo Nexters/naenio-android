@@ -14,16 +14,26 @@ import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource2
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class CommentCallbackData(
+    val postId: Int,
+    val commentCount: Int,
+)
+
 @HiltViewModel
 class CommentViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
-    private val userRepository: UserRepository,
+    userRepository: UserRepository,
 ) : BaseViewModel(), PagingSource2 {
+
+    companion object {
+        val dismissCommentDialog = MutableSharedFlow<CommentCallbackData>()
+    }
 
     private val commentPagingSize = 10
     val commentUiState = mutableStateOf<UiState>(UiState.Idle)
@@ -52,6 +62,19 @@ class CommentViewModel @Inject constructor(
     val inputUiState = mutableStateOf<UiState>(UiState.Idle)
     val user = userRepository.getUserFlow()
 
+    val totalCommentCount = MutableStateFlow(0)
+
+    suspend fun setTotalCommentCount(count: Int, postId: Int) {
+        totalCommentCount.value = count
+
+        dismissCommentDialog.emit(
+            CommentCallbackData(
+                postId = postId,
+                commentCount = count
+            )
+        )
+    }
+
     fun writeComment(
         postId: Int,
         content: String,
@@ -65,6 +88,7 @@ class CommentViewModel @Inject constructor(
                 )
 
                 _comments.value = listOf(comment) + comments.value
+                setTotalCommentCount(totalCommentCount.value + 1, postId)
                 inputUiState.value = UiState.Success
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -77,6 +101,7 @@ class CommentViewModel @Inject constructor(
             try {
                 commentRepository.deleteComment(comment.id)
                 _comments.value = comments.value - listOf(comment).toSet()
+                setTotalCommentCount(totalCommentCount.value + -1, comment.postId)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

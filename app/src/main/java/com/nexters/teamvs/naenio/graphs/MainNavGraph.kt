@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.create.CreateScreen
-import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.detail.DetailScreen
 import com.nexters.teamvs.naenio.ui.feed.FeedScreen
 import com.nexters.teamvs.naenio.ui.tabs.*
@@ -29,7 +29,7 @@ import com.nexters.teamvs.naenio.ui.theme.ThemeFeedScreen
 fun MainNavGraph(
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
 ) {
     NavHost(
@@ -88,7 +88,7 @@ fun MainNavGraph(
 fun NavGraphBuilder.detailsNavGraph(
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit
 ) {
     navigation(
@@ -128,7 +128,7 @@ fun NavGraphBuilder.profileDetailNavGraph(
 fun NavGraphBuilder.themeDetailNavGraph(
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit
 ) {
     navigation(
