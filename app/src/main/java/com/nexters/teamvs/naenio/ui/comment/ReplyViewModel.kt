@@ -56,17 +56,27 @@ class ReplyViewModel @Inject constructor(
         commentId: Int,
         content: String,
     ) {
-        inputUiState.value = UiState.Loading
         viewModelScope.launch {
             try {
+                inputUiState.value = UiState.Loading
+
+                if (content.length > CommentViewModel.MAX_COMMENT_LENGTH) {
+                    GlobalUiEvent.showToast("최대 200자까지 입력 가능합니다.")
+                    return@launch
+                } else if (content.isBlank()) {
+                    GlobalUiEvent.showToast("댓글을 입력해주세요.")
+                    return@launch
+                }
+
                 val reply = commentRepository.writeReply(
                     commentId = commentId,
                     content = content,
                 )
                 _replies.value = listOf(reply) + replies.value
-                inputUiState.value = UiState.Success
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                inputUiState.value = UiState.Success
             }
         }
     }
@@ -77,7 +87,7 @@ class ReplyViewModel @Inject constructor(
                 commentRepository.deleteComment(reply.id)
                 _replies.value = replies.value - listOf(reply).toSet()
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }
@@ -90,7 +100,7 @@ class ReplyViewModel @Inject constructor(
                     if (it.id == id) it.copy(isLiked = true, likeCount = it.likeCount + 1) else it
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }
@@ -103,7 +113,7 @@ class ReplyViewModel @Inject constructor(
                     if (it.id == id) it.copy(isLiked = false, likeCount = it.likeCount - 1) else it
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }

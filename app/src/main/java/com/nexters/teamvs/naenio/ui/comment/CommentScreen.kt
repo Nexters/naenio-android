@@ -287,6 +287,7 @@ fun CommentEditText(
             value = input,
             shape = RoundedCornerShape(3.dp),
             onValueChange = {
+                if (it.length > 200) return@TextField
                 input = it
             }
         )
@@ -299,7 +300,6 @@ fun CommentEditText(
                 .align(Alignment.Bottom)
                 .padding(start = 12.dp, bottom = 16.dp)
                 .clickable {
-                    if (uiState == UiState.Loading) return@clickable
                     onWrite.invoke(input)
                 },
             text = stringResource(id = R.string.write_comment)

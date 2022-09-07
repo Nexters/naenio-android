@@ -33,6 +33,7 @@ class CommentViewModel @Inject constructor(
 
     companion object {
         val dismissCommentDialog = MutableSharedFlow<CommentCallbackData>()
+        const val MAX_COMMENT_LENGTH = 200
     }
 
     private val commentPagingSize = 10
@@ -79,9 +80,18 @@ class CommentViewModel @Inject constructor(
         postId: Int,
         content: String,
     ) {
-        inputUiState.value = UiState.Loading
         viewModelScope.launch {
             try {
+                inputUiState.value = UiState.Loading
+
+                if (content.length > MAX_COMMENT_LENGTH) {
+                    GlobalUiEvent.showToast("최대 200자까지 입력 가능합니다.")
+                    return@launch
+                } else if (content.isBlank()) {
+                    GlobalUiEvent.showToast("댓글을 입력해주세요.")
+                    return@launch
+                }
+
                 val comment = commentRepository.writeComment(
                     postId = postId,
                     content = content,
@@ -89,9 +99,10 @@ class CommentViewModel @Inject constructor(
 
                 _comments.value = listOf(comment) + comments.value
                 setTotalCommentCount(totalCommentCount.value + 1, postId)
-                inputUiState.value = UiState.Success
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                inputUiState.value = UiState.Success
             }
         }
     }
@@ -103,7 +114,7 @@ class CommentViewModel @Inject constructor(
                 _comments.value = comments.value - listOf(comment).toSet()
                 setTotalCommentCount(totalCommentCount.value + -1, comment.postId)
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }
@@ -116,7 +127,7 @@ class CommentViewModel @Inject constructor(
                     if (it.id == id) it.copy(isLiked = true, likeCount = it.likeCount + 1) else it
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }
@@ -129,7 +140,7 @@ class CommentViewModel @Inject constructor(
                     if (it.id == id) it.copy(isLiked = false, likeCount = it.likeCount - 1) else it
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }
