@@ -26,6 +26,7 @@ import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.FeedPager
+import com.nexters.teamvs.naenio.ui.feed.FeedViewModel
 import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
 import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.launch
@@ -36,7 +37,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun ThemeFeedScreen(
-    viewModel: ThemeFeedViewModel = hiltViewModel(),
+    viewModel: FeedViewModel = hiltViewModel(),
     type: String,
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
@@ -76,8 +77,11 @@ fun ThemeFeedScreen(
                 viewModel.vote(postId = postId, choiceId = choiceId)
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             },
-            navController = navController,
             openSheet = openSheet,
+            onDetail = {
+                viewModel.setDetailPostItem(it)
+                navController.navigate("FeedDetail/$it")
+            }
         )
     }
 }
@@ -87,10 +91,10 @@ fun ThemeFeedScreen(
 fun ThemeFeedContent(
     posts: List<Post>,
     theme: ThemeItem,
-    navController: NavHostController,
     openSheet: (CommentDialogModel) -> Unit,
     close: () -> Unit,
     vote: (Int, Int) -> Unit,
+    onDetail: (Int) -> Unit,
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = 0)
@@ -113,7 +117,6 @@ fun ThemeFeedContent(
             posts = posts,
             pagerState = pagerState,
             openSheet = openSheet,
-            navController = navController,
             onVote = vote,
             loadNextPage = { },
             onShare = {
@@ -130,7 +133,8 @@ fun ThemeFeedContent(
                         )
                     )
                 }
-            }
+            },
+            onDetail = onDetail
         )
     }
 }

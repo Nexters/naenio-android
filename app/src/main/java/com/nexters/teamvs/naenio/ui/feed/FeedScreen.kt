@@ -10,10 +10,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -57,6 +61,11 @@ fun FeedScreen(
     closeSheet: () -> Unit,
 ) {
     val context = LocalContext.current
+
+    LaunchedEffect(key1 = Unit, block = {
+        if (viewModel.posts.value.isNullOrEmpty()) viewModel.loadFirstFeed()
+    })
+
     BackHandler {
         if (modalBottomSheetState.isVisible) {
             closeSheet.invoke()
@@ -115,6 +124,7 @@ fun FeedScreenContent(
                 FeedEvent.ScrollToTop -> {
                     pagerState.scrollToPage(0)
                 }
+                else -> {}
             }
         }
     })
@@ -128,7 +138,12 @@ fun FeedScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            FeedTopBar(text = stringResource(id = R.string.bottom_item_feed))
+            FeedTopBar(
+                text = stringResource(id = R.string.bottom_item_feed),
+                onRefresh = {
+                    viewModel.refresh()
+                }
+            )
 
             FeedTabRow(
                 feedTabItems = feedTabItems.value,
@@ -155,7 +170,10 @@ fun FeedScreenContent(
                         ShareUtils.share(postId = postId, context = context)
                     },
                     loadNextPage = viewModel::loadNextPage,
-                    navController = navController,
+                    onDetail = {
+                        viewModel.setDetailPostItem(it)
+                        navController.navigate("FeedDetail/$it")
+                    },
                     onMore = {
                         if (it.author.id == user.value?.id) {
                             scope.launch {
@@ -212,15 +230,30 @@ fun FeedCreateFloatingButton(
 }
 
 @Composable
-fun FeedTopBar(text: String) {
-    Text(
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .padding(top = 20.dp, bottom = 10.dp),
-        text = text,
-        style = Font.montserratSemiBold24,
-        color = Color.White
-    )
+fun FeedTopBar(text: String, onRefresh: () -> Unit) {
+    Row {
+        Text(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 20.dp)
+                .padding(top = 20.dp, bottom = 10.dp),
+            text = text,
+            style = Font.montserratSemiBold24,
+            color = Color.White
+        )
+        Image(
+            modifier = Modifier
+                .padding(20.dp)
+                .size(28.dp)
+                .align(Alignment.CenterVertically)
+                .clickable {
+                    onRefresh.invoke()
+                },
+            imageVector = Icons.Filled.Refresh,
+            contentDescription = "",
+            colorFilter = ColorFilter.tint(color = Color.White),
+        )
+    }
 }
 
 @Composable
@@ -301,8 +334,8 @@ fun FeedPager(
     pagerState: PagerState,
     openSheet: (CommentDialogModel) -> Unit,
     onVote: (Int, Int) -> Unit,
+    onDetail: (Int) -> Unit,
     onShare: (Int) -> Unit,
-    navController: NavHostController,
     loadNextPage: () -> Unit,
     onMore: (Post) -> Unit,
 ) {
@@ -327,7 +360,7 @@ fun FeedPager(
         Box {
             FeedItem(
                 post = posts[page],
-                navController = navController,
+                onDetail = onDetail,
                 onVote = onVote,
                 openSheet = openSheet,
                 onMore = onMore,
@@ -341,7 +374,7 @@ fun FeedPager(
 @Composable
 fun FeedItem(
     post: Post,
-    navController: NavHostController,
+    onDetail: (Int) -> Unit,
     onVote: (Int, Int) -> Unit,
     openSheet: (CommentDialogModel) -> Unit,
     onMore: (Post) -> Unit,
@@ -363,8 +396,7 @@ fun FeedItem(
             shape = RoundedCornerShape(16.dp)
         )
         .clickable {
-            Log.d("####", "Feed Item Click")
-            navController.navigate("FeedDetail/${post.id}")
+            onDetail.invoke(post.id)
         }
     ) {
         Column(

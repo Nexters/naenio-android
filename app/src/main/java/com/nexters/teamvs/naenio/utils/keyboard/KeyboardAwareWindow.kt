@@ -8,12 +8,8 @@ import android.graphics.drawable.ColorDrawable
 import android.util.Log
 import android.view.*
 import android.widget.PopupWindow
-import androidx.activity.ComponentActivity
-import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
 import com.nexters.teamvs.naenio.R
-import com.nexters.teamvs.naenio.extensions.requireActivity
 
 /**
  * The keyboard height provider, this class uses a PopupWindow

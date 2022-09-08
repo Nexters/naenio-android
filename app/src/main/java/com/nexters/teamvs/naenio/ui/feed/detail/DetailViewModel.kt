@@ -6,6 +6,7 @@ import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.ui.comment.CommentViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,16 @@ class DetailViewModel @Inject constructor(
     val postItem = _postItem.asStateFlow()
 
     val successVote = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+
+    init {
+        viewModelScope.launch {
+            CommentViewModel.dismissCommentDialog.collect { data ->
+                val post = postItem.value
+                val result = if (post?.id == data.postId) post.copy(commentCount = data.commentCount) else postItem.value
+                _postItem.value = result
+            }
+        }
+    }
 
     fun getPostDetail(id: Int) {
         viewModelScope.launch {

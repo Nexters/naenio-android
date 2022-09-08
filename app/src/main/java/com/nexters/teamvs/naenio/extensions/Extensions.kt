@@ -4,17 +4,19 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
-import com.nexters.teamvs.naenio.base.UiEvent
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.NoRouteToHostException
@@ -27,6 +29,12 @@ val Fragment.fragmentComposeView: ComposeView
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         }
     }
+
+@Composable
+fun getActivity(): Activity {
+    return LocalContext.current as ComponentActivity
+}
+
 
 fun Context.requireActivity(): Activity {
     var currentContext = this
