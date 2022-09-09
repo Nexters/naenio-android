@@ -131,7 +131,10 @@ class FeedViewModel @Inject constructor(
 
     @MainThread
     override fun refresh() {
-        loadPageInternal(refresh = true)
+        viewModelScope.launch {
+            GlobalUiEvent.showLoading()
+            loadPageInternal(refresh = true)
+        }
     }
 
     @MainThread
@@ -153,22 +156,22 @@ class FeedViewModel @Inject constructor(
                 updateState(PlaceholderState.Loading)
             }
 
-            val currentList = if (refresh) emptyList() else _posts.value
-            Log.d("### lastPostId,", "${currentPosts?.getOrNull(currentPosts.size - 1)?.id}") // 클라에서 중복 필터링?
+            Log.d("### lastPostId,", "${currentPosts?.getOrNull(currentPosts.size - 1)?.id}")
             runCatching {
                 feedRepository.getFeedPosts(
                     pageSize = 10,
-                    lastPostId = currentPosts?.getOrNull(currentPosts.size - 1)?.id,
+                    lastPostId = if (refresh) null else currentPosts?.getOrNull(currentPosts.size - 1)?.id,
                     sortType = currentSortType.text,
                 )
             }.fold(
                 onSuccess = {
                     if (refresh) {
+                        _posts.value = emptyList()
                         _isRefreshing.value = false
                     } else {
                         updateState(PlaceholderState.Idle(it.isEmpty()))
                     }
-                    _posts.value = currentList?.plus(it)
+                    _posts.value = posts.value?.plus(it)
 
                     isFirstPage = false
                     loadedAllPage = it.isEmpty()
@@ -180,7 +183,12 @@ class FeedViewModel @Inject constructor(
                         updateState(PlaceholderState.Failure(it))
                     }
                 }
-            )
+            ).also {
+                if (refresh) {
+                    GlobalUiEvent.hideLoading()
+                    emitEvent(FeedEvent.ScrollToTop)
+                }
+            }
         }
     }
 

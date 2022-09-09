@@ -175,8 +175,6 @@ class CommentViewModel @Inject constructor(
                 updateState(PlaceholderState.Loading)
             }
 
-            val currentList = if (refresh) emptyList() else comments.value
-
             runCatching {
                 val lastComment = if (refresh || isFirstPage) {
                     null
@@ -197,7 +195,7 @@ class CommentViewModel @Inject constructor(
                     } else {
                         updateState(PlaceholderState.Idle(it.isEmpty()))
                     }
-                    _comments.value = currentList + it
+                    _comments.value = comments.value + it
 
                     isFirstPage = false
                     loadedAllPage = it.isEmpty() || commentPagingSize > it.size

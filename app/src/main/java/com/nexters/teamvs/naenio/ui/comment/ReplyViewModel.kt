@@ -139,7 +139,7 @@ class ReplyViewModel @Inject constructor(
     }
 
     private fun loadPageInternal(refresh: Boolean = false, id: Int) {
-        val currentComments = replies.value
+        val currentReplies = replies.value
         viewModelScope.launch {
             if (refresh) {
                 isRefreshing.value = true
@@ -147,13 +147,11 @@ class ReplyViewModel @Inject constructor(
                 updateState(PlaceholderState.Loading)
             }
 
-            val currentList = if (refresh) emptyList() else replies.value
-
             runCatching {
                 val lastComment = if (refresh || isFirstPage) {
                     null
                 } else {
-                    currentComments.lastOrNull()
+                    currentReplies.lastOrNull()
                 }
                 commentRepository.getReplies(
                     commentId = id,
@@ -168,7 +166,7 @@ class ReplyViewModel @Inject constructor(
                     } else {
                         updateState(PlaceholderState.Idle(it.isEmpty()))
                     }
-                    _replies.value = currentList + it
+                    _replies.value = replies.value + it
 
                     isFirstPage = false
                     loadedAllPage = it.isEmpty()
