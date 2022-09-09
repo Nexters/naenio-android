@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
@@ -51,6 +52,8 @@ fun ThemeFeedScreen(
     }
 
     val isEmptyTheme = posts.value != null && posts.value?.isEmpty() == true
+    val scope = rememberCoroutineScope()
+    val user = viewModel.user.collectAsState(initial = null)
 
     LaunchedEffect(key1 = Unit, block = {
         if (posts.value.isNullOrEmpty()) viewModel.getThemePosts(currentTheme.type)
@@ -81,6 +84,34 @@ fun ThemeFeedScreen(
             onDetail = {
                 viewModel.setDetailPostItem(it)
                 navController.navigate("FeedDetail/$it")
+            },
+            onMore = {
+                if (it.author.id == user.value?.id) {
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "삭제",
+                                onClick = {
+                                    viewModel.deletePost(postId = it.id)
+                                }
+                            )
+                        )
+                    }
+                } else {
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "신고",
+                                onClick = {
+                                    viewModel.report(
+                                        targetMemberId = it.author.id,
+                                        resourceType = ReportType.POST
+                                    )
+                                }
+                            )
+                        )
+                    }
+                }
             }
         )
     }
@@ -94,11 +125,11 @@ fun ThemeFeedContent(
     openSheet: (CommentDialogModel) -> Unit,
     close: () -> Unit,
     vote: (Int, Int) -> Unit,
+    onMore: (Post) -> Unit,
     onDetail: (Int) -> Unit,
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = 0)
-    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -122,18 +153,7 @@ fun ThemeFeedContent(
             onShare = {
                 ShareUtils.share(it, context)
             },
-            onMore = {
-                scope.launch {
-                    GlobalUiEvent.showMenuDialog(
-                        MenuDialogModel(
-                            text = "삭제",
-                            onClick = {
-
-                            }
-                        )
-                    )
-                }
-            },
+            onMore = onMore,
             onDetail = onDetail
         )
     }
