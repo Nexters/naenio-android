@@ -220,7 +220,7 @@ fun CreateTitle(title: String, require: Boolean) {
 fun CreateTextField(
     modifier: Modifier,
     text: String,
-    hint: String,
+//    hint: String,
     maxLength: Int,
     keyboardOptions: KeyboardOptions,
     onValueChange: (String) -> Unit,
@@ -251,11 +251,11 @@ fun CreateTextField(
                 }
             ),
             placeholder = {
-                Text(
-                    style = pretendardMedium16,
-                    color = MyColors.darkGrey_828282,
-                    text = hint
-                )
+//                Text(
+//                    style = pretendardMedium16,
+//                    color = MyColors.darkGrey_828282,
+//                    text = hint
+//                )
             },
             value = TextFieldValue(
                 text = text,
@@ -292,7 +292,7 @@ fun VoteTopicInput(
             .fillMaxWidth()
             .defaultMinSize(minHeight = 108.dp),
         maxLength = 70,
-        hint = stringResource(id = R.string.vote_topic_hint),
+//        hint = stringResource(id = R.string.vote_topic_hint),
         text = title,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         onValueChange = onValueChange
@@ -319,7 +319,7 @@ fun VoteOptionsInput(
                     .defaultMinSize(minHeight = 70.dp),
                 maxLength = 5,
                 text = voteOption1,
-                hint = stringResource(id = R.string.vote_options_a_hint),
+//                hint = stringResource(id = R.string.vote_options_a_hint),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 onValueChange = onValueChange1
             )
@@ -330,7 +330,7 @@ fun VoteOptionsInput(
                     .defaultMinSize(minHeight = 70.dp),
                 maxLength = 32,
                 text = voteOption2,
-                hint = stringResource(id = R.string.vote_options_b_hint),
+//                hint = stringResource(id = R.string.vote_options_b_hint),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 onValueChange = onValueChange2
             )
@@ -358,7 +358,7 @@ fun VoteContentInput(
             .defaultMinSize(minHeight = 108.dp),
         maxLength = 99,
         text = content,
-        hint = stringResource(id = R.string.vote_content_hint),
+//        hint = stringResource(id = R.string.vote_content_hint),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         onValueChange = onValueChange
     )
