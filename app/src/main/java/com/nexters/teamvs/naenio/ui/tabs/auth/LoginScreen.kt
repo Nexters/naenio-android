@@ -113,8 +113,6 @@ fun LoginScreenContent(
     onGoogleLogin: () -> Unit,
     onKakaoLogin: () -> Unit
 ) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.full_loading))
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -146,11 +144,10 @@ fun LoginScreenContent(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                LottieAnimation(
-                    composition,
-                    modifier = Modifier
-                        .wrapContentSize(),
-                    iterations = Int.MAX_VALUE
+                Image(
+                    modifier = Modifier.padding(top = 12.dp),
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = ""
                 )
                 Image(
                     modifier = Modifier.padding(top = 12.dp),
