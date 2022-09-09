@@ -509,19 +509,26 @@ fun CommentItem(
                 Spacer(modifier = Modifier.width(18.dp))
 
                 if (comment is Comment) {
-                    Icon(
-                        modifier = Modifier
-                            .padding(end = 4.dp)
-                            .size(12.dp),
-                        painter = painterResource(id = R.drawable.ic_comment),
-                        tint = Color.White,
-                        contentDescription = null
-                    )
-                    Text(
-                        text = comment.replyCount.toString(),
-                        fontSize = 12.sp,
-                        color = Color.White
-                    )
+                    Row(
+                        modifier = Modifier.clickable {
+                            onCommentMode.invoke(CommentMode.REPLY(comment))
+                        },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .size(12.dp),
+                            painter = painterResource(id = R.drawable.ic_comment),
+                            tint = Color.White,
+                            contentDescription = null
+                        )
+                        Text(
+                            text = comment.replyCount.toString(),
+                            fontSize = 12.sp,
+                            color = Color.White
+                        )
+                    }
                 }
             }
 
