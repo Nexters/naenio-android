@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -95,6 +97,7 @@ fun ProfileSettingScreenContent(
     onClose: () -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
 
     val user = viewModel.user.collectAsState()
     var inputText by remember { mutableStateOf(user.value?.nickname ?: "") }
@@ -105,6 +108,11 @@ fun ProfileSettingScreenContent(
             user.value?.profileImageIndex ?: (0 until Profile.images.size).random()
         )
     }
+
+    LaunchedEffect(key1 = Unit, block = {
+        focusRequester.requestFocus()
+
+    })
 
     BackHandler {
         if (isVisibleDialog) {
@@ -149,7 +157,8 @@ fun ProfileSettingScreenContent(
 
             InputNickname(
                 modifier = Modifier.align(CenterHorizontally),
-                text = inputText
+                text = inputText,
+                focusRequester = focusRequester,
             ) {
                 inputText = it
             }
@@ -240,6 +249,7 @@ fun ProfileImage(
 @Composable
 fun InputNickname(
     modifier: Modifier = Modifier,
+    focusRequester: FocusRequester,
     text: String,
     onValueChange: (String) -> Unit,
 ) {
@@ -248,6 +258,7 @@ fun InputNickname(
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
+                .focusRequester(focusRequester)
                 .border(
                     border = BorderStroke(1.dp, Color(0xff8b95a1)),
                     shape = RoundedCornerShape(8.dp)
