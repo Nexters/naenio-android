@@ -525,12 +525,12 @@ fun CommentItem(
                 }
             }
 
-            if (mode == CommentMode.COMMENT) {
+            if (mode == CommentMode.COMMENT && comment is Comment && comment.replyCount > 0) {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
                     modifier = Modifier.clickable {
-                        onCommentMode.invoke(CommentMode.REPLY(comment as Comment))
+                        onCommentMode.invoke(CommentMode.REPLY(comment))
                     },
                     text = stringResource(id = R.string.see_replies),
                     fontSize = 16.sp,
