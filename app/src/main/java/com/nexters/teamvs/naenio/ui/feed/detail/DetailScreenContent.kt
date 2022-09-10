@@ -227,7 +227,7 @@ fun DetailScreen(
     var isAnim by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = Unit, block = {
         feedViewModel.event.collect {
-            if (it == FeedEvent.VoteSuccess) {
+            if (it is FeedEvent.VoteSuccess) {
                 isAnim = true
                 delay(1000L)
                 isAnim = false

@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 sealed class FeedEvent {
     object ScrollToTop : FeedEvent()
-    object VoteSuccess: FeedEvent()
+    data class VoteSuccess(val id: Int): FeedEvent()
 }
 
 @HiltViewModel
@@ -266,7 +266,7 @@ class FeedViewModel @Inject constructor(
                 }.also {
                     _posts.value = it
                 }
-                emitEvent(FeedEvent.VoteSuccess)
+                emitEvent(FeedEvent.VoteSuccess(id = postId))
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {

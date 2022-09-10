@@ -2,6 +2,9 @@ package com.nexters.teamvs.naenio.ui.feed
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +30,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.VerticalPager
@@ -118,13 +125,19 @@ fun FeedScreenContent(
 
     val pagerState = rememberPagerState(initialPage = 0)
 
+    var isAnim by remember { mutableStateOf<Int?>(null) }
+
     LaunchedEffect(key1 = Unit, block = {
         viewModel.event.collect {
             when (it) {
                 FeedEvent.ScrollToTop -> {
                     pagerState.scrollToPage(0)
                 }
-                else -> {}
+                is FeedEvent.VoteSuccess -> {
+                    isAnim = it.id
+                    delay(1000L)
+                    isAnim = null
+                }
             }
         }
     })
@@ -161,6 +174,7 @@ fun FeedScreenContent(
                     modifier = Modifier,
                     pagerState = pagerState,
                     posts = posts.value ?: emptyList(),
+                    isAnim = isAnim,
                     openSheet = openSheet,
                     onVote = { postId, choiceId ->
                         viewModel.vote(postId = postId, choiceId = choiceId)
@@ -332,6 +346,7 @@ fun FeedPager(
     modifier: Modifier,
     posts: List<Post>,
     pagerState: PagerState,
+    isAnim: Int?,
     openSheet: (CommentDialogModel) -> Unit,
     onVote: (Int, Int) -> Unit,
     onDetail: (Int) -> Unit,
@@ -341,6 +356,7 @@ fun FeedPager(
 ) {
     val threshold = 3
     val lastIndex = posts.lastIndex
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
 
     VerticalPager(
         state = pagerState,
@@ -366,6 +382,17 @@ fun FeedPager(
                 onMore = onMore,
                 onShare = onShare
             )
+            AnimatedVisibility(
+                visible = isAnim == posts[page].id,
+                enter = EnterTransition.None,
+                exit = fadeOut()
+            ) {
+                LottieAnimation(
+                    composition = composition,
+                    modifier = Modifier.wrapContentSize(),
+                    iterations = LottieConstants.IterateForever
+                )
+            }
         }
     }
 }
