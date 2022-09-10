@@ -13,6 +13,7 @@ import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource2
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -21,8 +22,13 @@ import javax.inject.Inject
 @HiltViewModel
 class ReplyViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
-    private val userRepository: UserRepository,
+    userRepository: UserRepository,
 ) : BaseViewModel(), PagingSource2 {
+
+    companion object {
+        val replyCallback = MutableSharedFlow<Comment?>()
+        val commentDeleteEvent = MutableSharedFlow<Comment>()
+    }
 
     val commentUiState = mutableStateOf<UiState>(UiState.Idle)
     private val _loadingState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
@@ -31,6 +37,8 @@ class ReplyViewModel @Inject constructor(
     private var isFirstPage = true
     private var loadedAllPage = false
 
+    private val _selectedComment = MutableStateFlow<Comment?>(null)
+    val selectedComment = _selectedComment.asStateFlow()
     private val _replies = MutableStateFlow<List<Reply>>(emptyList())
     val replies = _replies.asStateFlow()
 
@@ -73,6 +81,11 @@ class ReplyViewModel @Inject constructor(
                     content = content,
                 )
                 _replies.value = listOf(reply) + replies.value
+                val comment = _selectedComment.value
+                _selectedComment.value = comment?.copy(
+                    replyCount = comment.replyCount + 1
+                )
+                replyCallback.emit(selectedComment.value)
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {
@@ -86,6 +99,12 @@ class ReplyViewModel @Inject constructor(
             try {
                 commentRepository.deleteComment(reply.id)
                 _replies.value = replies.value - listOf(reply).toSet()
+
+                val comment = _selectedComment.value
+                _selectedComment.value = comment?.copy(
+                    replyCount = comment.replyCount - 1
+                )
+                replyCallback.emit(selectedComment.value)
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             }
@@ -123,6 +142,7 @@ class ReplyViewModel @Inject constructor(
      */
     fun clear() {
         _replies.value = emptyList()
+        _selectedComment.value = null
         _loadingState.value = PlaceholderState.Idle(true)
         _firstPageState.value = PlaceholderState.Idle(true)
         isRefreshing.value = false
@@ -208,6 +228,48 @@ class ReplyViewModel @Inject constructor(
                     )
                 )
                 GlobalUiEvent.showToast("신고 되었습니다.")
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
+    }
+
+    fun setSelectedComment(comment: Comment) {
+        _selectedComment.value = comment
+    }
+
+    fun deleteComment(comment: Comment) {
+        viewModelScope.launch {
+            try {
+                commentRepository.deleteComment(comment.id)
+                _selectedComment.value = null
+                commentDeleteEvent.emit(comment)
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
+    }
+
+    fun likeComment(id: Int) {
+        viewModelScope.launch {
+            try {
+                commentRepository.likeComment(id)
+                val comment = _selectedComment.value
+                _selectedComment.value = comment?.copy(likeCount = comment.likeCount + 1, isLiked = true)
+                replyCallback.emit(selectedComment.value)
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
+    }
+
+    fun unlikeComment(id: Int) {
+        viewModelScope.launch {
+            try {
+                commentRepository.unlikeComment(id)
+                val comment = _selectedComment.value
+                _selectedComment.value = comment?.copy(likeCount = comment.likeCount - 1, isLiked = false)
+                replyCallback.emit(selectedComment.value)
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             }

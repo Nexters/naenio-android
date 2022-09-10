@@ -113,6 +113,7 @@ fun CommentDialogScreen(
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
+                if (it is CommentMode.REPLY) return@ReplyScreenContent
                 replyViewModel.clear()
                 mode = it
             }

@@ -10,6 +10,8 @@ import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.ui.comment.ReplyViewModel.Companion.commentDeleteEvent
+import com.nexters.teamvs.naenio.ui.comment.ReplyViewModel.Companion.replyCallback
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource2
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.model.UiState
@@ -65,6 +67,25 @@ class CommentViewModel @Inject constructor(
 
     val totalCommentCount = MutableStateFlow(0)
 
+    init {
+        viewModelScope.launch {
+            replyCallback.collect { updatedComment ->
+                _comments.value = comments.value.map {
+                    if (updatedComment?.id == it.id) updatedComment
+                    else it
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            commentDeleteEvent.collect { updatedComment ->
+                _comments.value = comments.value.mapNotNull {
+                    if (updatedComment.id == it.id) null
+                    else it
+                }
+            }
+        }
+    }
     suspend fun setTotalCommentCount(count: Int, postId: Int) {
         totalCommentCount.value = count
 
