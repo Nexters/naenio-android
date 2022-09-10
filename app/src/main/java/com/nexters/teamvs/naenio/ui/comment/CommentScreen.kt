@@ -116,7 +116,12 @@ fun CommentDialogScreen(
                 if (it is CommentMode.REPLY) return@ReplyScreenContent
                 replyViewModel.clear()
                 mode = it
-            }
+            },
+            onClose = {
+                commentViewModel.clear()
+                replyViewModel.clear()
+                closeSheet.invoke()
+            },
         )
     }
 }

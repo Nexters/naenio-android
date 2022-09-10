@@ -38,6 +38,7 @@ fun ReplyScreenContent(
     mode: CommentMode,
     parentComment: Comment,
     changeMode: (CommentMode) -> Unit,
+    onClose: () -> Unit,
 ) {
     val replies = replyViewModel.replies.collectAsState()
     val listState = rememberLazyListState()
@@ -47,6 +48,7 @@ fun ReplyScreenContent(
     val isRefreshing = replyViewModel.isRefreshing.collectAsState()
     val user = replyViewModel.user.collectAsState(initial = null)
     val selectedComment = replyViewModel.selectedComment.collectAsState()
+
     BackHandler {
         if (mode is CommentMode.REPLY) {
             replyViewModel.clear()
@@ -68,7 +70,7 @@ fun ReplyScreenContent(
                 )
             }
             CommentEvent.Close -> {
-
+                onClose.invoke()
             }
             is CommentEvent.Like -> {
                 if (it.comment is Comment) {
