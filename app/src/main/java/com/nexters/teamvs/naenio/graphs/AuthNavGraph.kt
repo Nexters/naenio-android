@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.graphs
 
+import android.util.Log
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -37,7 +38,23 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                         navController.navigate(Graph.MAIN)
                     }
                 )
+                it.arguments?.getString("type")?.let {
+                    Log.d("#### deepLink", "login failed")
+                    LoginScreen(
+                        navController = navController,
+                        viewModel = hiltViewModel(),
+                        onNickName = {
+                            navController.popBackStack()
+                            navController.navigate(AuthScreen.ProfileSetting.route)
+                        },
+                        onNext = {
+                            navController.popBackStack()
+                            navController.navigate("FeedDetail/$it")
+                        }
+                    )
+                }
             } else {
+                Log.d("#### deepLink", "login success")
                 it.arguments?.getString("type")?.let {
                     navController.navigate("FeedDetail/$it")
                 }
