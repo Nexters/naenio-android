@@ -383,7 +383,8 @@ fun FeedDetail(
                 Spacer(modifier = Modifier.fillMaxHeight(0.044f))
                 VoteBar(
                     post = post,
-                    onVote = onVote
+                    onVote = onVote,
+                    maxLine = 4
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 CommentLayout(
