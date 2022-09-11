@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
@@ -174,67 +175,71 @@ fun FeedDetail(
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
 
-    Column(
+    LazyColumn(
         modifier = modifier.fillMaxSize()
     ) {
-        TopBar(
-            modifier = Modifier.wrapContentHeight(),
-            barTitle = titleBar,
-            close = {
-                navController.popBackStack()
-            },
-            isMoreBtnVisible = true,
-            textStyle = textStyle,
-            post = post
-        )
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 40.dp)
-                .fillMaxHeight()
-        ) {
-            ProfileNickName(
-                nickName = post.author.nickname.orEmpty(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 32.dp),
-                profileImageIndex = post.author.profileImageIndex,
-                isIconVisible = false,
-                onShare = { onShare.invoke(post.id) },
-                onMore = {}
+        item {
+            TopBar(
+                modifier = Modifier.wrapContentHeight(),
+                barTitle = titleBar,
+                close = {
+                    navController.popBackStack()
+                },
+                isMoreBtnVisible = true,
+                textStyle = textStyle,
+                post = post
             )
-            VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
-            Spacer(modifier = Modifier.fillMaxHeight(0.044f))
-            VoteBar(
-                post = post,
-                onVote = { postId, voteId ->
-                    viewModel.vote(postId, voteId)
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                }
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            CommentLayout(
-                commentCount = post.commentCount,
+        }
+        item {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(46.dp)
-                    .background(
-                        Color.Black, shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 14.dp)
-                    .shadow(
-                        1.dp,
-                        shape = RoundedCornerShape(12.dp),
-                        ambientColor = MyColors.blackShadow_35000000
-                    )
-                    .clickable {
-                        openSheet.invoke(
-                            BottomSheetType.CommentType(
-                                postId = post.id,
-                                onEvent = {})
-                        )
+                    .padding(horizontal = 40.dp)
+                    .fillMaxHeight()
+            ) {
+                ProfileNickName(
+                    nickName = post.author.nickname.orEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(top = 32.dp),
+                    profileImageIndex = post.author.profileImageIndex,
+                    isIconVisible = false,
+                    onShare = { onShare.invoke(post.id) },
+                    onMore = {}
+                )
+                VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 10)
+                Spacer(modifier = Modifier.fillMaxHeight(0.044f))
+                VoteBar(
+                    post = post,
+                    onVote = { postId, voteId ->
+                        viewModel.vote(postId, voteId)
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     }
-            )
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                CommentLayout(
+                    commentCount = post.commentCount,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(46.dp)
+                        .background(
+                            Color.Black, shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 14.dp)
+                        .shadow(
+                            1.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            ambientColor = MyColors.blackShadow_35000000
+                        )
+                        .clickable {
+                            openSheet.invoke(
+                                BottomSheetType.CommentType(
+                                    postId = post.id,
+                                    onEvent = {})
+                            )
+                        }
+                )
+            }
         }
     }
 }
