@@ -59,7 +59,7 @@ object Graph {
     const val AUTHENTICATION = "auth_graph"
     const val MAIN = "main_graph"
     const val DETAILS = "details_graph"
-    const val THEME_DETAIL = "theme_detail_graph"
+    const val THEME = "theme_feed_graph"
     const val PROFILE_DETAIL = "profile_detail_graph"
     const val LOGIN_DETAIL = "login_detail_graph"
 }

@@ -45,6 +45,7 @@ import com.nexters.teamvs.naenio.theme.Font.pretendardSemiBold18
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.UiEvent
+import kotlinx.coroutines.launch
 
 /**
  * uiState 별 대응
@@ -58,7 +59,9 @@ fun CreateScreen(
     context: Context = LocalContext.current
 ) {
 
-    context.requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+    LaunchedEffect(key1 = lifecycleOwner, block = {
+        context.requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+    })
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -75,6 +78,7 @@ fun CreateScreen(
         }
     }
 
+    val scope = rememberCoroutineScope()
     var title by remember { mutableStateOf("") }
     var voteOption1 by remember { mutableStateOf("") }
     var voteOption2 by remember { mutableStateOf("") }
@@ -94,6 +98,9 @@ fun CreateScreen(
                 }
                 is CreateEvent.Success -> {
                     navController.popBackStack()
+                    navController.navigate(Graph.MAIN) {
+                        popUpTo(Graph.MAIN)
+                    }
                 }
             }
         }
@@ -107,9 +114,13 @@ fun CreateScreen(
     ) {
         LazyColumn {
             item {
-                CreateTopBar(enabled = enabled, upload = {
+                CreateTopBar(
+                    enabled = enabled,
+                    upload = {
                     if (!enabled) {
-                        Log.d("###", "필수 항목들을 모두 입력해주세요!") //TODO Toast
+                        scope.launch {
+                            GlobalUiEvent.showToast("필수 항목을 모두 입력해주세요!")
+                        }
                         return@CreateTopBar
                     }
                     viewModel.createPost(
@@ -117,6 +128,8 @@ fun CreateScreen(
                         choices = arrayOf(voteOption1, voteOption2),
                         content = content,
                     )
+                }, close = {
+                    navController.popBackStack()
                 })
                 Spacer(modifier = Modifier.height(28.dp))
             }
@@ -155,6 +168,7 @@ fun CreateScreen(
 fun CreateTopBar(
     enabled: Boolean,
     upload: () -> Unit,
+    close: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -163,7 +177,11 @@ fun CreateTopBar(
             .wrapContentHeight(),
     ) {
         Image(
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier
+                .size(24.dp)
+                .clickable {
+                    close.invoke()
+                },
             painter = painterResource(id = R.drawable.ic_close),
             contentDescription = "close"
         )
@@ -202,7 +220,7 @@ fun CreateTitle(title: String, require: Boolean) {
 fun CreateTextField(
     modifier: Modifier,
     text: String,
-    hint: String,
+//    hint: String,
     maxLength: Int,
     keyboardOptions: KeyboardOptions,
     onValueChange: (String) -> Unit,
@@ -233,18 +251,18 @@ fun CreateTextField(
                 }
             ),
             placeholder = {
-                Text(
-                    style = pretendardMedium16,
-                    color = MyColors.darkGrey_828282,
-                    text = hint
-                )
+//                Text(
+//                    style = pretendardMedium16,
+//                    color = MyColors.darkGrey_828282,
+//                    text = hint
+//                )
             },
             value = TextFieldValue(
                 text = text,
                 selection = TextRange(text.length)
             ),
             onValueChange = {
-                if (inputLength >= maxLength) return@TextField
+                if (it.text.length > maxLength) return@TextField
                 onValueChange.invoke(it.text.replace("\n", ""))
             }
         )
@@ -274,7 +292,7 @@ fun VoteTopicInput(
             .fillMaxWidth()
             .defaultMinSize(minHeight = 108.dp),
         maxLength = 70,
-        hint = stringResource(id = R.string.vote_topic_hint),
+//        hint = stringResource(id = R.string.vote_topic_hint),
         text = title,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         onValueChange = onValueChange
@@ -299,9 +317,9 @@ fun VoteOptionsInput(
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 70.dp),
-                maxLength = 32,
+                maxLength = 5,
                 text = voteOption1,
-                hint = stringResource(id = R.string.vote_options_a_hint),
+//                hint = stringResource(id = R.string.vote_options_a_hint),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 onValueChange = onValueChange1
             )
@@ -312,7 +330,7 @@ fun VoteOptionsInput(
                     .defaultMinSize(minHeight = 70.dp),
                 maxLength = 32,
                 text = voteOption2,
-                hint = stringResource(id = R.string.vote_options_b_hint),
+//                hint = stringResource(id = R.string.vote_options_b_hint),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 onValueChange = onValueChange2
             )
@@ -340,7 +358,7 @@ fun VoteContentInput(
             .defaultMinSize(minHeight = 108.dp),
         maxLength = 99,
         text = content,
-        hint = stringResource(id = R.string.vote_content_hint),
+//        hint = stringResource(id = R.string.vote_content_hint),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         onValueChange = onValueChange
     )

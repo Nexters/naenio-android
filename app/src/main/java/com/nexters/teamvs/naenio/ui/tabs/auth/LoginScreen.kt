@@ -113,8 +113,6 @@ fun LoginScreenContent(
     onGoogleLogin: () -> Unit,
     onKakaoLogin: () -> Unit
 ) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.full_loading))
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -146,14 +144,13 @@ fun LoginScreenContent(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                LottieAnimation(
-                    composition,
-                    modifier = Modifier
-                        .wrapContentSize(),
-                    iterations = Int.MAX_VALUE
+                Image(
+                    modifier = Modifier.width(106.dp).height(95.dp),
+                    painter = painterResource(id = R.drawable.logo), //TODO 이미지 자체에 패딩이 들어있어서, 리소스 수정 필요
+                    contentDescription = ""
                 )
                 Image(
-                    modifier = Modifier.padding(top = 12.dp),
+                    modifier = Modifier.padding(top = 0.dp), //12dp
                     painter = painterResource(id = R.drawable.ic_wordmark),
                     contentDescription = ""
                 )

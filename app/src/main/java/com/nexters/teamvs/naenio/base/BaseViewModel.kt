@@ -8,7 +8,7 @@ open class BaseViewModel: ViewModel() {
     val className = this.javaClass.name + " ### "
 
     init {
-        Log.d(className, "++init()")
+        Log.d(className, "++init() $this")
     }
     override fun onCleared() {
         super.onCleared()

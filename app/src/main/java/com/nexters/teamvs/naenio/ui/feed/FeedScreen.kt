@@ -10,10 +10,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -37,7 +41,7 @@ import com.nexters.teamvs.naenio.graphs.Route
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
-import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.composables.CommentLayout
 import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
 import com.nexters.teamvs.naenio.ui.feed.composables.VoteBar
@@ -53,10 +57,15 @@ fun FeedScreen(
     navController: NavHostController,
     viewModel: FeedViewModel = hiltViewModel(),
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
 ) {
     val context = LocalContext.current
+
+    LaunchedEffect(key1 = Unit, block = {
+        if (viewModel.posts.value.isNullOrEmpty()) viewModel.loadFirstFeed()
+    })
+
     BackHandler {
         if (modalBottomSheetState.isVisible) {
             closeSheet.invoke()
@@ -90,12 +99,13 @@ fun FeedScreen(
 @Composable
 fun FeedScreenContent(
     navController: NavHostController,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
+
     /**
      * FeedScreenContent 에서만 필요한 State 이기 때문에 해당 컴포저블 내에서 상태를 갖도록 함.
      * 테마에서는 아래 상태들을 알 필요가 없음.
@@ -114,6 +124,7 @@ fun FeedScreenContent(
                 FeedEvent.ScrollToTop -> {
                     pagerState.scrollToPage(0)
                 }
+                else -> {}
             }
         }
     })
@@ -127,7 +138,12 @@ fun FeedScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            FeedTopBar(text = stringResource(id = R.string.bottom_item_feed))
+            FeedTopBar(
+                text = stringResource(id = R.string.bottom_item_feed),
+                onRefresh = {
+                    viewModel.refresh()
+                }
+            )
 
             FeedTabRow(
                 feedTabItems = feedTabItems.value,
@@ -154,7 +170,10 @@ fun FeedScreenContent(
                         ShareUtils.share(postId = postId, context = context)
                     },
                     loadNextPage = viewModel::loadNextPage,
-                    navController = navController,
+                    onDetail = {
+                        viewModel.setDetailPostItem(it)
+                        navController.navigate("FeedDetail/$it")
+                    },
                     onMore = {
                         if (it.author.id == user.value?.id) {
                             scope.launch {
@@ -211,15 +230,30 @@ fun FeedCreateFloatingButton(
 }
 
 @Composable
-fun FeedTopBar(text: String) {
-    Text(
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .padding(top = 20.dp, bottom = 10.dp),
-        text = text,
-        style = Font.montserratSemiBold24,
-        color = Color.White
-    )
+fun FeedTopBar(text: String, onRefresh: () -> Unit) {
+    Row {
+        Text(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 20.dp)
+                .padding(top = 20.dp, bottom = 10.dp),
+            text = text,
+            style = Font.montserratSemiBold24,
+            color = Color.White
+        )
+        Image(
+            modifier = Modifier
+                .padding(20.dp)
+                .size(28.dp)
+                .align(Alignment.CenterVertically)
+                .clickable {
+                    onRefresh.invoke()
+                },
+            imageVector = Icons.Filled.Refresh,
+            contentDescription = "",
+            colorFilter = ColorFilter.tint(color = Color.White),
+        )
+    }
 }
 
 @Composable
@@ -298,10 +332,10 @@ fun FeedPager(
     modifier: Modifier,
     posts: List<Post>,
     pagerState: PagerState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     onVote: (Int, Int) -> Unit,
+    onDetail: (Int) -> Unit,
     onShare: (Int) -> Unit,
-    navController: NavHostController,
     loadNextPage: () -> Unit,
     onMore: (Post) -> Unit,
 ) {
@@ -326,7 +360,7 @@ fun FeedPager(
         Box {
             FeedItem(
                 post = posts[page],
-                navController = navController,
+                onDetail = onDetail,
                 onVote = onVote,
                 openSheet = openSheet,
                 onMore = onMore,
@@ -340,9 +374,9 @@ fun FeedPager(
 @Composable
 fun FeedItem(
     post: Post,
-    navController: NavHostController,
+    onDetail: (Int) -> Unit,
     onVote: (Int, Int) -> Unit,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     onMore: (Post) -> Unit,
     onShare: (Int) -> Unit,
 ) {
@@ -362,8 +396,7 @@ fun FeedItem(
             shape = RoundedCornerShape(16.dp)
         )
         .clickable {
-            Log.d("####", "Feed Item Click")
-            navController.navigate("FeedDetail/${post.id}")
+            onDetail.invoke(post.id)
         }
     ) {
         Column(
@@ -400,12 +433,7 @@ fun FeedItem(
                 )
                 .padding(horizontal = 20.dp)
                 .clickable {
-                    openSheet(
-                        BottomSheetType.CommentType(
-                            postId = post.id,
-                            onEvent = {}
-                        )
-                    )
+                    openSheet(CommentDialogModel(post.id, totalCommentCount = post.commentCount))
                 }
         )
     }

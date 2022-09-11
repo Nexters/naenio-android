@@ -37,9 +37,9 @@ fun ThemeScreen(
 
     val themeNavigator: (ThemeItem) -> Unit = {
         val route = if (it.type == ThemeType.RANDOM_PLAY) {
-            "FeedDetail/${it.type.name}"
+            "Random"
         } else {
-            "ThemeDetail/${it.type.name}"
+            "ThemeFeed/${it.type.name}"
         }
         navController.navigate(route)
     }

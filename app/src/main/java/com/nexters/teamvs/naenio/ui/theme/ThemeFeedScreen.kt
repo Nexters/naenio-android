@@ -2,7 +2,6 @@ package com.nexters.teamvs.naenio.ui.theme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,17 +16,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
-import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.FeedPager
+import com.nexters.teamvs.naenio.ui.feed.FeedViewModel
 import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
 import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.launch
@@ -38,11 +38,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun ThemeFeedScreen(
-    viewModel: ThemeFeedViewModel = hiltViewModel(),
+    viewModel: FeedViewModel = hiltViewModel(),
     type: String,
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
@@ -52,6 +52,8 @@ fun ThemeFeedScreen(
     }
 
     val isEmptyTheme = posts.value != null && posts.value?.isEmpty() == true
+    val scope = rememberCoroutineScope()
+    val user = viewModel.user.collectAsState(initial = null)
 
     LaunchedEffect(key1 = Unit, block = {
         if (posts.value.isNullOrEmpty()) viewModel.getThemePosts(currentTheme.type)
@@ -78,8 +80,39 @@ fun ThemeFeedScreen(
                 viewModel.vote(postId = postId, choiceId = choiceId)
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             },
-            navController = navController,
             openSheet = openSheet,
+            onDetail = {
+                viewModel.setDetailPostItem(it)
+                navController.navigate("FeedDetail/$it")
+            },
+            onMore = {
+                if (it.author.id == user.value?.id) {
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "삭제",
+                                onClick = {
+                                    viewModel.deletePost(postId = it.id)
+                                }
+                            )
+                        )
+                    }
+                } else {
+                    scope.launch {
+                        GlobalUiEvent.showMenuDialog(
+                            MenuDialogModel(
+                                text = "신고",
+                                onClick = {
+                                    viewModel.report(
+                                        targetMemberId = it.author.id,
+                                        resourceType = ReportType.POST
+                                    )
+                                }
+                            )
+                        )
+                    }
+                }
+            }
         )
     }
 }
@@ -89,14 +122,14 @@ fun ThemeFeedScreen(
 fun ThemeFeedContent(
     posts: List<Post>,
     theme: ThemeItem,
-    navController: NavHostController,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     close: () -> Unit,
     vote: (Int, Int) -> Unit,
+    onMore: (Post) -> Unit,
+    onDetail: (Int) -> Unit,
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = 0)
-    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -115,24 +148,13 @@ fun ThemeFeedContent(
             posts = posts,
             pagerState = pagerState,
             openSheet = openSheet,
-            navController = navController,
             onVote = vote,
             loadNextPage = { },
             onShare = {
                 ShareUtils.share(it, context)
             },
-            onMore = {
-                scope.launch {
-                    GlobalUiEvent.showMenuDialog(
-                        MenuDialogModel(
-                            text = "삭제",
-                            onClick = {
-
-                            }
-                        )
-                    )
-                }
-            }
+            onMore = onMore,
+            onDetail = onDetail
         )
     }
 }

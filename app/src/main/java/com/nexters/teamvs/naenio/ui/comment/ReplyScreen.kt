@@ -38,6 +38,7 @@ fun ReplyScreenContent(
     mode: CommentMode,
     parentComment: Comment,
     changeMode: (CommentMode) -> Unit,
+    onClose: () -> Unit,
 ) {
     val replies = replyViewModel.replies.collectAsState()
     val listState = rememberLazyListState()
@@ -46,6 +47,8 @@ fun ReplyScreenContent(
     val commentUiState by remember { replyViewModel.commentUiState }
     val isRefreshing = replyViewModel.isRefreshing.collectAsState()
     val user = replyViewModel.user.collectAsState(initial = null)
+    val selectedComment = replyViewModel.selectedComment.collectAsState()
+
     BackHandler {
         if (mode is CommentMode.REPLY) {
             replyViewModel.clear()
@@ -55,6 +58,7 @@ fun ReplyScreenContent(
 
     LaunchedEffect(key1 = parentComment.id, block = {
         replyViewModel.loadNextPage(parentComment.id)
+        replyViewModel.setSelectedComment(parentComment)
     })
 
     val eventListener: (CommentEvent) -> Unit = {
@@ -66,21 +70,30 @@ fun ReplyScreenContent(
                 )
             }
             CommentEvent.Close -> {
-
+                onClose.invoke()
             }
             is CommentEvent.Like -> {
-                if (it.comment.isLiked) replyViewModel.unlike(id = it.comment.id)
-                else replyViewModel.like(id = it.comment.id)
+                if (it.comment is Comment) {
+                    if (it.comment.isLiked) replyViewModel.unlikeComment(id = it.comment.id)
+                    else replyViewModel.likeComment(id = it.comment.id)
+                } else {
+                    if (it.comment.isLiked) replyViewModel.unlike(id = it.comment.id)
+                    else replyViewModel.like(id = it.comment.id)
+                }
             }
             is CommentEvent.More -> {
-                if (user.value?.id == it.comment.writer.id){
+                if (user.value?.id == it.comment.writer.id) {
                     scope.launch {
                         GlobalUiEvent.showMenuDialog(
                             MenuDialogModel(
                                 text = "삭제",
                                 color = Color.Red,
                                 onClick = {
-                                    replyViewModel.delete(it.comment as Reply)
+                                    if (it.comment is Comment) {
+                                        replyViewModel.deleteComment(it.comment)
+                                    } else {
+                                        replyViewModel.delete(it.comment as Reply)
+                                    }
                                 }
                             )
                         )
@@ -109,7 +122,7 @@ fun ReplyScreenContent(
         ReplyList(
             modifier = Modifier.weight(1f),
             listState = listState,
-            parentComment = parentComment,
+            parentComment = selectedComment.value,
             uiState = commentUiState,
             comments = replies.value,
             mode = CommentMode.REPLY(parentComment),
@@ -190,7 +203,7 @@ fun ReplyHeader(
 fun ReplyList(
     modifier: Modifier,
     listState: LazyListState,
-    parentComment: Comment,
+    parentComment: Comment?,
     mode: CommentMode,
     uiState: UiState,
     comments: List<BaseComment>,
@@ -200,6 +213,7 @@ fun ReplyList(
     onRefresh: () -> Unit,
     onEvent: (CommentEvent) -> Unit,
 ) {
+    if (parentComment == null) return
     val nextKey = comments.lastOrNull()?.id
     val requestLoadMoreKey = comments.getOrNull(comments.size - 1)?.id //TODO 사이즈 조용
 

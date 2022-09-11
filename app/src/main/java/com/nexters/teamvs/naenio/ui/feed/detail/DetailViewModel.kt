@@ -6,16 +6,14 @@ import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.ui.comment.CommentViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import javax.inject.Inject
-
-enum class DetailType {
-    Default, Random,
-}
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
@@ -25,6 +23,16 @@ class DetailViewModel @Inject constructor(
     val postItem = _postItem.asStateFlow()
 
     val successVote = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+
+    init {
+        viewModelScope.launch {
+            CommentViewModel.dismissCommentDialog.collect { data ->
+                val post = postItem.value
+                val result = if (post?.id == data.postId) post.copy(commentCount = data.commentCount) else postItem.value
+                _postItem.value = result
+            }
+        }
+    }
 
     fun getPostDetail(id: Int) {
         viewModelScope.launch {
@@ -45,6 +53,9 @@ class DetailViewModel @Inject constructor(
             try {
                 GlobalUiEvent.showLoading()
                 _postItem.value = feedRepository.getRandomPosts()
+            } catch (e: SerializationException) {
+                e.printStackTrace()
+                GlobalUiEvent.showToast("랜덤 컨텐츠가 없습니다 ㅜㅜ. 재시도 해주세요!")
             } catch (e: Exception) {
                 e.printStackTrace()
                 GlobalUiEvent.showToast(e.errorMessage())

@@ -62,6 +62,7 @@ sealed class CommentMode {
 fun CommentDialogScreen(
     modifier: Modifier = Modifier,
     postId: Int,
+    totalCommentCount: Int,
     commentViewModel: CommentViewModel = hiltViewModel(),
     replyViewModel: ReplyViewModel = hiltViewModel(),
     closeSheet: () -> Unit,
@@ -91,6 +92,7 @@ fun CommentDialogScreen(
             commentViewModel = commentViewModel,
             postId = postId,
             changeMode = { mode = it },
+            totalCommentCount = totalCommentCount,
             onClose = {
                 commentViewModel.clear()
                 replyViewModel.clear()
@@ -111,9 +113,15 @@ fun CommentDialogScreen(
             parentComment = (mode as? CommentMode.REPLY)?.parentComment
                 ?: return@AnimatedVisibility,
             changeMode = {
+                if (it is CommentMode.REPLY) return@ReplyScreenContent
                 replyViewModel.clear()
                 mode = it
-            }
+            },
+            onClose = {
+                commentViewModel.clear()
+                replyViewModel.clear()
+                closeSheet.invoke()
+            },
         )
     }
 }
@@ -123,6 +131,7 @@ fun CommentScreenContent(
     modifier: Modifier,
     commentViewModel: CommentViewModel,
     postId: Int,
+    totalCommentCount: Int,
     changeMode: (CommentMode) -> Unit,
     onClose: () -> Unit,
 ) {
@@ -134,9 +143,11 @@ fun CommentScreenContent(
     val inputUiState by remember { commentViewModel.inputUiState }
     val isRefreshing = commentViewModel.isRefreshing.collectAsState()
     val user = commentViewModel.user.collectAsState(initial = null)
+    val commentCount = commentViewModel.totalCommentCount.collectAsState()
 
     LaunchedEffect(key1 = postId, block = {
         commentViewModel.loadNextPage(postId)
+        commentViewModel.setTotalCommentCount(totalCommentCount, postId)
     })
 
     val eventListener: (CommentEvent) -> Unit = {
@@ -146,7 +157,7 @@ fun CommentScreenContent(
                 else commentViewModel.like(id = it.comment.id)
             }
             is CommentEvent.More -> {
-                if (user.value?.id == it.comment.writer.id){
+                if (user.value?.id == it.comment.writer.id) {
                     scope.launch {
                         GlobalUiEvent.showMenuDialog(
                             MenuDialogModel(
@@ -179,12 +190,11 @@ fun CommentScreenContent(
         }
     }
 
-
     Column(
         modifier = modifier
     ) {
         CommentHeader(
-            commentCount = comments.value.size,
+            commentCount = commentCount.value,
             onClose = onClose
         )
         CommentList(
@@ -283,6 +293,7 @@ fun CommentEditText(
             value = input,
             shape = RoundedCornerShape(3.dp),
             onValueChange = {
+                if (it.length > 200) return@TextField
                 input = it
             }
         )
@@ -295,7 +306,6 @@ fun CommentEditText(
                 .align(Alignment.Bottom)
                 .padding(start = 12.dp, bottom = 16.dp)
                 .clickable {
-                    if (uiState == UiState.Loading) return@clickable
                     onWrite.invoke(input)
                 },
             text = stringResource(id = R.string.write_comment)
@@ -505,28 +515,35 @@ fun CommentItem(
                 Spacer(modifier = Modifier.width(18.dp))
 
                 if (comment is Comment) {
-                    Icon(
-                        modifier = Modifier
-                            .padding(end = 4.dp)
-                            .size(12.dp),
-                        painter = painterResource(id = R.drawable.ic_comment),
-                        tint = Color.White,
-                        contentDescription = null
-                    )
-                    Text(
-                        text = comment.replyCount.toString(),
-                        fontSize = 12.sp,
-                        color = Color.White
-                    )
+                    Row(
+                        modifier = Modifier.clickable {
+                            onCommentMode.invoke(CommentMode.REPLY(comment))
+                        },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .size(12.dp),
+                            painter = painterResource(id = R.drawable.ic_comment),
+                            tint = Color.White,
+                            contentDescription = null
+                        )
+                        Text(
+                            text = comment.replyCount.toString(),
+                            fontSize = 12.sp,
+                            color = Color.White
+                        )
+                    }
                 }
             }
 
-            if (mode == CommentMode.COMMENT) {
+            if (mode == CommentMode.COMMENT && comment is Comment && comment.replyCount > 0) {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
                     modifier = Modifier.clickable {
-                        onCommentMode.invoke(CommentMode.REPLY(comment as Comment))
+                        onCommentMode.invoke(CommentMode.REPLY(comment))
                     },
                     text = stringResource(id = R.string.see_replies),
                     fontSize = 16.sp,

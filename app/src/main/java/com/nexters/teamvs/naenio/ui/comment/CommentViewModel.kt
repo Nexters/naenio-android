@@ -10,20 +10,33 @@ import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.ui.comment.ReplyViewModel.Companion.commentDeleteEvent
+import com.nexters.teamvs.naenio.ui.comment.ReplyViewModel.Companion.replyCallback
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource2
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
 import com.nexters.teamvs.naenio.ui.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class CommentCallbackData(
+    val postId: Int,
+    val commentCount: Int,
+)
+
 @HiltViewModel
 class CommentViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
-    private val userRepository: UserRepository,
+    userRepository: UserRepository,
 ) : BaseViewModel(), PagingSource2 {
+
+    companion object {
+        val dismissCommentDialog = MutableSharedFlow<CommentCallbackData>()
+        const val MAX_COMMENT_LENGTH = 200
+    }
 
     private val commentPagingSize = 10
     val commentUiState = mutableStateOf<UiState>(UiState.Idle)
@@ -52,22 +65,65 @@ class CommentViewModel @Inject constructor(
     val inputUiState = mutableStateOf<UiState>(UiState.Idle)
     val user = userRepository.getUserFlow()
 
+    val totalCommentCount = MutableStateFlow(0)
+
+    init {
+        viewModelScope.launch {
+            replyCallback.collect { updatedComment ->
+                _comments.value = comments.value.map {
+                    if (updatedComment?.id == it.id) updatedComment
+                    else it
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            commentDeleteEvent.collect { updatedComment ->
+                _comments.value = comments.value.mapNotNull {
+                    if (updatedComment.id == it.id) null
+                    else it
+                }
+            }
+        }
+    }
+    suspend fun setTotalCommentCount(count: Int, postId: Int) {
+        totalCommentCount.value = count
+
+        dismissCommentDialog.emit(
+            CommentCallbackData(
+                postId = postId,
+                commentCount = count
+            )
+        )
+    }
+
     fun writeComment(
         postId: Int,
         content: String,
     ) {
-        inputUiState.value = UiState.Loading
         viewModelScope.launch {
             try {
+                inputUiState.value = UiState.Loading
+
+                if (content.length > MAX_COMMENT_LENGTH) {
+                    GlobalUiEvent.showToast("최대 200자까지 입력 가능합니다.")
+                    return@launch
+                } else if (content.isBlank()) {
+                    GlobalUiEvent.showToast("댓글을 입력해주세요.")
+                    return@launch
+                }
+
                 val comment = commentRepository.writeComment(
                     postId = postId,
                     content = content,
                 )
 
                 _comments.value = listOf(comment) + comments.value
-                inputUiState.value = UiState.Success
+                setTotalCommentCount(totalCommentCount.value + 1, postId)
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                inputUiState.value = UiState.Success
             }
         }
     }
@@ -77,8 +133,9 @@ class CommentViewModel @Inject constructor(
             try {
                 commentRepository.deleteComment(comment.id)
                 _comments.value = comments.value - listOf(comment).toSet()
+                setTotalCommentCount(totalCommentCount.value + -1, comment.postId)
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }
@@ -91,7 +148,7 @@ class CommentViewModel @Inject constructor(
                     if (it.id == id) it.copy(isLiked = true, likeCount = it.likeCount + 1) else it
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }
@@ -104,7 +161,7 @@ class CommentViewModel @Inject constructor(
                     if (it.id == id) it.copy(isLiked = false, likeCount = it.likeCount - 1) else it
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }
@@ -139,8 +196,6 @@ class CommentViewModel @Inject constructor(
                 updateState(PlaceholderState.Loading)
             }
 
-            val currentList = if (refresh) emptyList() else comments.value
-
             runCatching {
                 val lastComment = if (refresh || isFirstPage) {
                     null
@@ -161,7 +216,7 @@ class CommentViewModel @Inject constructor(
                     } else {
                         updateState(PlaceholderState.Idle(it.isEmpty()))
                     }
-                    _comments.value = currentList + it
+                    _comments.value = comments.value + it
 
                     isFirstPage = false
                     loadedAllPage = it.isEmpty() || commentPagingSize > it.size

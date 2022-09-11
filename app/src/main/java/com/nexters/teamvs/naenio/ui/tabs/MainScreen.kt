@@ -19,15 +19,16 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.MainNavGraph
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.theme.MyShape
-import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.dialog.SheetLayout
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
-import com.nexters.teamvs.naenio.base.GlobalUiEvent
-import com.nexters.teamvs.naenio.base.UiEvent
 import kotlinx.coroutines.launch
+
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class)
@@ -47,7 +48,7 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
     )
 
-    var currentBottomSheet: BottomSheetType? by remember { mutableStateOf(null) }
+    var currentBottomSheet: CommentDialogModel? by remember { mutableStateOf(null) }
 
     if (!modalBottomSheetState.isVisible)
         currentBottomSheet = null
@@ -58,7 +59,7 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
         }
     }
 
-    val openSheet: (BottomSheetType) -> Unit = {
+    val openSheet: (CommentDialogModel) -> Unit = {
         coroutineScope.launch {
             currentBottomSheet = it
             modalBottomSheetState.show()
@@ -70,7 +71,10 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
         sheetShape = MyShape.TopRoundedCornerShape,
         sheetContent = {
             currentBottomSheet?.let { currentSheet ->
-                SheetLayout(currentSheet, onCloseBottomSheet = closeSheet)
+                SheetLayout(
+                    commentDialogModel = currentSheet,
+                    onCloseBottomSheet = closeSheet,
+                )
             }
             Spacer(
                 modifier = Modifier

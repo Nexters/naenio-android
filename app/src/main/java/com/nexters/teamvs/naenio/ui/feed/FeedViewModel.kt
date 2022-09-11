@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.feed
 
+import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
@@ -10,25 +11,37 @@ import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.ui.comment.CommentViewModel.Companion.dismissCommentDialog
 import com.nexters.teamvs.naenio.ui.feed.paging.PagingSource
 import com.nexters.teamvs.naenio.ui.feed.paging.PlaceholderState
+import com.nexters.teamvs.naenio.ui.theme.ThemeType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import javax.inject.Inject
 
 sealed class FeedEvent {
     object ScrollToTop : FeedEvent()
+    object VoteSuccess: FeedEvent()
 }
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     private val feedRepository: FeedRepository,
-    private val userRepository: UserRepository,
+    userRepository: UserRepository,
 ) : BaseViewModel(), PagingSource {
 
     private val _posts = MutableStateFlow<List<Post>?>(null)
     val posts = _posts.asStateFlow()
+
+    private val _postId = MutableStateFlow<Int?>(null)
+    val postItem: Flow<Post?> = posts.map { post ->
+            post?.find { it.id == _postId.value }
+    }
+    fun setDetailPostItem(postId: Int?) {
+        _postId.value = postId
+    }
 
     private val _loadingState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
     private val _firstPageState = MutableStateFlow<PlaceholderState>(PlaceholderState.Idle(true))
@@ -70,6 +83,16 @@ class FeedViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            dismissCommentDialog.collect { data ->
+                val result =
+                    posts.value?.map { if (it.id == data.postId) it.copy(commentCount = data.commentCount) else it }
+                _posts.value = result
+            }
+        }
+    }
+
+    fun loadFirstFeed() {
+        viewModelScope.launch {
             selectedTab.collect {
                 try {
                     GlobalUiEvent.showLoading()
@@ -108,7 +131,10 @@ class FeedViewModel @Inject constructor(
 
     @MainThread
     override fun refresh() {
-        loadPageInternal(refresh = true)
+        viewModelScope.launch {
+            GlobalUiEvent.showLoading()
+            loadPageInternal(refresh = true)
+        }
     }
 
     @MainThread
@@ -130,22 +156,22 @@ class FeedViewModel @Inject constructor(
                 updateState(PlaceholderState.Loading)
             }
 
-            val currentList = if (refresh) emptyList() else _posts.value
-
+            Log.d("### lastPostId,", "${currentPosts?.getOrNull(currentPosts.size - 1)?.id}")
             runCatching {
                 feedRepository.getFeedPosts(
                     pageSize = 10,
-                    lastPostId = currentPosts?.getOrNull(currentPosts.size - 1)?.id,
+                    lastPostId = if (refresh) null else currentPosts?.getOrNull(currentPosts.size - 1)?.id,
                     sortType = currentSortType.text,
                 )
             }.fold(
                 onSuccess = {
                     if (refresh) {
+                        _posts.value = emptyList()
                         _isRefreshing.value = false
                     } else {
                         updateState(PlaceholderState.Idle(it.isEmpty()))
                     }
-                    _posts.value = currentList?.plus(it)
+                    _posts.value = posts.value?.plus(it)
 
                     isFirstPage = false
                     loadedAllPage = it.isEmpty()
@@ -157,7 +183,12 @@ class FeedViewModel @Inject constructor(
                         updateState(PlaceholderState.Failure(it))
                     }
                 }
-            )
+            ).also {
+                if (refresh) {
+                    GlobalUiEvent.hideLoading()
+                    emitEvent(FeedEvent.ScrollToTop)
+                }
+            }
         }
     }
 
@@ -175,10 +206,12 @@ class FeedViewModel @Inject constructor(
     fun report(targetMemberId: Int, resourceType: ReportType) {
         viewModelScope.launch {
             try {
-                feedRepository.report(ReportRequest(
-                    targetMemberId = targetMemberId,
-                    resource = resourceType,
-                ))
+                feedRepository.report(
+                    ReportRequest(
+                        targetMemberId = targetMemberId,
+                        resource = resourceType,
+                    )
+                )
                 GlobalUiEvent.showToast("신고 되었습니다.")
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
@@ -233,6 +266,7 @@ class FeedViewModel @Inject constructor(
                 }.also {
                     _posts.value = it
                 }
+                emitEvent(FeedEvent.VoteSuccess)
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {
@@ -241,4 +275,50 @@ class FeedViewModel @Inject constructor(
         }
     }
 
+    fun getPostDetail(id: Int) {
+        viewModelScope.launch {
+            try {
+                GlobalUiEvent.showLoading()
+                val detailPost = feedRepository.getPostDetail(id = id)
+                _posts.value = posts.value?.map { if (it.id == detailPost.id) detailPost else it }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                GlobalUiEvent.hideLoading()
+            }
+        }
+    }
+
+    fun getThemePosts(type: ThemeType) {
+        viewModelScope.launch {
+            try {
+                GlobalUiEvent.showLoading()
+                _posts.value = feedRepository.getThemePosts(
+                    theme = type.name
+                )
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                GlobalUiEvent.hideLoading()
+            }
+        }
+    }
+
+    fun getRandomPost() {
+        viewModelScope.launch {
+            try {
+                GlobalUiEvent.showLoading()
+                _postId.value = feedRepository.getRandomPosts().id
+            } catch (e: SerializationException) {
+                e.printStackTrace()
+                GlobalUiEvent.showToast("랜덤 컨텐츠가 없습니다 ㅜㅜ. 재시도 해주세요!")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                GlobalUiEvent.showToast(e.errorMessage())
+            } finally {
+                GlobalUiEvent.hideLoading()
+            }
+        }
+    }
 }

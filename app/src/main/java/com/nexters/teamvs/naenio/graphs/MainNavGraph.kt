@@ -12,24 +12,25 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.create.CreateScreen
-import com.nexters.teamvs.naenio.ui.dialog.BottomSheetType
-import com.nexters.teamvs.naenio.ui.feed.detail.DetailScreen
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedScreen
-import com.nexters.teamvs.naenio.ui.tabs.*
+import com.nexters.teamvs.naenio.ui.feed.detail.FeedCommentDetail
+import com.nexters.teamvs.naenio.ui.feed.detail.FeedDetailScreen
+import com.nexters.teamvs.naenio.ui.feed.detail.RandomScreen
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
-import com.nexters.teamvs.naenio.ui.theme.ThemeScreen
 import com.nexters.teamvs.naenio.ui.profile.ProfileDetailScreen
 import com.nexters.teamvs.naenio.ui.profile.ProfileScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.LoginDetailScreen
-import com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileSettingScreen
+import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import com.nexters.teamvs.naenio.ui.theme.ThemeFeedScreen
+import com.nexters.teamvs.naenio.ui.theme.ThemeScreen
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainNavGraph(
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
 ) {
     NavHost(
@@ -67,7 +68,7 @@ fun MainNavGraph(
                 navDeepLink { uriPattern = "https://{type}" }
             )
         ) {
-            DetailScreen(
+            FeedDetailScreen(
                 type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
@@ -77,8 +78,9 @@ fun MainNavGraph(
         }
         detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)
-        themeDetailNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
+        themeNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         profileDetailNavGraph(navController)
+        loginDetailNavGraph(navController)
     }
 }
 
@@ -86,7 +88,7 @@ fun MainNavGraph(
 fun NavGraphBuilder.detailsNavGraph(
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit
 ) {
     navigation(
@@ -94,7 +96,7 @@ fun NavGraphBuilder.detailsNavGraph(
         startDestination = "FeedCommentDetail/{type}",
     ) {
         composable(route = "FeedCommentDetail/{type}") {
-            DetailScreen(
+            FeedCommentDetail(
                 type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
@@ -124,20 +126,40 @@ fun NavGraphBuilder.profileDetailNavGraph(
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-fun NavGraphBuilder.themeDetailNavGraph(
+fun NavGraphBuilder.themeNavGraph(
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (BottomSheetType) -> Unit,
+    openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit
 ) {
     navigation(
-        route = Graph.THEME_DETAIL,
-        startDestination = "ThemeDetail/{type}"
+        route = Graph.THEME,
+        startDestination = "ThemeFeed/{type}"
     ) {
-        composable(route = "ThemeDetail/{type}") {
+        composable(route = "ThemeFeed/{type}") {
             val themeType = it.arguments?.getString("type")!!
             ThemeFeedScreen(
                 type = themeType,
+                navController = navController,
+                modalBottomSheetState = modalBottomSheetState,
+                openSheet = openSheet,
+                closeSheet = closeSheet
+            )
+        }
+
+        composable(route = "FeedDetail/{type}") {
+            val themeType = it.arguments?.getString("type")!!
+            FeedDetailScreen(
+                type = themeType,
+                navController = navController,
+                modalBottomSheetState = modalBottomSheetState,
+                openSheet = openSheet,
+                closeSheet = closeSheet
+            )
+        }
+
+        composable(route = "Random") {
+            RandomScreen(
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
                 openSheet = openSheet,
@@ -165,3 +187,4 @@ fun NavGraphBuilder.loginDetailNavGraph(
         }
     }
 }
+
