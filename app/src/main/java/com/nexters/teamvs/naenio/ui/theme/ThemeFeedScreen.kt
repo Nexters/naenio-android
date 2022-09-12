@@ -30,6 +30,7 @@ import com.nexters.teamvs.naenio.ui.feed.FeedEvent
 import com.nexters.teamvs.naenio.ui.feed.FeedPager
 import com.nexters.teamvs.naenio.ui.feed.FeedViewModel
 import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
+import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -164,6 +165,7 @@ fun ThemeFeedContent(
         )
         FeedPager(
             modifier = Modifier,
+            bottomPadding = 120.dp + bottomBarHeight,
             posts = posts,
             pagerState = pagerState,
             openSheet = openSheet,

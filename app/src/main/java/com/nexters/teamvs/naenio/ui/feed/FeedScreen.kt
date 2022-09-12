@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -40,6 +41,7 @@ import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
@@ -344,6 +346,7 @@ fun FeedScreenBox() {
 @Composable
 fun FeedPager(
     modifier: Modifier,
+    bottomPadding: Dp = 100.dp,
     posts: List<Post>,
     pagerState: PagerState,
     isAnim: Int?,
@@ -362,7 +365,7 @@ fun FeedPager(
         state = pagerState,
         count = posts.size,
         itemSpacing = 20.dp,
-        contentPadding = PaddingValues(bottom = 100.dp),
+        contentPadding = PaddingValues(bottom = if (NaenioApp.isShortScreen) 30.dp else bottomPadding),
         modifier = modifier
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxSize(),
