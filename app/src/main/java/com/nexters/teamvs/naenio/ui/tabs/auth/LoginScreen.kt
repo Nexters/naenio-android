@@ -146,11 +146,11 @@ fun LoginScreenContent(
             ) {
                 Image(
                     modifier = Modifier.width(106.dp).height(95.dp),
-                    painter = painterResource(id = R.drawable.logo), //TODO 이미지 자체에 패딩이 들어있어서, 리소스 수정 필요
+                    painter = painterResource(id = R.drawable.logo),
                     contentDescription = ""
                 )
                 Image(
-                    modifier = Modifier.padding(top = 0.dp), //12dp
+                    modifier = Modifier.padding(top = 17.dp),
                     painter = painterResource(id = R.drawable.ic_wordmark),
                     contentDescription = ""
                 )
