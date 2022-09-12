@@ -15,6 +15,7 @@ import com.nexters.teamvs.naenio.ui.create.CreateScreen
 import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedScreen
 import com.nexters.teamvs.naenio.ui.feed.detail.FeedCommentDetail
+import com.nexters.teamvs.naenio.ui.feed.detail.FeedDeepLinkDetail
 import com.nexters.teamvs.naenio.ui.feed.detail.FeedDetailScreen
 import com.nexters.teamvs.naenio.ui.feed.detail.RandomScreen
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
@@ -63,12 +64,8 @@ fun MainNavGraph(
             )
         }
 
-        composable(route = "FeedDetail/{type}",
-            deepLinks = listOf(
-                navDeepLink { uriPattern = "https://{type}" }
-            )
-        ) {
-            FeedDetailScreen(
+        composable(route = "FeedDeepLinkDetail/{type}") {
+            FeedDeepLinkDetail(
                 type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,

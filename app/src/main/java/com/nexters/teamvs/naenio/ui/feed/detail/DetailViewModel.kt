@@ -34,20 +34,6 @@ class DetailViewModel @Inject constructor(
         }
     }
 
-    fun getPostDetail(id: Int) {
-        viewModelScope.launch {
-            try {
-                GlobalUiEvent.showLoading()
-                _postItem.value = feedRepository.getPostDetail(id = id)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                GlobalUiEvent.showToast(e.errorMessage())
-            } finally {
-                GlobalUiEvent.hideLoading()
-            }
-        }
-    }
-
     fun getRandomPost() {
         viewModelScope.launch {
             try {

@@ -22,7 +22,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
         composable(
             route = AuthScreen.Login.route,
             deepLinks = listOf(
-                navDeepLink { uriPattern = "https://{type}" }
+                navDeepLink { uriPattern = "https://naenioapp?postId={type}" }
             )
         ) {
             if (AuthDataStore.authToken.isNullOrEmpty()) {
@@ -49,14 +49,14 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                         },
                         onNext = {
                             navController.popBackStack()
-                            navController.navigate("FeedDetail/$it")
+                            navController.navigate("FeedDeepLinkDetail/$it")
                         }
                     )
                 }
             } else {
                 Log.d("#### deepLink", "login success")
                 it.arguments?.getString("type")?.let {
-                    navController.navigate("FeedDetail/$it")
+                    navController.navigate("FeedDeepLinkDetail/$it")
                 }
             }
 

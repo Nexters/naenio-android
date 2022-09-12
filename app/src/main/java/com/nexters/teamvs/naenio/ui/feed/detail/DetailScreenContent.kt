@@ -108,7 +108,39 @@ fun FeedDetailScreen(
     val backStackEntry = remember {
         navController.getBackStackEntry(
 //            if (type.isEmpty()) BottomNavItem.Feed.route else BottomNavItem.Theme.route
-            navController.previousBackStackEntry?.destination?.route ?:""
+            navController.previousBackStackEntry?.destination?.route ?: ""
+        )
+    }
+    val feedViewModel: FeedViewModel = hiltViewModel(backStackEntry)
+    DetailScreen(
+        feedViewModel = feedViewModel,
+        type = type,
+        navController = navController,
+        modalBottomSheetState = modalBottomSheetState,
+        openSheet = openSheet,
+        closeSheet = closeSheet
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun FeedDeepLinkDetail(
+    viewModel: FeedViewModel = hiltViewModel(),
+    type: String,
+    navController: NavHostController,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (CommentDialogModel) -> Unit,
+    closeSheet: () -> Unit,
+) {
+    LaunchedEffect(key1 = Unit, block = {
+        Log.d("### FeedDeepLinkDetail", "$type")
+        viewModel.getPostDetail(type.toInt())
+    })
+
+    val backStackEntry = remember {
+        navController.getBackStackEntry(
+//            if (type.isEmpty()) BottomNavItem.Feed.route else BottomNavItem.Theme.route
+            navController.previousBackStackEntry?.destination?.route ?: ""
         )
     }
     val feedViewModel: FeedViewModel = hiltViewModel(backStackEntry)
@@ -125,6 +157,7 @@ fun FeedDetailScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedCommentDetail(
+    viewModel: FeedViewModel = hiltViewModel(),
     type: String,
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
@@ -132,17 +165,21 @@ fun FeedCommentDetail(
     closeSheet: () -> Unit,
     isInvokeOpenSheet: Boolean = false
 ) {
-    Log.d("### type", "$type")
+    LaunchedEffect(key1 = Unit, block = {
+        Log.d("### FeedCommentDetail postId", "$type")
+        viewModel.getPostDetail(type.toInt())
+    })
+
     val backStackEntry = remember {
         navController.getBackStackEntry(
 //            if (type.isEmpty()) BottomNavItem.Feed.route else BottomNavItem.Theme.route
-            navController.previousBackStackEntry?.destination?.route ?:""
+            navController.previousBackStackEntry?.destination?.route ?: ""
         )
     }
     val feedViewModel: FeedViewModel = hiltViewModel(backStackEntry)
     DetailScreen(
         feedViewModel = feedViewModel,
-        type = "commentDetail/$type",
+        type = "$type",
         navController = navController,
         modalBottomSheetState = modalBottomSheetState,
         openSheet = openSheet,
@@ -179,11 +216,6 @@ fun DetailScreen(
     })
 
     LaunchedEffect(key1 = Unit, block = {
-        if(type.contains("commentDetail")) {
-            val itemId = type.replace("commentDetail/", "").toInt()
-            feedViewModel.getPostDetail(itemId)
-        }
-
         postItem.value?.id?.let {
             feedViewModel.getPostDetail(it)
             postItem.value?.commentCount?.let { comment ->
