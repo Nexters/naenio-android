@@ -2,6 +2,9 @@ package com.nexters.teamvs.naenio.ui.feed
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,15 +27,21 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.noRippleClickable
@@ -46,6 +55,7 @@ import com.nexters.teamvs.naenio.ui.feed.composables.CommentLayout
 import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
 import com.nexters.teamvs.naenio.ui.feed.composables.VoteBar
 import com.nexters.teamvs.naenio.ui.feed.composables.VoteContent
+import com.nexters.teamvs.naenio.utils.DimensionUtils
 import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -118,13 +128,19 @@ fun FeedScreenContent(
 
     val pagerState = rememberPagerState(initialPage = 0)
 
+    var isAnim by remember { mutableStateOf<Int?>(null) }
+
     LaunchedEffect(key1 = Unit, block = {
         viewModel.event.collect {
             when (it) {
                 FeedEvent.ScrollToTop -> {
                     pagerState.scrollToPage(0)
                 }
-                else -> {}
+                is FeedEvent.VoteSuccess -> {
+                    isAnim = it.id
+                    delay(1000L)
+                    isAnim = null
+                }
             }
         }
     })
@@ -160,14 +176,16 @@ fun FeedScreenContent(
                 FeedPager(
                     modifier = Modifier,
                     pagerState = pagerState,
+                    bottomPadding = if (NaenioApp.isShortScreen) 0.dp else 100.dp,
                     posts = posts.value ?: emptyList(),
+                    isAnim = isAnim,
                     openSheet = openSheet,
                     onVote = { postId, choiceId ->
                         viewModel.vote(postId = postId, choiceId = choiceId)
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     },
-                    onShare = { postId ->
-                        ShareUtils.share(postId = postId, context = context)
+                    onShare = { post ->
+                        ShareUtils.share(post = post, context = context)
                     },
                     loadNextPage = viewModel::loadNextPage,
                     onDetail = {
@@ -330,23 +348,26 @@ fun FeedScreenBox() {
 @Composable
 fun FeedPager(
     modifier: Modifier,
+    bottomPadding: Dp = 100.dp,
     posts: List<Post>,
     pagerState: PagerState,
+    isAnim: Int?,
     openSheet: (CommentDialogModel) -> Unit,
     onVote: (Int, Int) -> Unit,
     onDetail: (Int) -> Unit,
-    onShare: (Int) -> Unit,
+    onShare: (Post) -> Unit,
     loadNextPage: () -> Unit,
     onMore: (Post) -> Unit,
 ) {
     val threshold = 3
     val lastIndex = posts.lastIndex
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
 
     VerticalPager(
         state = pagerState,
         count = posts.size,
         itemSpacing = 20.dp,
-        contentPadding = PaddingValues(bottom = 100.dp),
+        contentPadding = PaddingValues(bottom = bottomPadding),
         modifier = modifier
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxSize(),
@@ -366,6 +387,17 @@ fun FeedPager(
                 onMore = onMore,
                 onShare = onShare
             )
+            AnimatedVisibility(
+                visible = isAnim == posts[page].id,
+                enter = EnterTransition.None,
+                exit = fadeOut()
+            ) {
+                LottieAnimation(
+                    composition = composition,
+                    modifier = Modifier.wrapContentSize(),
+                    iterations = LottieConstants.IterateForever
+                )
+            }
         }
     }
 }
@@ -378,7 +410,7 @@ fun FeedItem(
     onVote: (Int, Int) -> Unit,
     openSheet: (CommentDialogModel) -> Unit,
     onMore: (Post) -> Unit,
-    onShare: (Int) -> Unit,
+    onShare: (Post) -> Unit,
 ) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
@@ -397,7 +429,7 @@ fun FeedItem(
         )
         .clickable {
             onDetail.invoke(post.id)
-        }
+        },
     ) {
         Column(
             modifier = Modifier
@@ -411,7 +443,7 @@ fun FeedItem(
                     .wrapContentHeight()
                     .padding(vertical = 24.dp),
                 isIconVisible = true,
-                onShare = { onShare.invoke(post.id) },
+                onShare = { onShare.invoke(post) },
                 onMore = { onMore.invoke(post) },
                 profileImageIndex = post.author.profileImageIndex
             )

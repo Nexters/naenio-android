@@ -20,16 +20,20 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
+import com.nexters.teamvs.naenio.ui.feed.FeedEvent
 import com.nexters.teamvs.naenio.ui.feed.FeedPager
 import com.nexters.teamvs.naenio.ui.feed.FeedViewModel
 import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
+import com.nexters.teamvs.naenio.ui.tabs.bottomBarHeight
 import com.nexters.teamvs.naenio.utils.ShareUtils
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -54,6 +58,21 @@ fun ThemeFeedScreen(
     val isEmptyTheme = posts.value != null && posts.value?.isEmpty() == true
     val scope = rememberCoroutineScope()
     val user = viewModel.user.collectAsState(initial = null)
+
+    var isAnim by remember { mutableStateOf<Int?>(null) }
+
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.event.collect {
+            when (it) {
+                is FeedEvent.VoteSuccess -> {
+                    isAnim = it.id
+                    delay(1000L)
+                    isAnim = null
+                }
+                else -> {}
+            }
+        }
+    })
 
     LaunchedEffect(key1 = Unit, block = {
         if (posts.value.isNullOrEmpty()) viewModel.getThemePosts(currentTheme.type)
@@ -80,6 +99,7 @@ fun ThemeFeedScreen(
                 viewModel.vote(postId = postId, choiceId = choiceId)
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             },
+            isAnim = isAnim,
             openSheet = openSheet,
             onDetail = {
                 viewModel.setDetailPostItem(it)
@@ -122,6 +142,7 @@ fun ThemeFeedScreen(
 fun ThemeFeedContent(
     posts: List<Post>,
     theme: ThemeItem,
+    isAnim: Int?,
     openSheet: (CommentDialogModel) -> Unit,
     close: () -> Unit,
     vote: (Int, Int) -> Unit,
@@ -145,6 +166,7 @@ fun ThemeFeedContent(
         )
         FeedPager(
             modifier = Modifier,
+            bottomPadding = if (NaenioApp.isShortScreen) 60.dp else 120.dp + bottomBarHeight,
             posts = posts,
             pagerState = pagerState,
             openSheet = openSheet,
@@ -154,7 +176,8 @@ fun ThemeFeedContent(
                 ShareUtils.share(it, context)
             },
             onMore = onMore,
-            onDetail = onDetail
+            onDetail = onDetail,
+            isAnim = isAnim,
         )
     }
 }

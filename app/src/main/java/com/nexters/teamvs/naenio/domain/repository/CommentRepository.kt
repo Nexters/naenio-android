@@ -101,7 +101,7 @@ class CommentRepository @Inject constructor(
     }
 
     suspend fun unlikeComment(id: Int) {
-        commentApi.unlikeComment(id)
+        commentApi.unlikeComment(LikeCommentRequest(id))
     }
 
     suspend fun getMyCommentList(size: Int): List<MyComments> {

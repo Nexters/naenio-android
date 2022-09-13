@@ -101,9 +101,8 @@ class MainActivity : AppCompatActivity(),
                         }
                         UiEvent.ForceLogout -> {
                             mainViewModel.logout()
-                            navController.clearBackStack(Graph.MAIN)
                             navController.navigate(AuthScreen.Login.route) {
-                                popUpTo(Graph.MAIN)
+                                popUpTo(Graph.MAIN) { inclusive = true }
                                 launchSingleTop = true
                             }
                         }
