@@ -182,8 +182,8 @@ fun FeedScreenContent(
                         viewModel.vote(postId = postId, choiceId = choiceId)
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     },
-                    onShare = { postId ->
-                        ShareUtils.share(postId = postId, context = context)
+                    onShare = { post ->
+                        ShareUtils.share(post = post, context = context)
                     },
                     loadNextPage = viewModel::loadNextPage,
                     onDetail = {
@@ -353,7 +353,7 @@ fun FeedPager(
     openSheet: (CommentDialogModel) -> Unit,
     onVote: (Int, Int) -> Unit,
     onDetail: (Int) -> Unit,
-    onShare: (Int) -> Unit,
+    onShare: (Post) -> Unit,
     loadNextPage: () -> Unit,
     onMore: (Post) -> Unit,
 ) {
@@ -408,7 +408,7 @@ fun FeedItem(
     onVote: (Int, Int) -> Unit,
     openSheet: (CommentDialogModel) -> Unit,
     onMore: (Post) -> Unit,
-    onShare: (Int) -> Unit,
+    onShare: (Post) -> Unit,
 ) {
     var gage by remember { mutableStateOf(0f) }
     LaunchedEffect(key1 = 0, block = {
@@ -441,7 +441,7 @@ fun FeedItem(
                     .wrapContentHeight()
                     .padding(vertical = 24.dp),
                 isIconVisible = true,
-                onShare = { onShare.invoke(post.id) },
+                onShare = { onShare.invoke(post) },
                 onMore = { onMore.invoke(post) },
                 profileImageIndex = post.author.profileImageIndex
             )

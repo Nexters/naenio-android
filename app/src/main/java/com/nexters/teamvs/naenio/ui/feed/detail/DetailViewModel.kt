@@ -3,8 +3,11 @@ package com.nexters.teamvs.naenio.ui.feed.detail
 import androidx.lifecycle.viewModelScope
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.data.network.dto.ReportRequest
+import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.domain.repository.FeedRepository
+import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.ui.comment.CommentViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,13 +20,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-    private val feedRepository: FeedRepository
+    private val feedRepository: FeedRepository,
+    userRepository: UserRepository,
 ) : BaseViewModel() {
 
     private val _postItem = MutableStateFlow<Post?>(null)
     val postItem = _postItem.asStateFlow()
 
     val successVote = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+
+    val user = userRepository.getUserFlow()
 
     init {
         viewModelScope.launch {
@@ -102,6 +108,33 @@ class DetailViewModel @Inject constructor(
                 voteLock = false
             }
 
+        }
+    }
+
+    fun deletePost(postId: Int) {
+        viewModelScope.launch {
+            try {
+                feedRepository.deletePost(postId)
+                _postItem.value = null
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
+    }
+
+    fun report(targetMemberId: Int, resourceType: ReportType) {
+        viewModelScope.launch {
+            try {
+                feedRepository.report(
+                    ReportRequest(
+                        targetMemberId = targetMemberId,
+                        resource = resourceType,
+                    )
+                )
+                GlobalUiEvent.showToast("신고 되었습니다.")
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
         }
     }
 }

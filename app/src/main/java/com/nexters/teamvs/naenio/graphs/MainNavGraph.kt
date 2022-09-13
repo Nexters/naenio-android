@@ -9,13 +9,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.create.CreateScreen
 import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedScreen
 import com.nexters.teamvs.naenio.ui.feed.detail.FeedCommentDetail
-import com.nexters.teamvs.naenio.ui.feed.detail.FeedDeepLinkDetail
 import com.nexters.teamvs.naenio.ui.feed.detail.FeedDetailScreen
 import com.nexters.teamvs.naenio.ui.feed.detail.RandomScreen
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem

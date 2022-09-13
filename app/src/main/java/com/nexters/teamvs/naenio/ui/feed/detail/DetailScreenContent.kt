@@ -38,10 +38,12 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.FeedEvent
@@ -52,6 +54,7 @@ import com.nexters.teamvs.naenio.ui.theme.ThemeItem
 import com.nexters.teamvs.naenio.ui.theme.ThemeType
 import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -65,6 +68,9 @@ fun RandomScreen(
     val haptic = LocalHapticFeedback.current
     val postItem = viewModel.postItem.collectAsState()
     var isAnim by remember { mutableStateOf(false) }
+    val user = viewModel.user.collectAsState(initial = null)
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = Unit, block = {
         viewModel.getRandomPost()
@@ -92,6 +98,37 @@ fun RandomScreen(
         isAnim = isAnim,
         onRefreshRandom = {
             viewModel.getRandomPost()
+        },
+        onMore = {
+            if (it.author.id == user.value?.id) {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "삭제",
+                            onClick = {
+                                viewModel.deletePost(postId = it.id)
+                            }
+                        )
+                    )
+                }
+            } else {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "신고",
+                            onClick = {
+                                viewModel.report(
+                                    targetMemberId = it.author.id,
+                                    resourceType = ReportType.POST
+                                )
+                            }
+                        )
+                    )
+                }
+            }
+        },
+        onShare = {
+            ShareUtils.share(it, context = context)
         }
     )
 }
@@ -105,7 +142,7 @@ fun FeedDetailScreen(
     openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
 ) {
-    Log.d("### type", "$type")
+    Log.d("### type", type)
     val backStackEntry = remember {
         navController.getBackStackEntry(
             navController.previousBackStackEntry?.destination?.route ?: ""
@@ -136,7 +173,9 @@ fun FeedCommentDetail(
     val haptic = LocalHapticFeedback.current
     val postItem = viewModel.postItem.collectAsState()
     var isAnim by remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val user = viewModel.user.collectAsState(initial = null)
     LaunchedEffect(key1 = Unit, block = {
         Log.d("### FeedCommentDetail postId", type)
         try {
@@ -174,6 +213,37 @@ fun FeedCommentDetail(
             viewModel.vote(postId, voteId)
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         },
+        onMore = {
+            if (it.author.id == user.value?.id) {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "삭제",
+                            onClick = {
+                                viewModel.deletePost(postId = it.id)
+                            }
+                        )
+                    )
+                }
+            } else {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "신고",
+                            onClick = {
+                                viewModel.report(
+                                    targetMemberId = it.author.id,
+                                    resourceType = ReportType.POST
+                                )
+                            }
+                        )
+                    )
+                }
+            }
+        },
+        onShare = {
+            ShareUtils.share(it, context = context)
+        }
     )
 }
 
@@ -188,11 +258,13 @@ fun DetailScreen(
     closeSheet: () -> Unit,
     isInvokeOpenSheet: Boolean = false
 ) {
+    val context = LocalContext.current
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
     val haptic = LocalHapticFeedback.current
 
     val postItem = feedViewModel.postItem.collectAsState(null)
-
+    val user = feedViewModel.user.collectAsState(initial = null)
+    val scope = rememberCoroutineScope()
     var isAnim by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = Unit, block = {
         feedViewModel.event.collect {
@@ -249,6 +321,37 @@ fun DetailScreen(
         isAnim = isAnim,
         onRefreshRandom = {
             feedViewModel.getRandomPost()
+        },
+        onShare = {
+            ShareUtils.share(it, context)
+        },
+        onMore = {
+            if (it.author.id == user.value?.id) {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "삭제",
+                            onClick = {
+                                feedViewModel.deletePost(postId = it.id)
+                            }
+                        )
+                    )
+                }
+            } else {
+                scope.launch {
+                    GlobalUiEvent.showMenuDialog(
+                        MenuDialogModel(
+                            text = "신고",
+                            onClick = {
+                                feedViewModel.report(
+                                    targetMemberId = it.author.id,
+                                    resourceType = ReportType.POST
+                                )
+                            }
+                        )
+                    )
+                }
+            }
         }
     )
 }
@@ -265,6 +368,8 @@ fun DetailScreenContent(
     closeSheet: () -> Unit,
     isAnim: Boolean,
     onRefreshRandom: () -> Unit = {},
+    onMore: (Post) -> Unit,
+    onShare: (Post) -> Unit
 ) {
     val backStackEntry = remember {
         navController.getBackStackEntry(BottomNavItem.Feed.route)
@@ -310,7 +415,8 @@ fun DetailScreenContent(
                 onShare = {
                     ShareUtils.share(it, context)
                 },
-                onVote = onVote
+                onVote = onVote,
+                onMore = onMore
             )
             AnimatedVisibility(
                 visible = isAnim,
@@ -336,8 +442,11 @@ fun DetailScreenContent(
                         navController.popBackStack()
                     },
                     isMoreBtnVisible = true,
+                    isShareBtnVisible = true,
                     textStyle = textStyle,
-                    post = null
+                    post = null,
+                    onMore = onMore,
+                    onShare = onShare,
                 )
                 FeedEmptyLayout(Color.White)
             }
@@ -365,8 +474,9 @@ fun FeedDetail(
     titleBar: String?,
     textStyle: TextStyle,
     openSheet: (CommentDialogModel) -> Unit,
-    onShare: (Int) -> Unit,
+    onShare: (Post) -> Unit,
     onVote: (Int, Int) -> Unit,
+    onMore: (Post) -> Unit,
 ) {
     post ?: return
 
@@ -381,8 +491,11 @@ fun FeedDetail(
                     navController.popBackStack()
                 },
                 isMoreBtnVisible = true,
+                isShareBtnVisible = true,
                 textStyle = textStyle,
-                post = post
+                post = post,
+                onMore = onMore,
+                onShare = onShare
             )
             Column(
                 modifier = Modifier
@@ -397,7 +510,7 @@ fun FeedDetail(
                         .padding(top = 32.dp),
                     profileImageIndex = post.author.profileImageIndex,
                     isIconVisible = false,
-                    onShare = { onShare.invoke(post.id) },
+                    onShare = { onShare.invoke(post) },
                     onMore = {}
                 )
                 VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)

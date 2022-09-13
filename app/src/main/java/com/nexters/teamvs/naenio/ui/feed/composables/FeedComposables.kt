@@ -157,12 +157,13 @@ fun TopBar(
     modifier: Modifier,
     barTitle: String?,
     close: () -> Unit,
+    onMore: (Post) -> Unit = {},
+    onShare: (Post) -> Unit = {},
     isMoreBtnVisible: Boolean = true,
+    isShareBtnVisible: Boolean = false,
     textStyle: TextStyle = Font.pretendardSemiBold16,
     post: Post? = null,
 ) {
-
-    val context = LocalContext.current
     Row(
         modifier = modifier
             .padding(horizontal = 24.dp)
@@ -186,32 +187,23 @@ fun TopBar(
             }
         }
         Spacer(modifier = Modifier.weight(1f))
-        val iconVisible = if (isMoreBtnVisible) 1f else 0f
-        Image(modifier = Modifier
-            .clickable {
-                //share
-                if (post == null) return@clickable
-                val shareLink = "https://naenio.shop/posts/${post.id}"
-
-                val type = "text/plain"
-                val subject = "네니오로 오세요~~~"
-                val extraText = shareLink
-                val shareWith = "ShareWith"
-
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.type = type
-                intent.putExtra(Intent.EXTRA_SUBJECT, subject)
-                intent.putExtra(Intent.EXTRA_TEXT, extraText)
-
-                ContextCompat.startActivity(
-                    context,
-                    Intent.createChooser(intent, shareWith),
-                    null
-                )
-            }
-            .alpha(iconVisible),
-            painter = painterResource(R.drawable.ic_feed_more),
-            contentDescription = "icon_feed_more")
+        if (isShareBtnVisible) {
+            Image(
+                modifier = Modifier.size(24.dp).clickable {
+                    onShare.invoke(post ?: return@clickable)
+                },
+                painter = painterResource(R.drawable.ic_share),
+                contentDescription = "ic_share")
+        }
+        if (isMoreBtnVisible) {
+            Image(
+                modifier = Modifier.clickable {
+                    onMore.invoke(post ?: return@clickable)
+                },
+                painter = painterResource(R.drawable.ic_feed_more),
+                contentDescription = "icon_feed_more"
+            )
+        }
     }
 }
 
