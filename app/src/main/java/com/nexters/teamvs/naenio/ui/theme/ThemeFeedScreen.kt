@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.theme.Font
@@ -165,7 +166,7 @@ fun ThemeFeedContent(
         )
         FeedPager(
             modifier = Modifier,
-            bottomPadding = 120.dp + bottomBarHeight,
+            bottomPadding = if (NaenioApp.isShortScreen) 60.dp else 120.dp + bottomBarHeight,
             posts = posts,
             pagerState = pagerState,
             openSheet = openSheet,

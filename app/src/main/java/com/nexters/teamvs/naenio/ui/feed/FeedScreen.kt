@@ -55,6 +55,7 @@ import com.nexters.teamvs.naenio.ui.feed.composables.CommentLayout
 import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
 import com.nexters.teamvs.naenio.ui.feed.composables.VoteBar
 import com.nexters.teamvs.naenio.ui.feed.composables.VoteContent
+import com.nexters.teamvs.naenio.utils.DimensionUtils
 import com.nexters.teamvs.naenio.utils.ShareUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -175,6 +176,7 @@ fun FeedScreenContent(
                 FeedPager(
                     modifier = Modifier,
                     pagerState = pagerState,
+                    bottomPadding = if (NaenioApp.isShortScreen) 0.dp else 100.dp,
                     posts = posts.value ?: emptyList(),
                     isAnim = isAnim,
                     openSheet = openSheet,
@@ -365,7 +367,7 @@ fun FeedPager(
         state = pagerState,
         count = posts.size,
         itemSpacing = 20.dp,
-        contentPadding = PaddingValues(bottom = if (NaenioApp.isShortScreen) 30.dp else bottomPadding),
+        contentPadding = PaddingValues(bottom = bottomPadding),
         modifier = modifier
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxSize(),
@@ -427,7 +429,7 @@ fun FeedItem(
         )
         .clickable {
             onDetail.invoke(post.id)
-        }
+        },
     ) {
         Column(
             modifier = Modifier

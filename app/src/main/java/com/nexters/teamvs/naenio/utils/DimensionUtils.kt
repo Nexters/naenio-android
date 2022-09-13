@@ -11,6 +11,6 @@ object DimensionUtils {
             Log.d("### Device Size", "${it.widthPixels} x ${it.heightPixels}")
         }
         val radio = displayMetrics.heightPixels.toFloat() / displayMetrics.widthPixels.toFloat()
-        return radio < 17/9
+        return radio < 16f/9f
     }
 }
