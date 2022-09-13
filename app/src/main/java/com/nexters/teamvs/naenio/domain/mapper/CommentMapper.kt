@@ -5,6 +5,7 @@ import com.nexters.teamvs.naenio.domain.mapper.FeedMapper.toAuthor
 import com.nexters.teamvs.naenio.domain.model.*
 import com.nexters.teamvs.naenio.ui.comment.Comment
 import com.nexters.teamvs.naenio.ui.comment.Reply
+import com.nexters.teamvs.naenio.utils.TimeUtils
 
 object CommentMapper {
 
@@ -19,6 +20,7 @@ object CommentMapper {
                 isLiked = it.isLiked,
                 likeCount = it.likeCount,
                 writeTime = it.createdDatetime,
+                displayTime = TimeUtils.formatTimeString(it.createdDatetime),
             )
         }
     }
@@ -33,6 +35,7 @@ object CommentMapper {
             isLiked = false,
             likeCount = 0,
             writeTime = this.createdDateTime,
+            displayTime = TimeUtils.formatTimeString(this.createdDateTime)
         )
     }
 
@@ -46,6 +49,7 @@ object CommentMapper {
                 isLiked = it.isLiked,
                 likeCount = it.likeCount,
                 writeTime = it.createdDatetime,
+                displayTime = TimeUtils.formatTimeString(it.createdDatetime),
             )
         }
     }
@@ -59,10 +63,11 @@ object CommentMapper {
             isLiked = false,
             likeCount = 0,
             writeTime = this.createdDateTime,
+            displayTime = TimeUtils.formatTimeString(this.createdDateTime),
         )
     }
 
-    fun MyCommentPostResponse.toCommentPost() : CommentPost {
+    fun MyCommentPostResponse.toCommentPost(): CommentPost {
         return CommentPost(
             id = id,
             title = title,
@@ -70,7 +75,7 @@ object CommentMapper {
         )
     }
 
-    fun MyCommentResponse.toMyComment() : List<MyComments> {
+    fun MyCommentResponse.toMyComment(): List<MyComments> {
         return comments.map {
             MyComments(
                 id = it.id,

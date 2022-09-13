@@ -8,7 +8,8 @@ open class BaseComment(
     open val content: String,
     open val likeCount: Int,
     open val isLiked: Boolean,
-    open val writeTime: String,
+    open val displayTime: String,
+    private val writeTime: String,
 )
 
 data class Comment(
@@ -19,14 +20,16 @@ data class Comment(
     override val content: String,
     override val isLiked: Boolean = false,
     override val likeCount: Int = 0,
-    override val writeTime: String,
+    private val writeTime: String,
+    override val displayTime: String,
 ): BaseComment(
     id = id,
     writer = writer,
     likeCount = likeCount,
     content = content,
     isLiked = isLiked,
-    writeTime = writeTime
+    writeTime = writeTime,
+    displayTime = displayTime
 )
 
 data class Reply(
@@ -36,37 +39,20 @@ data class Reply(
     override val writer: Author = Author.mock,
     override val likeCount: Int = 0,
     override val isLiked: Boolean = false,
-    override val writeTime: String,
+    private val writeTime: String,
+    override val displayTime: String,
 ): BaseComment(
     id = id,
     content = content,
     writer = writer,
     likeCount = likeCount,
     isLiked = isLiked,
-    writeTime = writeTime
+    writeTime = writeTime,
+    displayTime = displayTime
 ) {
     companion object {
         val mock = listOf<Reply>(
-            Reply(
-                id = 0,
-                parentId = -1,
-                content = "그대로 하고 싶은데",
-                writeTime = "123123123",
-                isLiked = true
-            ),
-            Reply(
-                id = 0,
-                parentId = -1,
-                content = "너의 얘기대로",
-                writeTime = "123123123",
-            ),
-            Reply(
-                id = 0,
-                parentId = -1,
-                content = "너 없이 행복하란 말",
-                writeTime = "123123123",
-                isLiked = true
-            ),
+
         )
     }
 }

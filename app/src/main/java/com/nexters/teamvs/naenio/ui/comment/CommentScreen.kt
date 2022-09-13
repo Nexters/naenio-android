@@ -464,7 +464,7 @@ fun CommentItem(
             )
             Text(
                 modifier = Modifier.padding(end = 6.dp),
-                text = comment.writeTime.split(" ")[0], //TODO 수정하기
+                text = comment.displayTime, //TODO 수정하기
                 color = Color.White,
                 fontSize = 14.sp,
                 maxLines = 1
