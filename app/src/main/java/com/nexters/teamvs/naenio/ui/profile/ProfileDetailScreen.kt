@@ -194,6 +194,7 @@ fun MyCommentLayout(
     } else {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(bottom = 20.dp)
         ) {
             items(myCommentList!!) {
                 Column(
