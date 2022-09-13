@@ -281,9 +281,6 @@ class FeedViewModel @Inject constructor(
                 GlobalUiEvent.showLoading()
                 val detailPost = feedRepository.getPostDetail(id = id)
                 _posts.value = posts.value?.map { if (it.id == detailPost.id) detailPost else it }
-                if (posts.value == null) {
-                    _posts.value = listOf(detailPost)
-                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 GlobalUiEvent.showToast(e.errorMessage())

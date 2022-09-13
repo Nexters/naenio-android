@@ -19,6 +19,7 @@ import javax.inject.Inject
 class DetailViewModel @Inject constructor(
     private val feedRepository: FeedRepository
 ) : BaseViewModel() {
+
     private val _postItem = MutableStateFlow<Post?>(null)
     val postItem = _postItem.asStateFlow()
 
@@ -48,6 +49,12 @@ class DetailViewModel @Inject constructor(
             } finally {
                 GlobalUiEvent.hideLoading()
             }
+        }
+    }
+
+    suspend fun getPostDetail(id: Int): Post {
+        return feedRepository.getPostDetail(id = id).also {
+            _postItem.value = it
         }
     }
 

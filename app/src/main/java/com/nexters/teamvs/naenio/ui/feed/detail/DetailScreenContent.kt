@@ -37,7 +37,9 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
+import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
@@ -59,7 +61,6 @@ fun RandomScreen(
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
-    isInvokeOpenSheet: Boolean = false
 ) {
     val haptic = LocalHapticFeedback.current
     val postItem = viewModel.postItem.collectAsState()
@@ -107,7 +108,6 @@ fun FeedDetailScreen(
     Log.d("### type", "$type")
     val backStackEntry = remember {
         navController.getBackStackEntry(
-//            if (type.isEmpty()) BottomNavItem.Feed.route else BottomNavItem.Theme.route
             navController.previousBackStackEntry?.destination?.route ?: ""
         )
     }
@@ -139,7 +139,6 @@ fun FeedDeepLinkDetail(
 
     val backStackEntry = remember {
         navController.getBackStackEntry(
-//            if (type.isEmpty()) BottomNavItem.Feed.route else BottomNavItem.Theme.route
             navController.previousBackStackEntry?.destination?.route ?: ""
         )
     }
@@ -157,7 +156,7 @@ fun FeedDeepLinkDetail(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedCommentDetail(
-    viewModel: FeedViewModel = hiltViewModel(),
+    viewModel: DetailViewModel = hiltViewModel(),
     type: String,
     navController: NavHostController,
     modalBottomSheetState: ModalBottomSheetState,
@@ -165,26 +164,47 @@ fun FeedCommentDetail(
     closeSheet: () -> Unit,
     isInvokeOpenSheet: Boolean = false
 ) {
+    val haptic = LocalHapticFeedback.current
+    val postItem = viewModel.postItem.collectAsState()
+    var isAnim by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = Unit, block = {
-        Log.d("### FeedCommentDetail postId", "$type")
-        viewModel.getPostDetail(type.toInt())
+        Log.d("### FeedCommentDetail postId", type)
+        try {
+            GlobalUiEvent.showLoading()
+            val post = viewModel.getPostDetail(type.toInt()) ?: return@LaunchedEffect
+            if (isInvokeOpenSheet) {
+                openSheet.invoke(
+                    CommentDialogModel(postId = post.id, totalCommentCount = post.commentCount)
+                )
+            }
+        } catch (e: Exception) {
+            GlobalUiEvent.showToast(e.errorMessage())
+        } finally {
+            GlobalUiEvent.hideLoading()
+        }
     })
 
-    val backStackEntry = remember {
-        navController.getBackStackEntry(
-//            if (type.isEmpty()) BottomNavItem.Feed.route else BottomNavItem.Theme.route
-            navController.previousBackStackEntry?.destination?.route ?: ""
-        )
-    }
-    val feedViewModel: FeedViewModel = hiltViewModel(backStackEntry)
-    DetailScreen(
-        feedViewModel = feedViewModel,
-        type = "$type",
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.successVote.collect {
+            isAnim = true
+            delay(1000L)
+            isAnim = false
+        }
+    })
+
+    DetailScreenContent(
+        type = type,
         navController = navController,
         modalBottomSheetState = modalBottomSheetState,
         openSheet = openSheet,
         closeSheet = closeSheet,
-        isInvokeOpenSheet = isInvokeOpenSheet
+        isAnim = isAnim,
+        postItem = postItem.value,
+        onVote = { postId, voteId ->
+            viewModel.vote(postId, voteId)
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        },
     )
 }
 
@@ -275,7 +295,7 @@ fun DetailScreenContent(
     openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
     isAnim: Boolean,
-    onRefreshRandom: () -> Unit,
+    onRefreshRandom: () -> Unit = {},
 ) {
     val backStackEntry = remember {
         navController.getBackStackEntry(BottomNavItem.Feed.route)

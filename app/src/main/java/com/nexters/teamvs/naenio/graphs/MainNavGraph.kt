@@ -65,7 +65,7 @@ fun MainNavGraph(
         }
 
         composable(route = "FeedDeepLinkDetail/{type}") {
-            FeedDeepLinkDetail(
+            FeedCommentDetail(
                 type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
