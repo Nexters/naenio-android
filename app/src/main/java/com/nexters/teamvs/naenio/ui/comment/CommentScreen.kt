@@ -294,7 +294,7 @@ fun CommentEditText(
             shape = RoundedCornerShape(3.dp),
             onValueChange = {
                 if (it.length > 200) return@TextField
-                input = it
+                input = it.replace("\n\n\n", "\n\n") //개행 방지 처리 로직 추가개선 필요
             }
         )
 
