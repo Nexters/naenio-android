@@ -124,37 +124,6 @@ fun FeedDetailScreen(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun FeedDeepLinkDetail(
-    viewModel: FeedViewModel = hiltViewModel(),
-    type: String,
-    navController: NavHostController,
-    modalBottomSheetState: ModalBottomSheetState,
-    openSheet: (CommentDialogModel) -> Unit,
-    closeSheet: () -> Unit,
-) {
-    LaunchedEffect(key1 = Unit, block = {
-        Log.d("### FeedDeepLinkDetail", "$type")
-        viewModel.getPostDetail(type.toInt())
-    })
-
-    val backStackEntry = remember {
-        navController.getBackStackEntry(
-            navController.previousBackStackEntry?.destination?.route ?: ""
-        )
-    }
-    val feedViewModel: FeedViewModel = hiltViewModel(backStackEntry)
-    DetailScreen(
-        feedViewModel = feedViewModel,
-        type = type,
-        navController = navController,
-        modalBottomSheetState = modalBottomSheetState,
-        openSheet = openSheet,
-        closeSheet = closeSheet
-    )
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
 fun FeedCommentDetail(
     viewModel: DetailViewModel = hiltViewModel(),
     type: String,
