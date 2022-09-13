@@ -55,9 +55,10 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                 }
             } else {
                 Log.d("#### deepLink", "login success")
-                it.arguments?.getString("type")?.let {
-                    navController.navigate("FeedDeepLinkDetail/$it")
-                }
+                //TODO 딥링크 이슈. 여기서 navigate 시키면 리컴포지션마다 navigate가 계속 불림.
+//                it.arguments?.getString("type")?.let {
+//                    navController.navigate("FeedDeepLinkDetail/$it")
+//                }
             }
 
         }
