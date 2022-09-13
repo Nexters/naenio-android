@@ -8,7 +8,6 @@ class AuthTokenInterceptor(
     private val authDataStore: AuthDataStore = AuthDataStore
 ) : Interceptor {
 
-    //TODO 만료토큰 갱신
     override fun intercept(chain: Interceptor.Chain): Response {
         val authToken = authDataStore.authToken
 
