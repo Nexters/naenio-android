@@ -32,7 +32,6 @@ class CreateViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                //TODO 텍스트 개수 검증
                 createEvent.emit(CreateEvent.Loading)
                 feedRepository.createPost(
                     title = title,
