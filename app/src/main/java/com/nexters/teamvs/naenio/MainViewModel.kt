@@ -45,7 +45,7 @@ class MainViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                GlobalUiEvent.showToast(e.errorMessage())
+                e.errorMessage()
             } finally {
                 isReady = true
             }
