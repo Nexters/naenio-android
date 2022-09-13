@@ -25,12 +25,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.BuildConfig
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Notice
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
+import com.nexters.teamvs.naenio.ui.comment.Comment
+import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
 import com.nexters.teamvs.naenio.ui.feed.composables.ProfileNickName
 import com.nexters.teamvs.naenio.ui.feed.composables.TopBar
 import com.nexters.teamvs.naenio.ui.feed.composables.contentEmptyLayout
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileDetailScreen(
@@ -69,7 +73,7 @@ fun ProfileDetailScreen(
         }
         when (profileType) {
             ProfileType.MY_COMMENT -> {
-                MyCommentLayout(viewModel = viewModel, onShare = {})
+                MyCommentLayout(navController= navController, viewModel = viewModel)
             }
             ProfileType.DEVELOPER -> {
                 DeveloperLayout()
@@ -176,12 +180,13 @@ fun NoticeLayout(
 
 @Composable
 fun MyCommentLayout(
-    onShare: (Int) -> Unit,
+    navController: NavHostController,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val myCommentListState = viewModel.myCommentList.collectAsState()
     val myCommentList = myCommentListState.value
     val isMyCommentEmpty = myCommentList == null || myCommentList.isEmpty()
+    val scope = rememberCoroutineScope()
 
     Spacer(modifier = Modifier.height(20.dp))
     if (isMyCommentEmpty) {
@@ -189,6 +194,7 @@ fun MyCommentLayout(
     } else {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(bottom = 20.dp)
         ) {
             items(myCommentList!!) {
                 Column(
@@ -197,6 +203,9 @@ fun MyCommentLayout(
                         .wrapContentHeight()
                         .padding(horizontal = 20.dp)
                         .background(MyColors.postBackgroundColor, shape = RoundedCornerShape(16.dp))
+                        .clickable {
+                            navController.navigate("FeedCommentDetail/${it.post.id}")
+                        }
                 ) {
                     ProfileNickName(
                         nickName = it.post.author.nickname,
@@ -206,7 +215,17 @@ fun MyCommentLayout(
                             .padding(horizontal = 20.dp),
                         isIconVisible = true,
                         onMore = {
-                            viewModel.deleteMyComment(it.id)
+                            scope.launch {
+                                GlobalUiEvent.showMenuDialog(
+                                    MenuDialogModel(
+                                        text = "삭제",
+                                        color = Color.Red,
+                                        onClick = {
+                                            viewModel.deleteMyComment(it.id)
+                                        }
+                                    )
+                                )
+                            }
                         },
                         isVisibleShareIcon = false,
                         onShare = {
@@ -242,8 +261,8 @@ fun MyCommentLayout(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(20.dp))
     }
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable

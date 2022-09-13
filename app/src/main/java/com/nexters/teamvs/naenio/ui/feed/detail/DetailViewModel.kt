@@ -19,6 +19,7 @@ import javax.inject.Inject
 class DetailViewModel @Inject constructor(
     private val feedRepository: FeedRepository
 ) : BaseViewModel() {
+
     private val _postItem = MutableStateFlow<Post?>(null)
     val postItem = _postItem.asStateFlow()
 
@@ -30,20 +31,6 @@ class DetailViewModel @Inject constructor(
                 val post = postItem.value
                 val result = if (post?.id == data.postId) post.copy(commentCount = data.commentCount) else postItem.value
                 _postItem.value = result
-            }
-        }
-    }
-
-    fun getPostDetail(id: Int) {
-        viewModelScope.launch {
-            try {
-                GlobalUiEvent.showLoading()
-                _postItem.value = feedRepository.getPostDetail(id = id)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                GlobalUiEvent.showToast(e.errorMessage())
-            } finally {
-                GlobalUiEvent.hideLoading()
             }
         }
     }
@@ -62,6 +49,12 @@ class DetailViewModel @Inject constructor(
             } finally {
                 GlobalUiEvent.hideLoading()
             }
+        }
+    }
+
+    suspend fun getPostDetail(id: Int): Post {
+        return feedRepository.getPostDetail(id = id).also {
+            _postItem.value = it
         }
     }
 

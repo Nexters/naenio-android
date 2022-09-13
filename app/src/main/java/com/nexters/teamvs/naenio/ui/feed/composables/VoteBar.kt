@@ -29,6 +29,7 @@ import kotlinx.coroutines.delay
 fun VoteBar(
     post: Post,
     onVote: (Int, Int) -> Unit,
+    maxLine: Int = 2
 ) {
     /** 둘 중 하나라도 투표를 했는 지 */
     val isVotedForPost = post.isAlreadyVote
@@ -45,7 +46,8 @@ fun VoteBar(
                 totalVoteCount = post.totalVoteCount,
                 onVote = { voteId ->
                     onVote.invoke(post.id, voteId)
-                }
+                },
+                maxLine = maxLine
             )
             Spacer(modifier = Modifier.height(18.dp))
             GageBar(
@@ -55,7 +57,8 @@ fun VoteBar(
                 totalVoteCount = post.totalVoteCount,
                 onVote = { voteId ->
                     onVote.invoke(post.id, voteId)
-                }
+                },
+                maxLine = maxLine
             )
         }
         Image(
@@ -72,7 +75,8 @@ fun GageBar(
     indexText: String,
     totalVoteCount: Int,
     isVotedForPost: Boolean,
-    onVote: (Int) -> Unit
+    onVote: (Int) -> Unit,
+    maxLine: Int = 4
 ) {
     val isMyChoice = choice.isVoted
 
@@ -126,7 +130,8 @@ fun GageBar(
             indexText = indexText,
             choice = choice,
             isVotedForPost = isVotedForPost,
-            percentageValue = progressValue
+            percentageValue = progressValue,
+            maxLine = maxLine
         )
     }
 }
@@ -138,6 +143,7 @@ fun VoteBarContent(
     choice: Choice,
     isVotedForPost: Boolean,
     percentageValue: Int,
+    maxLine: Int = 2
 ) {
     Row(
         modifier = modifier
@@ -156,7 +162,7 @@ fun VoteBarContent(
             text = choice.name,
             color = Color.White,
             style = Font.pretendardSemiBold14,
-            maxLines = 2,
+            maxLines = maxLine,
             overflow = TextOverflow.Ellipsis
         )
         Spacer(modifier = Modifier.width(8.dp))

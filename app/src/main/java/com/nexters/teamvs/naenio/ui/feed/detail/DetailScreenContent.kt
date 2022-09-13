@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
@@ -36,7 +37,9 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.nexters.teamvs.naenio.R
+import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.domain.model.Post
+import com.nexters.teamvs.naenio.extensions.errorMessage
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
@@ -105,8 +108,7 @@ fun FeedDetailScreen(
     Log.d("### type", "$type")
     val backStackEntry = remember {
         navController.getBackStackEntry(
-//            if (type.isEmpty()) BottomNavItem.Feed.route else BottomNavItem.Theme.route
-            navController.previousBackStackEntry?.destination?.route ?:""
+            navController.previousBackStackEntry?.destination?.route ?: ""
         )
     }
     val feedViewModel: FeedViewModel = hiltViewModel(backStackEntry)
@@ -116,7 +118,93 @@ fun FeedDetailScreen(
         navController = navController,
         modalBottomSheetState = modalBottomSheetState,
         openSheet = openSheet,
+        closeSheet = closeSheet
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun FeedDeepLinkDetail(
+    viewModel: FeedViewModel = hiltViewModel(),
+    type: String,
+    navController: NavHostController,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (CommentDialogModel) -> Unit,
+    closeSheet: () -> Unit,
+) {
+    LaunchedEffect(key1 = Unit, block = {
+        Log.d("### FeedDeepLinkDetail", "$type")
+        viewModel.getPostDetail(type.toInt())
+    })
+
+    val backStackEntry = remember {
+        navController.getBackStackEntry(
+            navController.previousBackStackEntry?.destination?.route ?: ""
+        )
+    }
+    val feedViewModel: FeedViewModel = hiltViewModel(backStackEntry)
+    DetailScreen(
+        feedViewModel = feedViewModel,
+        type = type,
+        navController = navController,
+        modalBottomSheetState = modalBottomSheetState,
+        openSheet = openSheet,
+        closeSheet = closeSheet
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun FeedCommentDetail(
+    viewModel: DetailViewModel = hiltViewModel(),
+    type: String,
+    navController: NavHostController,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (CommentDialogModel) -> Unit,
+    closeSheet: () -> Unit,
+    isInvokeOpenSheet: Boolean = false
+) {
+    val haptic = LocalHapticFeedback.current
+    val postItem = viewModel.postItem.collectAsState()
+    var isAnim by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = Unit, block = {
+        Log.d("### FeedCommentDetail postId", type)
+        try {
+            GlobalUiEvent.showLoading()
+            val post = viewModel.getPostDetail(type.toInt()) ?: return@LaunchedEffect
+            if (isInvokeOpenSheet) {
+                openSheet.invoke(
+                    CommentDialogModel(postId = post.id, totalCommentCount = post.commentCount)
+                )
+            }
+        } catch (e: Exception) {
+            GlobalUiEvent.showToast(e.errorMessage())
+        } finally {
+            GlobalUiEvent.hideLoading()
+        }
+    })
+
+    LaunchedEffect(key1 = Unit, block = {
+        viewModel.successVote.collect {
+            isAnim = true
+            delay(1000L)
+            isAnim = false
+        }
+    })
+
+    DetailScreenContent(
+        type = type,
+        navController = navController,
+        modalBottomSheetState = modalBottomSheetState,
+        openSheet = openSheet,
         closeSheet = closeSheet,
+        isAnim = isAnim,
+        postItem = postItem.value,
+        onVote = { postId, voteId ->
+            viewModel.vote(postId, voteId)
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        },
     )
 }
 
@@ -129,6 +217,7 @@ fun DetailScreen(
     modalBottomSheetState: ModalBottomSheetState,
     openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
+    isInvokeOpenSheet: Boolean = false
 ) {
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
     val haptic = LocalHapticFeedback.current
@@ -149,7 +238,18 @@ fun DetailScreen(
     LaunchedEffect(key1 = Unit, block = {
         postItem.value?.id?.let {
             feedViewModel.getPostDetail(it)
+            postItem.value?.commentCount?.let { comment ->
+                if (isInvokeOpenSheet) {
+                    openSheet.invoke(
+                        CommentDialogModel(
+                            postId = it,
+                            totalCommentCount = comment
+                        )
+                    )
+                }
+            }
         }
+
     })
 
     DisposableEffect(lifecycleOwner) {
@@ -195,7 +295,7 @@ fun DetailScreenContent(
     openSheet: (CommentDialogModel) -> Unit,
     closeSheet: () -> Unit,
     isAnim: Boolean,
-    onRefreshRandom: () -> Unit,
+    onRefreshRandom: () -> Unit = {},
 ) {
     val backStackEntry = remember {
         navController.getBackStackEntry(BottomNavItem.Feed.route)
@@ -301,65 +401,68 @@ fun FeedDetail(
 ) {
     post ?: return
 
-    Column(
+    LazyColumn(
         modifier = modifier.fillMaxSize()
     ) {
-        TopBar(
-            modifier = Modifier.wrapContentHeight(),
-            barTitle = titleBar,
-            close = {
-                navController.popBackStack()
-            },
-            isMoreBtnVisible = true,
-            textStyle = textStyle,
-            post = post
-        )
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 40.dp)
-                .fillMaxHeight()
-        ) {
-            ProfileNickName(
-                nickName = post.author.nickname.orEmpty(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 32.dp),
-                profileImageIndex = post.author.profileImageIndex,
-                isIconVisible = false,
-                onShare = { onShare.invoke(post.id) },
-                onMore = {}
+        item {
+            TopBar(
+                modifier = Modifier.wrapContentHeight(),
+                barTitle = titleBar,
+                close = {
+                    navController.popBackStack()
+                },
+                isMoreBtnVisible = true,
+                textStyle = textStyle,
+                post = post
             )
-            VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
-            Spacer(modifier = Modifier.fillMaxHeight(0.044f))
-            VoteBar(
-                post = post,
-                onVote = onVote
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            CommentLayout(
-                commentCount = post.commentCount,
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(46.dp)
-                    .background(
-                        Color.Black, shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 14.dp)
-                    .shadow(
-                        1.dp,
-                        shape = RoundedCornerShape(12.dp),
-                        ambientColor = MyColors.blackShadow_35000000
-                    )
-                    .clickable {
-                        openSheet.invoke(
-                            CommentDialogModel(
-                                postId = post.id,
-                                totalCommentCount = post.commentCount
-                            )
+                    .padding(horizontal = 40.dp)
+                    .fillMaxHeight()
+            ) {
+                ProfileNickName(
+                    nickName = post.author.nickname.orEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(top = 32.dp),
+                    profileImageIndex = post.author.profileImageIndex,
+                    isIconVisible = false,
+                    onShare = { onShare.invoke(post.id) },
+                    onMore = {}
+                )
+                VoteContent(post = post, modifier = Modifier.padding(top = 24.dp), maxLine = 4)
+                Spacer(modifier = Modifier.fillMaxHeight(0.044f))
+                VoteBar(
+                    post = post,
+                    onVote = onVote,
+                    maxLine = 4
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                CommentLayout(
+                    commentCount = post.commentCount,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(46.dp)
+                        .background(
+                            Color.Black, shape = RoundedCornerShape(12.dp)
                         )
-                    }
-            )
+                        .padding(horizontal = 14.dp)
+                        .shadow(
+                            1.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            ambientColor = MyColors.blackShadow_35000000
+                        )
+                        .clickable {
+                            openSheet.invoke(
+                                CommentDialogModel(
+                                    postId = post.id,
+                                    totalCommentCount = post.commentCount
+                                )
+                            )
+                        }
+                )
+            }
         }
     }
 }

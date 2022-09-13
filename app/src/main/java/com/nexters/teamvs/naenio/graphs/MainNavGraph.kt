@@ -14,6 +14,8 @@ import androidx.navigation.navigation
 import com.nexters.teamvs.naenio.ui.create.CreateScreen
 import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.FeedScreen
+import com.nexters.teamvs.naenio.ui.feed.detail.FeedCommentDetail
+import com.nexters.teamvs.naenio.ui.feed.detail.FeedDeepLinkDetail
 import com.nexters.teamvs.naenio.ui.feed.detail.FeedDetailScreen
 import com.nexters.teamvs.naenio.ui.feed.detail.RandomScreen
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
@@ -62,12 +64,8 @@ fun MainNavGraph(
             )
         }
 
-        composable(route = "FeedDetail/{type}",
-            deepLinks = listOf(
-                navDeepLink { uriPattern = "https://{type}" }
-            )
-        ) {
-            FeedDetailScreen(
+        composable(route = "FeedDeepLinkDetail/{type}") {
+            FeedCommentDetail(
                 type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
                 modalBottomSheetState = modalBottomSheetState,
@@ -75,6 +73,7 @@ fun MainNavGraph(
                 closeSheet = closeSheet
             )
         }
+        detailsNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         authNavGraph(navController)
         themeNavGraph(navController, modalBottomSheetState, openSheet, closeSheet)
         profileDetailNavGraph(navController)
@@ -82,6 +81,29 @@ fun MainNavGraph(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
+fun NavGraphBuilder.detailsNavGraph(
+    navController: NavHostController,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (CommentDialogModel) -> Unit,
+    closeSheet: () -> Unit
+) {
+    navigation(
+        route = Graph.DETAILS,
+        startDestination = "FeedCommentDetail/{type}",
+    ) {
+        composable(route = "FeedCommentDetail/{type}") {
+            FeedCommentDetail(
+                type = it.arguments?.getString("type").orEmpty(),
+                navController = navController,
+                modalBottomSheetState = modalBottomSheetState,
+                openSheet = openSheet,
+                closeSheet = closeSheet,
+                isInvokeOpenSheet = true
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 fun NavGraphBuilder.profileDetailNavGraph(
@@ -94,7 +116,7 @@ fun NavGraphBuilder.profileDetailNavGraph(
         composable(route = "ProfileDetail/{profileType}") {
             ProfileDetailScreen(
                 profileType = it.arguments?.getString("profileType").orEmpty(),
-                navController = navController
+                navController = navController,
             )
         }
     }

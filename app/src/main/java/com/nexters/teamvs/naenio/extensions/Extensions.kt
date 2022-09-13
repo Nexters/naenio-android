@@ -64,9 +64,14 @@ data class ErrorResponse(
     val code: String,
 )
 
-fun HttpException.getErrorMessage(): String {
-    val errorString = this.response()?.errorBody()?.string().also {
+fun HttpException.errorHandling(): String? {
+    val httpResponse = this.response()
+
+    val errorString = httpResponse?.errorBody()?.string().also {
         Log.d("### errorString", "$it")
+    }
+    val httpCode = httpResponse?.code().also {
+        Log.d("### httpCode", "$it")
     }
     val errorDto: ErrorResponse? = Gson().fromJson<ErrorResponse>(
         errorString, ErrorResponse::class.java
@@ -74,10 +79,15 @@ fun HttpException.getErrorMessage(): String {
     val errorMessage = errorDto?.message
     val errorCode = errorDto?.code
 
-    //TODO 서버에서 401을 내려주기로 한 것 아닌가?
-    if (errorCode == "FAIL" && errorMessage?.contains("Authorization") == true) {
+    //토큰 만료시 401, 토큰 형식의 오류등 해석 불가능할 경우 400 (http status로 분기처리 필요 code, message는 별개)
+    if (httpCode == 401 || (errorCode == "FAIL" && errorMessage?.contains("Authorization") == true)) {
         GlobalUiEvent.forceLogout()
     }
+    return errorMessage
+}
+
+fun HttpException.getErrorMessage(): String {
+    val errorMessage = this.errorHandling()
     return if (errorMessage.isNullOrEmpty()) {
         "일시적 오류가 발생했습니다. 잠시 후 재시도 해주세요."
     } else errorMessage

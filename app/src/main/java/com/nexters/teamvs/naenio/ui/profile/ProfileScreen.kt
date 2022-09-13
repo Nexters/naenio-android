@@ -1,6 +1,9 @@
 package com.nexters.teamvs.naenio.ui.profile
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import android.webkit.WebView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +28,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
+import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.graphs.Graph
@@ -293,7 +297,9 @@ fun moveProfileDetailScreen(navController: NavHostController, type: String) {
 
 private fun setQuestionBtn() {
     Log.d("### ProfileScreen", ProfileType.QUESTION)
-
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(NaenioApp.context.getString(R.string.question_url)))
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    NaenioApp.context.startActivity(intent)
 }
 
 private fun setLogoutBtn(
@@ -338,6 +344,7 @@ private fun setSignOutBtn(
             DialogModel(title = "회원탈퇴",
                 message = "정말 탈퇴 하시겠어요?",
                 button1Text = "닫기",
+                button2Text = "탈퇴하기",
                 button1Callback = {
                     Log.d("####", "LogoutDialog - Exit")
                 },
