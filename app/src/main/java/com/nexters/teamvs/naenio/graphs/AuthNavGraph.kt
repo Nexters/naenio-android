@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.nexters.teamvs.naenio.MainViewModel
 import com.nexters.teamvs.naenio.ui.model.BottomNavItem
 import com.nexters.teamvs.naenio.ui.tabs.auth.LoginScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileSettingScreen

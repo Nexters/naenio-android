@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
+import com.nexters.teamvs.naenio.MainViewModel
 import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamvs.naenio.ui.feed.detail.FeedCommentDetail
 import com.nexters.teamvs.naenio.ui.tabs.MainScreen
@@ -42,6 +43,9 @@ fun RootNavigationGraph(
                 onNext = {
                     navController.popBackStack()
                     navController.navigate(Graph.MAIN)
+                    MainViewModel.deepLinkPostId?.let {
+                        navController.navigate("FeedDeepLinkDetail/${it}")
+                    }
                 }
             )
         }
@@ -56,6 +60,9 @@ fun RootNavigationGraph(
             ) {
                 navController.popBackStack()
                 navController.navigate(Graph.MAIN)
+                MainViewModel.deepLinkPostId?.let {
+                    navController.navigate("FeedDeepLinkDetail/${it}")
+                }
             }
         }
         composable(

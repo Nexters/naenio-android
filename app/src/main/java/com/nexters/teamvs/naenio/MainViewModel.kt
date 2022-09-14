@@ -23,6 +23,10 @@ class MainViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
+    companion object {
+        var deepLinkPostId: Int? = null //흑마법,,
+    }
+
     var isReady: Boolean = false
     val startDestination = MutableStateFlow(AuthScreen.Login.route)
 
@@ -79,6 +83,7 @@ class MainViewModel @Inject constructor(
             startDestination.emit(findNavDestination())
             postId?.let {
                 navigateEvent.emit("FeedDeepLinkDetail/${postId}")
+                deepLinkPostId = it
             }
         }
     }
