@@ -140,7 +140,7 @@ fun ProfileSettingScreenContent(
             ProfileSettingTopBar(
                 isEnabled = isSavable,
                 onSave = {
-                    viewModel.setProfileInfo(inputText, selectedProfileImage)
+                    viewModel.setProfileInfo(inputText.trim(), selectedProfileImage)
                 },
                 onClose = onClose
             )
