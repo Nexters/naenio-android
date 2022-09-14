@@ -176,7 +176,7 @@ fun FeedScreenContent(
                 FeedPager(
                     modifier = Modifier,
                     pagerState = pagerState,
-                    bottomPadding = if (NaenioApp.isShortScreen) 0.dp else 60.dp,
+                    bottomPadding = if (NaenioApp.isShortScreen) 0.dp else 100.dp,
                     posts = posts.value ?: emptyList(),
                     isAnim = isAnim,
                     openSheet = openSheet,
