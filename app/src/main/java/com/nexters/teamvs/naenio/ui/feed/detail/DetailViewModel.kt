@@ -89,7 +89,7 @@ class DetailViewModel @Inject constructor(
                         if (it.id == choiceId) {
                             it.copy(
                                 isVoted = true,
-                                voteCount = if (alreadyIsVote) it.voteCount + 1 else it.voteCount
+                                voteCount = it.voteCount + 1
                             )
                         } else {
                             it.copy(
