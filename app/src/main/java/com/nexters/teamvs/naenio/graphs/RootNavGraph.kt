@@ -1,24 +1,35 @@
 package com.nexters.teamvs.naenio.graphs
 
 import android.util.Log
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
+import com.nexters.teamvs.naenio.ui.feed.detail.FeedCommentDetail
 import com.nexters.teamvs.naenio.ui.tabs.MainScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.LoginScreen
 import com.nexters.teamvs.naenio.ui.tabs.auth.setting.ProfileSettingScreen
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun RootNavigationGraph(navController: NavHostController, startDestination: String) {
+fun RootNavigationGraph(
+    navController: NavHostController, startDestination: String,
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (CommentDialogModel) -> Unit,
+    closeSheet: () -> Unit,
+) {
     NavHost(
         navController = navController,
         route = Graph.ROOT,
         startDestination = startDestination
     ) {
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            Log.d("### destination" , "$destination $arguments")
+            Log.d("### destination", "$destination $arguments")
         }
         composable(route = AuthScreen.Login.route) {
             LoginScreen(
@@ -49,8 +60,30 @@ fun RootNavigationGraph(navController: NavHostController, startDestination: Stri
         }
         composable(
             route = Graph.MAIN
-        ) { MainScreen() }
+        ) {
+            MainScreen(
+                modalBottomSheetState = modalBottomSheetState,
+                openSheet = { openSheet.invoke(it) },
+                closeSheet = { closeSheet.invoke() }
+            )
+        }
+
         loginDetailNavGraph(navController)
+
+        composable(
+            route = "FeedDeepLinkDetail/{type}",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "https://naenioapp?postId={type}" }
+            )
+        ) {
+            FeedCommentDetail(
+                type = it.arguments?.getString("type").orEmpty(),
+                navController = navController,
+                modalBottomSheetState = modalBottomSheetState,
+                openSheet = openSheet,
+                closeSheet = closeSheet
+            )
+        }
     }
 }
 

@@ -41,6 +41,7 @@ import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.data.network.dto.ReportType
 import com.nexters.teamvs.naenio.domain.model.Post
 import com.nexters.teamvs.naenio.extensions.errorMessage
+import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.theme.Font
 import com.nexters.teamvs.naenio.theme.MyColors
 import com.nexters.teamvs.naenio.ui.component.MenuDialogModel
@@ -49,7 +50,6 @@ import com.nexters.teamvs.naenio.ui.feed.FeedEmptyLayout
 import com.nexters.teamvs.naenio.ui.feed.FeedEvent
 import com.nexters.teamvs.naenio.ui.feed.FeedViewModel
 import com.nexters.teamvs.naenio.ui.feed.composables.*
-import com.nexters.teamvs.naenio.ui.model.BottomNavItem
 import com.nexters.teamvs.naenio.ui.theme.ThemeItem
 import com.nexters.teamvs.naenio.ui.theme.ThemeType
 import com.nexters.teamvs.naenio.utils.ShareUtils
@@ -208,6 +208,7 @@ fun FeedCommentDetail(
         openSheet = openSheet,
         closeSheet = closeSheet,
         isAnim = isAnim,
+        isSingleDetail = !isInvokeOpenSheet,
         postItem = postItem.value,
         onVote = { postId, voteId ->
             viewModel.vote(postId, voteId)
@@ -369,14 +370,9 @@ fun DetailScreenContent(
     isAnim: Boolean,
     onRefreshRandom: () -> Unit = {},
     onMore: (Post) -> Unit,
-    onShare: (Post) -> Unit
+    onShare: (Post) -> Unit,
+    isSingleDetail: Boolean = false
 ) {
-    val backStackEntry = remember {
-        navController.getBackStackEntry(BottomNavItem.Feed.route)
-    }
-    val feedViewModel: FeedViewModel = hiltViewModel(backStackEntry)
-    Log.d("### Detail", "$feedViewModel")
-
     val context = LocalContext.current
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.naenio_confetti))
 
@@ -400,6 +396,11 @@ fun DetailScreenContent(
             closeSheet.invoke()
         } else {
             navController.popBackStack()
+            if (isSingleDetail) {
+                navController.navigate(Graph.MAIN) {
+                    popUpTo(Graph.MAIN) { inclusive = true }
+                }
+            }
         }
     }
 

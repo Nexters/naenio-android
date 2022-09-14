@@ -1,6 +1,7 @@
 package com.nexters.teamvs.naenio
 
 import android.R.attr
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -8,11 +9,17 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.MutableLiveData
@@ -22,9 +29,13 @@ import com.nexters.teamvs.naenio.base.UiEvent
 import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.graphs.RootNavigationGraph
+import com.nexters.teamvs.naenio.theme.MyShape
 import com.nexters.teamvs.naenio.theme.NaenioTheme
 import com.nexters.teamvs.naenio.ui.component.*
-import com.nexters.teamvs.naenio.utils.*
+import com.nexters.teamvs.naenio.ui.dialog.CommentDialogModel
+import com.nexters.teamvs.naenio.ui.dialog.SheetLayout
+import com.nexters.teamvs.naenio.ui.tabs.BottomNavigationBar
+import com.nexters.teamvs.naenio.utils.DeepLinkUtils
 import com.nexters.teamvs.naenio.utils.keyboard.KeyboardAwareWindow
 import com.nexters.teamvs.naenio.utils.keyboard.KeyboardHeightObserver
 import com.nexters.teamvs.naenio.utils.keyboard.KeyboardHeightProvider
@@ -45,6 +56,7 @@ class MainActivity : AppCompatActivity(),
     private var keyboardHeightProvider: KeyboardHeightProvider? = null
 
 
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DeepLinkUtils.setDeepLinkListener(intent = intent)
@@ -66,6 +78,36 @@ class MainActivity : AppCompatActivity(),
             var toastState by remember { mutableStateOf("") }
             var dialogState by remember { mutableStateOf<DialogModel?>(null) }
             var menuDialogState by remember { mutableStateOf<MenuDialogModel?>(null) }
+
+            val modalBottomSheetState = rememberModalBottomSheetState(
+                initialValue = ModalBottomSheetValue.Hidden,
+                confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
+            )
+            var currentBottomSheet: CommentDialogModel? by remember { mutableStateOf(null) }
+
+            if (!modalBottomSheetState.isVisible)
+                currentBottomSheet = null
+
+            val closeSheet: () -> Unit = {
+                scope.launch {
+                    modalBottomSheetState.hide()
+                }
+            }
+
+            val openSheet: (CommentDialogModel) -> Unit = {
+                scope.launch {
+                    currentBottomSheet = it
+                    modalBottomSheetState.show()
+                }
+            }
+
+            LaunchedEffect(key1 = Unit, block = {
+                mainViewModel.navigateEvent.collect {
+                    navController.navigate(it) {
+                        launchSingleTop = true
+                    }
+                }
+            })
 
             LaunchedEffect(key1 = Unit) {
                 GlobalUiEvent.uiEvent.collect {
@@ -111,29 +153,54 @@ class MainActivity : AppCompatActivity(),
             }
 
             NaenioTheme {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    RootNavigationGraph(
-                        navController = navController,
-                        startDestination = startDestination.value
-                    )
-                    Loading(visible = loadingState)
-                    MenuDialog(
-                        menuDialogModel = menuDialogState,
-                        onDismissRequest = {
-                            menuDialogState = null
-                        },
-                    )
-                    DialogContainer(
-                        dialogModel = dialogState,
-                        onDismissRequest = {
-                            dialogState = null
+                ModalBottomSheetLayout(
+                    sheetState = modalBottomSheetState,
+                    sheetShape = MyShape.TopRoundedCornerShape,
+                    sheetContent = {
+                        currentBottomSheet?.let { currentSheet ->
+                            SheetLayout(
+                                commentDialogModel = currentSheet,
+                                onCloseBottomSheet = closeSheet,
+                            )
                         }
-                    )
-                    Toast(
-                        modifier = Modifier.align(Alignment.TopCenter),
-                        message = toastState,
-                        visible = toastState.isNotEmpty()
-                    )
+                        Spacer(
+                            modifier = Modifier
+                                .height(1.dp)
+                                .background(Color.Transparent)
+                        ) //content 비어있으면 error 발생으로 추가
+                    }
+                ) {
+                    Scaffold(
+                        bottomBar = { BottomNavigationBar(navController = navController) }
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            RootNavigationGraph(
+                                navController = navController,
+                                startDestination = startDestination.value,
+                                modalBottomSheetState = modalBottomSheetState,
+                                openSheet = { openSheet.invoke(it) },
+                                closeSheet = { closeSheet.invoke() }
+                            )
+                            Loading(visible = loadingState)
+                            MenuDialog(
+                                menuDialogModel = menuDialogState,
+                                onDismissRequest = {
+                                    menuDialogState = null
+                                },
+                            )
+                            DialogContainer(
+                                dialogModel = dialogState,
+                                onDismissRequest = {
+                                    dialogState = null
+                                }
+                            )
+                            Toast(
+                                modifier = Modifier.align(Alignment.TopCenter),
+                                message = toastState,
+                                visible = toastState.isNotEmpty()
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -180,6 +247,14 @@ class MainActivity : AppCompatActivity(),
     override fun onResume() {
         super.onResume()
         keyboardHeightProvider?.setKeyboardHeightObserver(this)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val uri = intent?.data
+        val postId = uri?.getQueryParameter("postId")
+        mainViewModel.handleDeepLink(postId?.toInt())
+        Log.d("++ onNewIntent", "${intent?.data}")
     }
 
     /**

@@ -33,7 +33,12 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainScreen(navController: NavHostController = rememberNavController()) {
+fun MainScreen(
+    navController: NavHostController = rememberNavController(),
+    modalBottomSheetState: ModalBottomSheetState,
+    openSheet: (CommentDialogModel) -> Unit,
+    closeSheet: () -> Unit,
+) {
     val coroutineScope = rememberCoroutineScope()
 
     navController.addOnDestinationChangedListener { controller, destination, arguments ->
@@ -43,56 +48,15 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
         }
     }
 
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
-    )
-
-    var currentBottomSheet: CommentDialogModel? by remember { mutableStateOf(null) }
-
-    if (!modalBottomSheetState.isVisible)
-        currentBottomSheet = null
-
-    val closeSheet: () -> Unit = {
-        coroutineScope.launch {
-            modalBottomSheetState.hide()
-        }
-    }
-
-    val openSheet: (CommentDialogModel) -> Unit = {
-        coroutineScope.launch {
-            currentBottomSheet = it
-            modalBottomSheetState.show()
-        }
-    }
-
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetShape = MyShape.TopRoundedCornerShape,
-        sheetContent = {
-            currentBottomSheet?.let { currentSheet ->
-                SheetLayout(
-                    commentDialogModel = currentSheet,
-                    onCloseBottomSheet = closeSheet,
-                )
-            }
-            Spacer(
-                modifier = Modifier
-                    .height(1.dp)
-                    .background(Color.Transparent)
-            ) //content 비어있으면 error 발생으로 추가
-        }
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController = navController) }
     ) {
-        Scaffold(
-            bottomBar = { BottomNavigationBar(navController = navController) }
-        ) {
-            MainNavGraph(
-                navController = navController,
-                modalBottomSheetState = modalBottomSheetState,
-                openSheet = { openSheet.invoke(it) },
-                closeSheet = { closeSheet.invoke() }
-            )
-        }
+        MainNavGraph(
+            navController = navController,
+            modalBottomSheetState = modalBottomSheetState,
+            openSheet = { openSheet.invoke(it) },
+            closeSheet = { closeSheet.invoke() }
+        )
     }
 }
 
@@ -160,7 +124,7 @@ fun RowScope.AddItem(
 @Preview(showBackground = true)
 @Composable
 fun BottomNavigationPreview() {
-    MainScreen(rememberNavController())
+//    MainScreen(rememberNavController())
 }
 
 val bottomBarHeight = 60.dp

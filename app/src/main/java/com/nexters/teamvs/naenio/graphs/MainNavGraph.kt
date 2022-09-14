@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.graphs
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
@@ -62,7 +63,9 @@ fun MainNavGraph(
             )
         }
 
-        composable(route = "FeedDeepLinkDetail/{type}") {
+        composable(
+            route = "FeedDeepLinkDetail/{type}",
+        ) {
             FeedCommentDetail(
                 type = it.arguments?.getString("type").orEmpty(),
                 navController = navController,
