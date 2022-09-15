@@ -83,7 +83,7 @@ class FeedRepository @Inject constructor(
             FeedTabItemModel(
                 title = NaenioApp.context.getString(R.string.feed_my_vote),
                 type = FeedTabItemType.MyVote,
-                image = R.drawable.icon_participated
+                image = R.drawable.ic_gift
             )
         )
     }

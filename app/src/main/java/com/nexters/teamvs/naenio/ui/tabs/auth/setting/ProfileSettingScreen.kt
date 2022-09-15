@@ -195,8 +195,8 @@ fun ProfileSettingTopBar(
             .wrapContentHeight(),
     ) {
         Image(
-            painter = painterResource(id = R.drawable.icon_back_m),
-            modifier = Modifier.clickable {
+            painter = painterResource(id = R.drawable.ic_back_left),
+            modifier = Modifier.size(24.dp).clickable {
                 onClose.invoke()
             },
             contentDescription = ""

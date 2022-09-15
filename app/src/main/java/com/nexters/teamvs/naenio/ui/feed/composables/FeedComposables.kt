@@ -129,11 +129,11 @@ fun ProfileNickName(
 
             Image(
                 modifier = Modifier
-                    .wrapContentSize()
+                    .size(24.dp)
                     .clickable {
                         onMore.invoke()
                     },
-                painter = painterResource(R.drawable.ic_feed_more),
+                painter = painterResource(R.drawable.ic_more),
                 contentDescription = "icon_feed_more"
             )
         }
@@ -197,10 +197,10 @@ fun TopBar(
         }
         if (isMoreBtnVisible) {
             Image(
-                modifier = Modifier.clickable {
+                modifier = Modifier.size(24.dp).clickable {
                     onMore.invoke(post ?: return@clickable)
                 },
-                painter = painterResource(R.drawable.ic_feed_more),
+                painter = painterResource(R.drawable.ic_more),
                 contentDescription = "icon_feed_more"
             )
         }
