@@ -34,7 +34,11 @@ object GlobalUiEvent {
     }
 
     suspend fun showMenuDialog(menuDialogModel: MenuDialogModel) {
-        uiEvent.emit(UiEvent.ShowMenuDialog(menuDialogModel))
+        uiEvent.emit(UiEvent.ShowMenuDialog(listOf(menuDialogModel)))
+    }
+
+    suspend fun showMenuDialog(menuDialogModels: List<MenuDialogModel>) {
+        uiEvent.emit(UiEvent.ShowMenuDialog(menuDialogModels))
     }
 
     suspend fun hideMenuDialog() {
@@ -53,7 +57,7 @@ sealed class UiEvent {
     data class ShowToast(val message: String) : UiEvent()
     data class ShowDialog(val dialogModel: DialogModel) : UiEvent()
     object HideDialog : UiEvent()
-    data class ShowMenuDialog(val menuDialogModel: MenuDialogModel) : UiEvent()
+    data class ShowMenuDialog(val menuDialogModels: List<MenuDialogModel>) : UiEvent()
     object HideMenuDialog : UiEvent()
     object ForceLogout : UiEvent()
 }
