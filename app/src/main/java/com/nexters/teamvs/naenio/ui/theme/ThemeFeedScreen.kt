@@ -110,7 +110,7 @@ fun ThemeFeedScreen(
                     scope.launch {
                         GlobalUiEvent.showMenuDialog(
                             MenuDialogModel(
-                                text = "삭제",
+                                text = "삭제하기",
                                 onClick = {
                                     viewModel.deletePost(postId = it.id)
                                 }
@@ -120,14 +120,24 @@ fun ThemeFeedScreen(
                 } else {
                     scope.launch {
                         GlobalUiEvent.showMenuDialog(
-                            MenuDialogModel(
-                                text = "신고",
-                                onClick = {
-                                    viewModel.report(
-                                        targetMemberId = it.author.id,
-                                        resourceType = ReportType.POST
-                                    )
-                                }
+                            listOf(
+                                MenuDialogModel(
+                                    text = "사용자 차단하기",
+                                    onClick = {
+                                        viewModel.block(
+                                            userId = it.author.id,
+                                        )
+                                    }
+                                ),
+                                MenuDialogModel(
+                                    text = "게시물 신고하기",
+                                    onClick = {
+                                        viewModel.report(
+                                            targetMemberId = it.author.id,
+                                            resourceType = ReportType.POST
+                                        )
+                                    }
+                                ),
                             )
                         )
                     }

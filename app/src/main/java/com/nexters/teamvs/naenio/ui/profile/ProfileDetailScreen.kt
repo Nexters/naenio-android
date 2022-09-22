@@ -218,7 +218,7 @@ fun MyCommentLayout(
                             scope.launch {
                                 GlobalUiEvent.showMenuDialog(
                                     MenuDialogModel(
-                                        text = "삭제",
+                                        text = "삭제하기",
                                         color = Color.Red,
                                         onClick = {
                                             viewModel.deleteMyComment(it.id)

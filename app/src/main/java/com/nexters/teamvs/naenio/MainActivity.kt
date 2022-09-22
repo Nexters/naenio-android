@@ -135,9 +135,6 @@ class MainActivity : AppCompatActivity(),
                         is UiEvent.ShowMenuDialog -> {
                             menuDialogState = it.menuDialogModels
                         }
-                        UiEvent.None -> {
-
-                        }
                         UiEvent.ForceLogout -> {
                             mainViewModel.logout()
                             navController.navigate(AuthScreen.Login.route) {
@@ -145,6 +142,7 @@ class MainActivity : AppCompatActivity(),
                                 launchSingleTop = true
                             }
                         }
+                        UiEvent.None -> {}
                     }
                 }
             }

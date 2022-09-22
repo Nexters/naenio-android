@@ -160,24 +160,35 @@ fun CommentScreenContent(
                 if (user.value?.id == it.comment.writer.id) {
                     scope.launch {
                         GlobalUiEvent.showMenuDialog(
-                            MenuDialogModel(
-                                text = "삭제",
-                                color = Color.Red,
-                                onClick = {
-                                    commentViewModel.deleteComment(it.comment as Comment)
-                                }
+                            listOf(
+                                MenuDialogModel(
+                                    text = "삭제하기",
+                                    color = Color.Red,
+                                    onClick = {
+                                        commentViewModel.deleteComment(it.comment as Comment)
+                                    }
+                                )
                             )
                         )
                     }
                 } else {
                     scope.launch {
                         GlobalUiEvent.showMenuDialog(
-                            MenuDialogModel(
-                                text = "신고",
-                                color = Color.Red,
-                                onClick = {
-                                    commentViewModel.report(it.comment.writer.id)
-                                }
+                            listOf(
+                                MenuDialogModel(
+                                    text = "사용자 차단하기",
+                                    color = Color.Red,
+                                    onClick = {
+                                        commentViewModel.block(it.comment.writer.id)
+                                    }
+                                ),
+                                MenuDialogModel(
+                                    text = "댓글 신고하기",
+                                    color = Color.Red,
+                                    onClick = {
+                                        commentViewModel.report(it.comment.writer.id)
+                                    }
+                                )
                             )
                         )
                     }

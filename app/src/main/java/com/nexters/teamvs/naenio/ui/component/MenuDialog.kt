@@ -65,7 +65,7 @@ fun MenuDialog(
                 verticalArrangement = Arrangement.Center
             ) {
                 itemsIndexed(menuDialogModels) { index, model ->
-                    MenuDialogItem(menuDialogModel = model)
+                    MenuDialogItem(menuDialogModel = model, onDismissRequest = onDismissRequest)
                     if (menuDialogModels.size > 1 && index != menuDialogModels.size - 1) {
                         Spacer(
                             modifier = Modifier
@@ -82,7 +82,8 @@ fun MenuDialog(
 
 @Composable
 fun MenuDialogItem(
-    menuDialogModel: MenuDialogModel
+    menuDialogModel: MenuDialogModel,
+    onDismissRequest: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -90,6 +91,7 @@ fun MenuDialogItem(
             .height(62.dp)
             .clickable {
                 menuDialogModel.onClick.invoke()
+                onDismissRequest.invoke()
             },
         contentAlignment = Alignment.Center
     ) {
