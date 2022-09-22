@@ -50,3 +50,8 @@ data class ProfileImageRequest(
 data class ProfileImageResponse(
     val profileImageIndex: Int,
 )
+
+@Serializable
+data class BlockRequest(
+    val targetMemberId: Int,
+)

@@ -4,6 +4,7 @@ import android.util.Log
 import com.nexters.teamvs.naenio.base.BaseRepository
 import com.nexters.teamvs.naenio.data.network.api.UserApi
 import com.nexters.teamvs.naenio.data.network.dto.AuthType
+import com.nexters.teamvs.naenio.data.network.dto.BlockRequest
 import com.nexters.teamvs.naenio.data.network.dto.LoginRequest
 import com.nexters.teamvs.naenio.data.network.dto.NicknameRequest
 import com.nexters.teamvs.naenio.data.network.dto.ProfileImageRequest
@@ -87,5 +88,9 @@ class UserRepository @Inject constructor(
 
     suspend fun getNoticeList(): List<Notice> {
         return userApi.getNotice().toNoticeList()
+    }
+
+    suspend fun block(userId: Int) {
+        return userApi.block(BlockRequest(userId))
     }
 }

@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ReplyViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
-    userRepository: UserRepository,
+    private val userRepository: UserRepository,
 ) : BaseViewModel(), PagingSource2 {
 
     companion object {
@@ -270,6 +270,17 @@ class ReplyViewModel @Inject constructor(
                 val comment = _selectedComment.value
                 _selectedComment.value = comment?.copy(likeCount = comment.likeCount - 1, isLiked = false)
                 replyCallback.emit(selectedComment.value)
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
+    }
+
+    fun block(userId: Int) {
+        viewModelScope.launch {
+            try {
+                userRepository.block(userId)
+                GlobalUiEvent.showToast("차단 되었습니다. 해당 유저가 작성하는 게시물과 댓글은 더 이상 보이지 않습니다.")
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             }
