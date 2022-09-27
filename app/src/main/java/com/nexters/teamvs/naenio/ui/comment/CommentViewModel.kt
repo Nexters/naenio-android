@@ -271,6 +271,7 @@ class CommentViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 userRepository.block(userId)
+                _comments.value = comments.value.filter { it.writer.id != userId }
                 GlobalUiEvent.showToast("차단 되었습니다. 해당 유저가 작성하는 게시물과 댓글은 더 이상 보이지 않습니다.")
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
