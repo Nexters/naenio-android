@@ -29,7 +29,7 @@ sealed class FeedEvent {
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     private val feedRepository: FeedRepository,
-    userRepository: UserRepository,
+    private val userRepository: UserRepository,
 ) : BaseViewModel(), PagingSource {
 
     private val _posts = MutableStateFlow<List<Post>?>(null)
@@ -318,6 +318,18 @@ class FeedViewModel @Inject constructor(
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {
                 GlobalUiEvent.hideLoading()
+            }
+        }
+    }
+
+    fun block(userId: Int) {
+        viewModelScope.launch {
+            try {
+                userRepository.block(userId)
+                _posts.value = posts.value?.filter { it.author.id != userId }
+                GlobalUiEvent.showToast("차단 되었습니다. 해당 유저가 작성하는 게시물과 댓글은 더 이상 보이지 않습니다.")
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
             }
         }
     }

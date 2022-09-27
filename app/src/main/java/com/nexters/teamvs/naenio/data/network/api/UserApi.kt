@@ -31,4 +31,7 @@ interface UserApi {
 
     @GET("/app/notices")
     suspend fun getNotice(): NoticeListResponse
+
+    @POST("/app/blocks")
+    suspend fun block(@Body blockRequest: BlockRequest)
 }

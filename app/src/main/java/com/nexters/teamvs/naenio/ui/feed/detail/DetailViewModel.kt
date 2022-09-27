@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     private val feedRepository: FeedRepository,
-    userRepository: UserRepository,
+    private val userRepository: UserRepository,
 ) : BaseViewModel() {
 
     private val _postItem = MutableStateFlow<Post?>(null)
@@ -132,6 +132,18 @@ class DetailViewModel @Inject constructor(
                     )
                 )
                 GlobalUiEvent.showToast("신고 되었습니다.")
+            } catch (e: Exception) {
+                GlobalUiEvent.showToast(e.errorMessage())
+            }
+        }
+    }
+
+    fun block(userId: Int) {
+        viewModelScope.launch {
+            try {
+                userRepository.block(userId)
+                _postItem.value = null
+                GlobalUiEvent.showToast("차단 되었습니다. 해당 유저가 작성하는 게시물과 댓글은 더 이상 보이지 않습니다.")
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             }

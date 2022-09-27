@@ -64,10 +64,7 @@ class MainActivity : AppCompatActivity(),
         WindowCompat.setDecorFitsSystemWindows(window, true)
         installSplashScreen()
             .setKeepOnScreenCondition { !mainViewModel.isReady }
-
-
         val heightLiveData = MutableLiveData(0)
-
 
         setContent {
             val navController = rememberNavController()
@@ -77,7 +74,7 @@ class MainActivity : AppCompatActivity(),
             var loadingState by remember { mutableStateOf(false) }
             var toastState by remember { mutableStateOf("") }
             var dialogState by remember { mutableStateOf<DialogModel?>(null) }
-            var menuDialogState by remember { mutableStateOf<MenuDialogModel?>(null) }
+            var menuDialogState by remember { mutableStateOf<List<MenuDialogModel>?>(null) }
 
             val modalBottomSheetState = rememberModalBottomSheetState(
                 initialValue = ModalBottomSheetValue.Hidden,
@@ -136,10 +133,7 @@ class MainActivity : AppCompatActivity(),
                             menuDialogState = null
                         }
                         is UiEvent.ShowMenuDialog -> {
-                            menuDialogState = it.menuDialogModel
-                        }
-                        UiEvent.None -> {
-
+                            menuDialogState = it.menuDialogModels
                         }
                         UiEvent.ForceLogout -> {
                             mainViewModel.logout()
@@ -148,6 +142,7 @@ class MainActivity : AppCompatActivity(),
                                 launchSingleTop = true
                             }
                         }
+                        UiEvent.None -> {}
                     }
                 }
             }
@@ -183,7 +178,7 @@ class MainActivity : AppCompatActivity(),
                             )
                             Loading(visible = loadingState)
                             MenuDialog(
-                                menuDialogModel = menuDialogState,
+                                menuDialogModels = menuDialogState,
                                 onDismissRequest = {
                                     menuDialogState = null
                                 },
