@@ -1,20 +1,25 @@
 package com.nexters.teamvs.naenio.ui.profile
 
+import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.nexters.teamvs.naenio.base.BaseViewModel
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.UiEvent
-import com.nexters.teamvs.naenio.domain.model.*
+import com.nexters.teamvs.naenio.domain.model.MyComments
+import com.nexters.teamvs.naenio.domain.model.Notice
+import com.nexters.teamvs.naenio.domain.model.User
 import com.nexters.teamvs.naenio.domain.repository.CommentRepository
 import com.nexters.teamvs.naenio.domain.repository.UserRepository
 import com.nexters.teamvs.naenio.extensions.errorMessage
-import com.nexters.teamvs.naenio.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -34,6 +39,8 @@ class ProfileViewModel @Inject constructor(
     private val _notice = MutableStateFlow<Notice?>(null)
     val notice = _notice.asStateFlow()
 
+    var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .build()
 
     init {
         getMyProfile()
@@ -112,11 +119,12 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun logout() {
+    fun logout(activity: Activity) {
         viewModelScope.launch {
             try {
                 GlobalUiEvent.showLoading()
                 userRepository.logOut()
+                googleLogout(activity)
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {
@@ -125,11 +133,12 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun signOut() {
+    fun signOut(activity: Activity) {
         viewModelScope.launch {
             try {
                 GlobalUiEvent.showLoading()
                 userRepository.signOut()
+                googleRevokeAccess(activity)
             } catch (e: Exception) {
                 GlobalUiEvent.showToast(e.errorMessage())
             } finally {
@@ -137,5 +146,15 @@ class ProfileViewModel @Inject constructor(
                 GlobalUiEvent.uiEvent.tryEmit(UiEvent.HideDialog)
             }
         }
+    }
+
+    private fun googleLogout(activity: Activity) {
+        val googleSignInClient = GoogleSignIn.getClient(activity, gso);
+        googleSignInClient.signOut()
+    }
+
+    private fun googleRevokeAccess(activity: Activity) {
+        val googleSignInClient = GoogleSignIn.getClient(activity, gso);
+        googleSignInClient.revokeAccess()
     }
 }

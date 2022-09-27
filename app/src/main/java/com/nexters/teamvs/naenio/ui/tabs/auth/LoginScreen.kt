@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -145,7 +146,9 @@ fun LoginScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    modifier = Modifier.width(106.dp).height(95.dp),
+                    modifier = Modifier
+                        .width(106.dp)
+                        .height(95.dp),
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = ""
                 )
@@ -175,7 +178,8 @@ fun LoginScreenContent(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(bottom = 21.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
@@ -236,7 +240,7 @@ fun GoogleLoginButton(
                 .weight(1f)
                 .padding(end = 20.dp),
             textAlign = TextAlign.Center,
-            text = "구글 로그인",
+            text = stringResource(id = R.string.google_login),
             style = Font.pretendardMedium16,
             color = Color.Black
         )
@@ -271,7 +275,7 @@ fun KakaoLoginButton(
                 .padding(end = 20.dp)
                 .weight(1f),
             textAlign = TextAlign.Center,
-            text = "카카오 로그인",
+            text = stringResource(id = R.string.kakao_login),
             style = Font.pretendardMedium16,
             color = Color.Black
         )

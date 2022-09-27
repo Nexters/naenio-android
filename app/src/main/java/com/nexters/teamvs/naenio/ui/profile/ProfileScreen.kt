@@ -1,5 +1,6 @@
 package com.nexters.teamvs.naenio.ui.profile
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -30,6 +31,8 @@ import com.nexters.teamvs.naenio.R
 import com.nexters.teamvs.naenio.base.GlobalUiEvent
 import com.nexters.teamvs.naenio.base.NaenioApp
 import com.nexters.teamvs.naenio.base.UiEvent
+import com.nexters.teamvs.naenio.extensions.getActivity
+import com.nexters.teamvs.naenio.extensions.requireActivity
 import com.nexters.teamvs.naenio.graphs.AuthScreen
 import com.nexters.teamvs.naenio.graphs.Graph
 import com.nexters.teamvs.naenio.theme.Font
@@ -215,6 +218,7 @@ fun ProfileButton(
     clickType: String = ""
 ) {
     val scope = rememberCoroutineScope()
+    val activity = getActivity()
     Row(
         modifier = modifier
             .height(60.dp)
@@ -236,6 +240,7 @@ fun ProfileButton(
                         )
                         ProfileType.LOGOUT -> {
                             setLogoutBtn(
+                                activity = activity,
                                 viewModel = profileViewModel,
                                 navController = navController,
                                 scope = scope,
@@ -246,6 +251,7 @@ fun ProfileButton(
                                 viewModel = profileViewModel,
                                 navController = navController,
                                 scope = scope,
+                                activity = activity,
                             )
                         }
                     }
@@ -306,6 +312,7 @@ private fun setLogoutBtn(
     navController: NavHostController,
     viewModel: ProfileViewModel,
     scope: CoroutineScope,
+    activity: Activity,
 ) {
     Log.d("### ProfileScreen", ProfileType.LOGOUT)
     scope.launch {
@@ -320,7 +327,7 @@ private fun setLogoutBtn(
                 button2Callback = {
                     scope.launch {
                         Log.d("####", "LogoutDialog - Logout")
-                        viewModel.logout()
+                        viewModel.logout(activity)
                         navController.popBackStack()
                         navController.navigate(AuthScreen.Login.route) {
                             popUpTo(Graph.MAIN)
@@ -337,6 +344,7 @@ private fun setSignOutBtn(
     navController: NavHostController,
     viewModel: ProfileViewModel,
     scope: CoroutineScope,
+    activity: Activity,
 ) {
     Log.d("### ProfileScreen", ProfileType.SIGNOUT)
     scope.launch {
@@ -351,7 +359,7 @@ private fun setSignOutBtn(
                 button2Callback = {
                     scope.launch {
                         Log.d("####", "LogoutDialog - signOut")
-                        viewModel.signOut()
+                        viewModel.signOut(activity = activity)
                         navController.clearBackStack(Graph.MAIN)
                         navController.navigate(AuthScreen.Login.route) {
                             popUpTo(Graph.MAIN)

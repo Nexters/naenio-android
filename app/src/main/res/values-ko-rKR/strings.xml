@@ -5,8 +5,8 @@
     <string name="bottom_item_feed">Feed</string>
     <string name="bottom_item_profile">Profile</string>
 
-    <string name="kakao_login">Kakao Login</string>
-    <string name="google_login">Google Login</string>
+    <string name="kakao_login">카카오 로그인</string>
+    <string name="google_login">구글 로그인</string>
 
     <!--테마 뷰-->
     <string name="theme_title">네니오들의 선택</string>
