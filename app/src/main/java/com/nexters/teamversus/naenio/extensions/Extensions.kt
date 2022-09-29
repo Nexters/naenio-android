@@ -94,7 +94,7 @@ fun HttpException.getErrorMessage(): String {
 }
 
 fun Exception.errorMessage(): String {
-    printStackTrace()
+    Log.e("### Error", this.stackTraceToString())
     return if (isNetworkException()) {
         if (this is HttpException) {
             this.getErrorMessage()
