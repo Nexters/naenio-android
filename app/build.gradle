@@ -14,7 +14,7 @@ android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.nexters.teamvs.naenio"
+        applicationId "com.nexters.teamversus.naenio"
         minSdk 23
         targetSdk 32
         compileSdk 33

@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio
+package com.nexters.teamversus.naenio
 
 import org.junit.Test
 

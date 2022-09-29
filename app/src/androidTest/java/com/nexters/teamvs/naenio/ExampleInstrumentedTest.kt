@@ -1,4 +1,4 @@
-package com.nexters.teamvs.naenio
+package com.nexters.teamversus.naenio
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
