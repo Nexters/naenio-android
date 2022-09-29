@@ -95,11 +95,15 @@ fun HttpException.getErrorMessage(): String {
 
 fun Exception.errorMessage(): String {
     Log.e("### Error", this.stackTraceToString())
-    return if (isNetworkException()) {
-        if (this is HttpException) {
-            this.getErrorMessage()
-        } else "네트워크 연결 상태를 확인해주세요."
-    } else {
+    return try {
+        if (isNetworkException()) {
+            if (this is HttpException) {
+                this.getErrorMessage()
+            } else "네트워크 연결 상태를 확인해주세요."
+        } else {
+            "일시적 오류가 발생했습니다. 잠시 후 재시도 해주세요."
+        }
+    } catch (e: Exception) {
         "일시적 오류가 발생했습니다. 잠시 후 재시도 해주세요."
     }
 }
