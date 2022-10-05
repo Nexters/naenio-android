@@ -198,12 +198,6 @@ fun FeedScreenContent(
                                 GlobalUiEvent.showMenuDialog(
                                     listOf(
                                         MenuDialogModel(
-                                            text = "사용자 차단하기",
-                                            onClick = {
-                                                viewModel.block(userId = it.author.id)
-                                            }
-                                        ),
-                                        MenuDialogModel(
                                             text = "삭제하기",
                                             onClick = {
                                                 viewModel.deletePost(postId = it.id)
