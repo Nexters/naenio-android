@@ -58,11 +58,11 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="naenioapp"
+                    android:host="naenioapp.page.link"
                     android:scheme="https"
                     />
                 <data
-                    android:host="naenioapp"
+                    android:host="naenioapp.page.link"
                     android:scheme="http"
                     />
             </intent-filter>

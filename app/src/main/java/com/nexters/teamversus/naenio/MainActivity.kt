@@ -14,8 +14,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,14 +41,17 @@ import com.nexters.teamversus.naenio.graphs.Graph
 import com.nexters.teamversus.naenio.graphs.RootNavigationGraph
 import com.nexters.teamversus.naenio.theme.MyShape
 import com.nexters.teamversus.naenio.theme.NaenioTheme
-import com.nexters.teamversus.naenio.ui.component.*
+import com.nexters.teamversus.naenio.ui.component.DialogContainer
+import com.nexters.teamversus.naenio.ui.component.DialogModel
+import com.nexters.teamversus.naenio.ui.component.Loading
+import com.nexters.teamversus.naenio.ui.component.MenuDialog
+import com.nexters.teamversus.naenio.ui.component.MenuDialogModel
+import com.nexters.teamversus.naenio.ui.component.Toast
 import com.nexters.teamversus.naenio.ui.dialog.CommentDialogModel
 import com.nexters.teamversus.naenio.ui.dialog.SheetLayout
 import com.nexters.teamversus.naenio.ui.tabs.BottomNavigationBar
 import com.nexters.teamversus.naenio.utils.DeepLinkUtils
 import com.nexters.teamversus.naenio.utils.keyboard.KeyboardAwareWindow
-import com.nexters.teamversus.naenio.utils.keyboard.KeyboardHeightObserver
-import com.nexters.teamversus.naenio.utils.keyboard.KeyboardHeightProvider
 import com.nexters.teamversus.naenio.utils.keyboard.KeyboardUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -249,7 +262,7 @@ class MainActivity : AppCompatActivity(),
         val uri = intent?.data
         val postId = uri?.getQueryParameter("postId")
         mainViewModel.handleDeepLink(postId?.toInt())
-        Log.d("++ onNewIntent", "${intent?.data}")
+        Log.d("++ onNewIntent", "${intent?.data} $postId ${intent?.dataString}")
     }
 
     /**

@@ -15,6 +15,7 @@ import com.nexters.teamversus.naenio.ui.feed.detail.FeedCommentDetail
 import com.nexters.teamversus.naenio.ui.tabs.MainScreen
 import com.nexters.teamversus.naenio.ui.tabs.auth.LoginScreen
 import com.nexters.teamversus.naenio.ui.tabs.auth.setting.ProfileSettingScreen
+import com.nexters.teamversus.naenio.utils.DeepLinkUtils.deepLink
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -80,7 +81,7 @@ fun RootNavigationGraph(
         composable(
             route = "FeedDeepLinkDetail/{type}",
             deepLinks = listOf(
-                navDeepLink { uriPattern = "https://naenioapp?postId={type}" }
+                navDeepLink { uriPattern = "$deepLink?postId={type}" }
             )
         ) {
             FeedCommentDetail(
