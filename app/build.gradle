@@ -26,8 +26,8 @@ android {
         minSdk 23
         targetSdk 32
         compileSdk 33
-        versionCode 3
-        versionName "1.0.0"
+        versionCode 4
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "KAKAO_API_KEY", properties['kakao_api_key']
