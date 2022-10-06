@@ -121,6 +121,7 @@ class MainActivity : AppCompatActivity(),
 
             LaunchedEffect(key1 = Unit) {
                 GlobalUiEvent.uiEvent.collect {
+                    Log.d("### Collected GlobalUiEvent", "$it")
                     when (it) {
                         UiEvent.ShowLoading -> {
                             loadingState = true
@@ -131,9 +132,11 @@ class MainActivity : AppCompatActivity(),
                         is UiEvent.ShowToast -> {
                             job?.cancel()
                             job = scope.launch {
-                                toastState = it.message
-                                delay(2000L)
-                                toastState = ""
+                                if (it.message.isNotBlank()) {
+                                    toastState = it.message
+                                    delay(2000L)
+                                    toastState = ""
+                                }
                             }
                         }
                         is UiEvent.ShowDialog -> {
@@ -152,6 +155,11 @@ class MainActivity : AppCompatActivity(),
                             mainViewModel.logout()
                             navController.navigate(AuthScreen.Login.route) {
                                 popUpTo(Graph.MAIN) { inclusive = true }
+                                navController.currentBackStackEntry?.destination?.route?.let { route ->
+                                    popUpTo(route) {
+                                        inclusive =  true
+                                    }
+                                }
                                 launchSingleTop = true
                             }
                         }

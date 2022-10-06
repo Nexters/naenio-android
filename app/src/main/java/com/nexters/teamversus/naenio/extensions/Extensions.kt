@@ -17,6 +17,12 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.nexters.teamversus.naenio.base.GlobalUiEvent
+import com.nexters.teamversus.naenio.utils.fromJson
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.NoRouteToHostException
@@ -58,7 +64,7 @@ fun Throwable.isNetworkException(): Boolean {
     }
 }
 
-
+@kotlinx.serialization.Serializable
 data class ErrorResponse(
     val message: String,
     val code: String,
@@ -66,22 +72,20 @@ data class ErrorResponse(
 
 fun HttpException.errorHandling(): String? {
     val httpResponse = this.response()
-
     val errorString = httpResponse?.errorBody()?.string().also {
         Log.d("### errorString", "$it")
     }
-    val httpCode = httpResponse?.code().also {
-        Log.d("### httpCode", "$it")
-    }
-    val errorDto: ErrorResponse? = Gson().fromJson<ErrorResponse>(
-        errorString, ErrorResponse::class.java
-    )
+    val errorDto: ErrorResponse? = errorString?.fromJson()
     val errorMessage = errorDto?.message
     val errorCode = errorDto?.code
-
+    val httpCode = httpResponse?.code().also {
+        Log.d("### httpCode", "$it $errorCode")
+    }
     //토큰 만료시 401, 토큰 형식의 오류등 해석 불가능할 경우 400 (http status로 분기처리 필요 code, message는 별개)
     if (httpCode == 401 || (errorCode == "FAIL" && errorMessage?.contains("Authorization") == true)) {
-        GlobalUiEvent.forceLogout()
+        CoroutineScope(Dispatchers.Main).launch {
+            GlobalUiEvent.forceLogout()
+        }
     }
     return errorMessage
 }
@@ -95,6 +99,9 @@ fun HttpException.getErrorMessage(): String {
 
 fun Exception.errorMessage(): String {
     Log.e("### Error", this.stackTraceToString())
+    if (this is CancellationException) {
+        return ""
+    }
     return try {
         if (isNetworkException()) {
             if (this is HttpException) {
@@ -104,6 +111,7 @@ fun Exception.errorMessage(): String {
             "일시적 오류가 발생했습니다. 잠시 후 재시도 해주세요."
         }
     } catch (e: Exception) {
+        Log.e("error", e.stackTraceToString())
         "일시적 오류가 발생했습니다. 잠시 후 재시도 해주세요."
     }
 }

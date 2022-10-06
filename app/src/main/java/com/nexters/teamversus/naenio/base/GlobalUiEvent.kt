@@ -1,5 +1,6 @@
 package com.nexters.teamversus.naenio.base
 
+import android.util.Log
 import com.nexters.teamversus.naenio.ui.component.DialogModel
 import com.nexters.teamversus.naenio.ui.component.MenuDialogModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,8 +46,8 @@ object GlobalUiEvent {
         uiEvent.emit(UiEvent.HideMenuDialog)
     }
 
-    fun forceLogout() {
-        uiEvent.tryEmit(UiEvent.ForceLogout)
+    suspend fun forceLogout() {
+        uiEvent.emit(UiEvent.ForceLogout)
     }
 }
 
