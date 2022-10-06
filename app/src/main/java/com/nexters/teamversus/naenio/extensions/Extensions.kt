@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.annotation.Keep
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
@@ -64,6 +65,7 @@ fun Throwable.isNetworkException(): Boolean {
     }
 }
 
+@Keep
 @kotlinx.serialization.Serializable
 data class ErrorResponse(
     val message: String,
