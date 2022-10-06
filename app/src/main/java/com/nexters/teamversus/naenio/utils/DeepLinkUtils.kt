@@ -5,11 +5,12 @@ import android.net.Uri
 import android.util.Log
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
+import com.nexters.teamversus.naenio.MainViewModel.Companion.deepLinkPostId
 
 object DeepLinkUtils {
 
-    const val deepLink = "https://naenioapp.page.link"
-    const val shortDynamicLink = "$deepLink/test2"
+    const val deepLink = "https://naenioapp"
+    const val shortDynamicLink = "https://naenioapp/test2"
 
     fun setDeepLinkListener(intent: Intent) {
         Firebase.dynamicLinks.getDynamicLink(intent)
@@ -19,6 +20,9 @@ object DeepLinkUtils {
                     deepLink = pendingDynamicLinkData.link
                     deepLink?.let {
                         Log.d("++ dynamic link", "dynamicLink 수신 테스트 :: ${it.toString()}")
+                        kotlin.runCatching {
+                            deepLinkPostId = it.getQueryParameter("postId")?.toInt()
+                        }
                     }
                 }
             }
