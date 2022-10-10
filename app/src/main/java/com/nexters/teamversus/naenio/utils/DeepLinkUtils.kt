@@ -9,7 +9,7 @@ import com.nexters.teamversus.naenio.MainViewModel.Companion.deepLinkPostId
 
 object DeepLinkUtils {
 
-    const val deepLink = "https://naenioapp"
+    const val deepLink = "https://naenio.shop"
     const val shortDynamicLink = "https://naenioapp/test2"
 
     fun setDeepLinkListener(intent: Intent) {
