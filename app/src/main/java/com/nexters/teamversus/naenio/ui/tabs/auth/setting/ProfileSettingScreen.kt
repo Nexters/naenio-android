@@ -104,7 +104,7 @@ fun ProfileSettingScreenContent(
     var isVisibleDialog by remember { mutableStateOf<Boolean>(false) }
     var isSavable by remember { mutableStateOf(false) }
     var selectedProfileImage by remember {
-        mutableStateOf<Int>(
+        mutableStateOf(
             user.value?.profileImageIndex ?: (0 until Profile.images.size).random()
         )
     }

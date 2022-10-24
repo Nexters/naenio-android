@@ -38,9 +38,8 @@ class ProfileSettingViewModel @Inject constructor(
                     if (isExist) throw AlreadyIsExistNickNameException()
                     userRepository.setNickname(nickname)
                 }
-                if (profileImageIndex != user.profileImageIndex) {
-                    userRepository.setProfileImage(profileImageIndex)
-                }
+
+                userRepository.setProfileImage(profileImageIndex)
                 uiState.emit(UiState.Success)
             } catch (e: Exception) {
                 Log.e(className, e.stackTraceToString())
