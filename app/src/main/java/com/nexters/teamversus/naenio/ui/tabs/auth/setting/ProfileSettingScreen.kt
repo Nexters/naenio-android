@@ -105,7 +105,8 @@ fun ProfileSettingScreenContent(
     var isSavable by remember { mutableStateOf(false) }
     var selectedProfileImage by remember {
         mutableStateOf(
-            user.value?.profileImageIndex ?: (0 until Profile.images.size).random()
+            user.value?.profileImageIndex
+                ?: (0 until Profile.images.size).random()
         )
     }
 
@@ -140,7 +141,10 @@ fun ProfileSettingScreenContent(
             ProfileSettingTopBar(
                 isEnabled = isSavable,
                 onSave = {
-                    viewModel.setProfileInfo(inputText.trim(), selectedProfileImage)
+                    viewModel.setProfileInfo(
+                        nickname = inputText.trim(),
+                        profileImageIndex = selectedProfileImage
+                    )
                 },
                 onClose = onClose
             )
@@ -196,9 +200,11 @@ fun ProfileSettingTopBar(
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_back_left),
-            modifier = Modifier.size(24.dp).clickable {
-                onClose.invoke()
-            },
+            modifier = Modifier
+                .size(24.dp)
+                .clickable {
+                    onClose.invoke()
+                },
             contentDescription = ""
         )
         Text(

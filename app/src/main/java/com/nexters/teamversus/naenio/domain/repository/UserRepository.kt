@@ -54,10 +54,14 @@ class UserRepository @Inject constructor(
             val profileResponse = userApi.getMyProfile()
             profileResponse.toUserPref().let {
                 userPreferencesRepository.updateUserPreferences(it)
-                it.toUser()
+                it.toUser().also {
+                    Log.i(className,"+++ From Server: $it")
+                }
             }
         } else {
-            userPrefValue.toUser()
+            userPrefValue.toUser().also {
+                Log.i(className,"+++ From Local: $it")
+            }
         }
     }
 

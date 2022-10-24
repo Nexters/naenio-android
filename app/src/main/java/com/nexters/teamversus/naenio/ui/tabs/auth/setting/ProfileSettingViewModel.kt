@@ -31,15 +31,17 @@ class ProfileSettingViewModel @Inject constructor(
             try {
                 uiState.emit(UiState.Loading)
                 val user = userRepository.getMyProfile(viewModelScope)
-                Log.d("### user" , "$user")
+                Log.d(className, "+++ $user")
 
-                if (nickname != user.nickname) {
+                if (nickname != user.nickname || user.nickname.isEmpty()) {
                     val isExist = userRepository.isExistNickname(nickname)
                     if (isExist) throw AlreadyIsExistNickNameException()
                     userRepository.setNickname(nickname)
                 }
 
-                userRepository.setProfileImage(profileImageIndex)
+                if (user.profileImageIndex == null || user.profileImageIndex != profileImageIndex) {
+                    userRepository.setProfileImage(profileImageIndex)
+                }
                 uiState.emit(UiState.Success)
             } catch (e: Exception) {
                 Log.e(className, e.stackTraceToString())
