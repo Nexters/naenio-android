@@ -52,7 +52,7 @@ class CommentRepository @Inject constructor(
             Author(
                 id = user.id,
                 nickname = user.nickname ?: "No Name",
-                profileImageIndex = user.profileImageIndex
+                profileImageIndex = user.profileImageIndex ?: 0
             )
         )
     }
@@ -87,7 +87,7 @@ class CommentRepository @Inject constructor(
             Author(
                 id = user.id,
                 nickname = user.nickname ?: "No Name",
-                profileImageIndex = user.profileImageIndex
+                profileImageIndex = user.profileImageIndex ?: 0
             )
         )
     }

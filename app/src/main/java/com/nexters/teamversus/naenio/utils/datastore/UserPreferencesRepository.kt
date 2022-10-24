@@ -1,6 +1,7 @@
 package com.nexters.teamversus.naenio.utils.datastore
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.*
@@ -42,10 +43,12 @@ class UserPreferencesRepository @Inject constructor(
             val authServiceType = preferences[PreferencesKeys.KEY_AUTH_SERVICE_TYPE]
             UserPref(
                 id = userId ?: return@map null,
-                profileImageIndex = profileImageIndex ?: 0,
+                profileImageIndex = profileImageIndex,
                 nickname = nickname,
                 authServiceType = authServiceType ?: return@map null
-            )
+            ).also {
+                Log.i("UserPreferencesRepository","+++ UserPref: $it")
+            }
         }
 
     fun getSyncUserPref(): UserPref {
@@ -58,7 +61,7 @@ class UserPreferencesRepository @Inject constructor(
                 val authServiceType = preferences[PreferencesKeys.KEY_AUTH_SERVICE_TYPE]
                 userPref = UserPref(
                     id = userId!!,
-                    profileImageIndex = profileImageIndex ?: 0,
+                    profileImageIndex = profileImageIndex,
                     nickname = nickname,
                     authServiceType = authServiceType!!
                 )
@@ -74,7 +77,9 @@ class UserPreferencesRepository @Inject constructor(
             user.nickname?.let {
                 preferences[PreferencesKeys.KEY_NICKNAME] = it
             }
-            preferences[PreferencesKeys.KEY_PROFILE_IMAGE_INDEX] = user.profileImageIndex
+            user.profileImageIndex?.let {
+                preferences[PreferencesKeys.KEY_PROFILE_IMAGE_INDEX] = it
+            }
             preferences[PreferencesKeys.KEY_AUTH_SERVICE_TYPE] = user.authServiceType
         }
     }

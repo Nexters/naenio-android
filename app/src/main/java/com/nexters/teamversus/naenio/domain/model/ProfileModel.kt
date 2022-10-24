@@ -2,9 +2,9 @@ package com.nexters.teamversus.naenio.domain.model
 
 data class User(
     val id : Int,
-    val nickname: String? = null,
+    val nickname: String?,
     val authServiceType : String,
-    val profileImageIndex : Int = 0
+    val profileImageIndex : Int?
 )
 
 data class Notice(
